@@ -4,10 +4,12 @@ namespace DVE\EntityORM\EntityManager;
 
 abstract class Entity
 {
+    protected $tableName;
+
     /**
      * @var array
      */
-    private $data = [];
+    protected $data = [];
 
     /**
      * @param array $data
@@ -16,4 +18,24 @@ abstract class Entity
     {
         $this->data = $data;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getTableName()
+    {
+        return $this->tableName;
+    }
+
+    /**
+     * @param mixed $tableName
+     * @return Entity
+     */
+    public function setTableName($tableName)
+    {
+        $this->tableName = $tableName;
+        return $this;
+    }
+
+
 }
