@@ -84,7 +84,6 @@ class MySqlEntityGenerator implements EntityGeneratorInterface
     public function generate(array $tableList = [])
     {
         foreach($this->tableStructureRetriever->retrieve($tableList) as $tableName => $tableStruct) {
-            echo $tableName;
             $entityClassName = ucfirst($this->snakeToCamelCaseStringConvertor->convert($tableName));
             $entityGeneratedSourceCode = $this->generateEntityClassString($tableName, $tableStruct);
 
@@ -122,6 +121,10 @@ class MySqlEntityGenerator implements EntityGeneratorInterface
             $default = array_key_exists('Default', $fieldStruct) ? $fieldStruct['Default'] : null;
             $phpType = $this->mysqlToPhpType($mysqlType);
             $isString = $phpType === 'string';
+
+            if($default === 'CURRENT_TIMESTAMP') {
+                $default = null;
+            }
 
             // Properties declaration
             $defaultPropertyValue = $this->getDefaultPhpValueByPhpType($phpType);
