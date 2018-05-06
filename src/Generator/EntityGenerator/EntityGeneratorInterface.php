@@ -15,7 +15,9 @@ interface EntityGeneratorInterface
     public function generate(array $tableList = []);
 
     /**
+     * @param string $tableName
+     * @param array $tableStruct
      * @return string
      */
-    public function generateEntityClassString(): string;
+    public function generateEntityClassString(string $tableName, array $tableStruct): string;
 }
