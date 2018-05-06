@@ -2,14 +2,19 @@
     "name": "david/entity-orm",
     "description": "A simple ORM using PDO to manage entities, repositories and managers optimized for best performances.",
     "type": "library",
-    "require-dev": {
-        "phpunit/phpunit": "^7.1"
-    },
     "authors": [
         {
             "name": "David Vander Elst",
             "email": "vanderelst.david@gmail.com"
         }
     ],
-    "require": {}
+    "require-dev": {
+        "phpunit/phpunit": "^7.1"
+    },
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "DVE\\EntityORM\\": "src/"
+        }
+    }
 }
