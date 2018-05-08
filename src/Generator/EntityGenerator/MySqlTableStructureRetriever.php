@@ -2,7 +2,7 @@
 
 namespace DVE\EntityORM\Generator\EntityGenerator;
 
-class TableStructureRetriever implements TableStructureRetrieverInterface
+class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
 {
     /**
      * @var \PDO
@@ -10,7 +10,7 @@ class TableStructureRetriever implements TableStructureRetrieverInterface
     private $pdo;
 
     /**
-     * TableStructureRetriever constructor.
+     * MySqlTableStructureRetriever constructor.
      * @param \PDO $pdo
      */
     public function __construct(\PDO $pdo)
