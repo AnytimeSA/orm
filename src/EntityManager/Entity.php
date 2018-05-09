@@ -5,11 +5,10 @@ namespace DVE\EntityORM\EntityManager;
 abstract class Entity
 {
     /**
-     * This property should must be overridden by the generated chield class
-     *
-     * @var string
+     * This constant must be overriden by the concrete entity class constant.
+     * It contains the table name associated with the entity.
      */
-    public $tableName;
+    const TABLENAME = '';
 
     /**
      * This property is used to cache object like DateTime generated when the getter is used. LIke this the DateTime object with the value is generated only one time.

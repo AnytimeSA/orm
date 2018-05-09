@@ -112,7 +112,7 @@ class MySqlEntityGenerator implements EntityGeneratorInterface
         $sourceCode .= "use ".Entity::class."; \n\n";
         $sourceCode .= "class $className extends Entity\n";
         $sourceCode .= "{\n";
-        $sourceCode .= '    public $tableName = \''.$tableName.'\''.";\n";
+        $sourceCode .= '    const TABLENAME = \''.$tableName.'\''.";\n";
 
         foreach($tableStruct as $fieldStruct) {
             $fieldName = array_key_exists('Field', $fieldStruct) ? $fieldStruct['Field'] : null;
