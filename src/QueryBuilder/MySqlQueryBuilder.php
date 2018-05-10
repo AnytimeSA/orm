@@ -9,7 +9,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
      */
     public function setEntityClass(string $entityClass): QueryBuilderInterface
     {
-        // TODO: Implement setEntityClass() method.
+        return $this;
     }
 
     /**
@@ -17,7 +17,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
      */
     public function setParameters(array $parameters): QueryBuilderInterface
     {
-        // TODO: Implement setParameters() method.
+        return $this;
     }
 
     /**
@@ -25,7 +25,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
      */
     public function from(string $tableName, $alias = null): QueryBuilderInterface
     {
-        // TODO: Implement from() method.
+        return $this;
     }
 
     /**
@@ -33,7 +33,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
      */
     public function where(string $where): QueryBuilderInterface
     {
-        // TODO: Implement where() method.
+        return $this;
     }
 
     /**
@@ -41,7 +41,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
      */
     public function andWhere(string $where): QueryBuilderInterface
     {
-        // TODO: Implement andWhere() method.
+        return $this;
     }
 
     /**
@@ -49,7 +49,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
      */
     public function limit(int $number, int $offset): QueryBuilderInterface
     {
-        // TODO: Implement limit() method.
+        return $this;
     }
 
     /**
@@ -57,7 +57,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
      */
     public function orderBy(string $orderBy): QueryBuilderInterface
     {
-        // TODO: Implement orderBy() method.
+        return $this;
     }
 
     /**
@@ -65,7 +65,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
      */
     public function join(string $join): QueryBuilderInterface
     {
-        // TODO: Implement join() method.
+        return $this;
     }
 
     /**
@@ -73,7 +73,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
      */
     public function setFetchMode(int $fetchMode): QueryBuilderInterface
     {
-        // TODO: Implement setFetchMode() method.
+        return $this;
     }
 
     /**
@@ -81,7 +81,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
      */
     public function setReturnType(int $returnType = self::RETURN_TYPE_ENTITY): QueryBuilderInterface
     {
-        // TODO: Implement setReturnType() method.
+        return $this;
     }
 
     /**
@@ -89,7 +89,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
      */
     public function fetchOne()
     {
-        // TODO: Implement fetchOne() method.
+        return $this;
     }
 
     /**
@@ -97,7 +97,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
      */
     public function fetchAll(): array
     {
-        // TODO: Implement fetchAll() method.
+        return $this;
     }
 
     /**
@@ -105,7 +105,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
      */
     public function countResults(): int
     {
-        // TODO: Implement countResults() method.
+        return $this;
     }
 
 }
