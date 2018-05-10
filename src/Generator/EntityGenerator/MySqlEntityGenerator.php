@@ -2,7 +2,7 @@
 
 namespace DVE\EntityORM\Generator\EntityGenerator;
 
-use DVE\EntityORM\Convertor\SnakeToCamelCaseStringConvertor;
+use DVE\EntityORM\Converter\SnakeToCamelCaseStringConverter;
 use DVE\EntityORM\EntityManager\Entity;
 
 class MySqlEntityGenerator implements EntityGeneratorInterface
@@ -18,9 +18,9 @@ class MySqlEntityGenerator implements EntityGeneratorInterface
     private $entityNamespace;
 
     /**
-     * @var SnakeToCamelCaseStringConvertor
+     * @var SnakeToCamelCaseStringConverter
      */
-    private $snakeToCamelCaseStringConvertor;
+    private $snakeToCamelCaseStringConverter;
 
     /**
      * @var TableStructureRetrieverInterface
@@ -29,18 +29,18 @@ class MySqlEntityGenerator implements EntityGeneratorInterface
 
     /**
      * EntityGenerator constructor.
-     * @param SnakeToCamelCaseStringConvertor $snakeToCamelCaseStringConvertor
+     * @param SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter
      * @param TableStructureRetrieverInterface $tableStructureRetriever
      * @param string $entityDirectory
      * @param string|null $entityNamespace
      */
     public function __construct(
-        SnakeToCamelCaseStringConvertor $snakeToCamelCaseStringConvertor,
+        SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter,
         TableStructureRetrieverInterface $tableStructureRetriever,
         string $entityDirectory,
         string $entityNamespace = null)
     {
-        $this->snakeToCamelCaseStringConvertor = $snakeToCamelCaseStringConvertor;
+        $this->snakeToCamelCaseStringConverter = $snakeToCamelCaseStringConverter;
         $this->tableStructureRetriever = $tableStructureRetriever;
         $this
             ->setEntityDirectory($entityDirectory)
@@ -84,7 +84,7 @@ class MySqlEntityGenerator implements EntityGeneratorInterface
     public function generate(array $tableList = [])
     {
         foreach($this->tableStructureRetriever->retrieve($tableList) as $tableName => $tableStruct) {
-            $entityClassName = ucfirst($this->snakeToCamelCaseStringConvertor->convert($tableName));
+            $entityClassName = ucfirst($this->snakeToCamelCaseStringConverter->convert($tableName));
             $entityGeneratedSourceCode = $this->generateEntityClassString($tableName, $tableStruct);
 
             file_put_contents($this->entityDirectory . '/' . $entityClassName . '.php', $entityGeneratedSourceCode);
@@ -98,7 +98,7 @@ class MySqlEntityGenerator implements EntityGeneratorInterface
      */
     public function generateEntityClassString(string $tableName, array $tableStruct): string
     {
-        $className = ucfirst($this->snakeToCamelCaseStringConvertor->convert($tableName));
+        $className = ucfirst($this->snakeToCamelCaseStringConverter->convert($tableName));
 
         $propertyDeclarationSourceCode = "    protected \$data = [\n";
         $gettersSettersSourceCode = '';
@@ -128,7 +128,7 @@ class MySqlEntityGenerator implements EntityGeneratorInterface
 
             // Properties declaration
             $defaultPropertyValue = $this->getDefaultPhpValueByPhpType($phpType);
-            $propertyName = lcfirst($this->snakeToCamelCaseStringConvertor->convert($fieldName));
+            $propertyName = lcfirst($this->snakeToCamelCaseStringConverter->convert($fieldName));
             $propertyDeclarationSourceCode .=
                 "        '$fieldName' => " .
                 (!is_null($default)

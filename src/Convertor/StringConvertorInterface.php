@@ -1,8 +1,8 @@
 <?php
 
-namespace DVE\EntityORM\Convertor;
+namespace DVE\EntityORM\Converter;
 
-interface StringConvertorInterface
+interface StringConverterInterface
 {
     /**
      * @param string $snakeCaseString

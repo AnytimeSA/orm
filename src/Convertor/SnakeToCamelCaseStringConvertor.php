@@ -1,10 +1,10 @@
 <?php
 
-namespace DVE\EntityORM\Convertor;
+namespace DVE\EntityORM\Converter;
 
 use Nayjest\StrCaseConverter\Str;
 
-class SnakeToCamelCaseStringConvertor implements StringConvertorInterface
+class SnakeToCamelCaseStringConverter implements StringConverterInterface
 {
     public function convert(string $snakeCaseString): string
     {

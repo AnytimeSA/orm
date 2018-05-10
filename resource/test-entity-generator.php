@@ -2,7 +2,7 @@
 
 namespace Resource\Test;
 
-use DVE\EntityORM\Convertor\SnakeToCamelCaseStringConvertor;
+use DVE\EntityORM\Converter\SnakeToCamelCaseStringConverter;
 use DVE\EntityORM\Generator\EntityGenerator\MySqlEntityGenerator;
 use DVE\EntityORM\Generator\EntityGenerator\MySqlTableStructureRetriever;
 
@@ -18,7 +18,7 @@ $pass = 'pass';
 $pdo = new \PDO("mysql:host=$host;port=$port;dbname=$db", $user, $pass);
 
 $entityGenerator = new MySqlEntityGenerator(
-    new SnakeToCamelCaseStringConvertor(),
+    new SnakeToCamelCaseStringConverter(),
     new MySqlTableStructureRetriever($pdo),
     __DIR__ . '/entities/',
     'My\\Name\\Space'
