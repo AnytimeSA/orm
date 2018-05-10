@@ -7,7 +7,7 @@ abstract class EntityManager
     /**
      * @var EntityRepository[]
      */
-    protected $loadedRepositories;
+    protected $loadedRepositories = [];
 
     /**
      * @var \PDO
