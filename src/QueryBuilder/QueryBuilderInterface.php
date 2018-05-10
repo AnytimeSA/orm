@@ -4,9 +4,6 @@ namespace DVE\EntityORM\QueryBuilder;
 
 interface QueryBuilderInterface
 {
-    const RETURN_TYPE_ENTITY = 1;
-    const RETURN_TYPE_ARRAY = 2;
-
     /**
      * @param string $entityClass
      * @return QueryBuilderInterface
