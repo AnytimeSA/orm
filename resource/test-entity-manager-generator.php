@@ -22,7 +22,8 @@ $entityManagerGenerator = new EntityManagerGenerator(
     __DIR__ . '/dynamic-entity-manager/',
     'My\\EntityManager\\Name\\Space',
     __DIR__ . '/user-repositories/',
-    'My\\Repository\\Name\\Space'
+    'My\\Repository\\Name\\Space',
+    'My\\Name\\Space'
 );
 
-echo $entityManagerGenerator->generate();
+$entityManagerGenerator->generate();

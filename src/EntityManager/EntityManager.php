@@ -26,18 +26,24 @@ abstract class EntityManager
     /**
      * @param string $class
      * @param string $tableName
+     * @param string $entityClassName
      * @return EntityRepository
      */
-    protected function loadAndGetRepository(string $class, string $tableName)
+    protected function loadAndGetRepository(string $class, string $tableName, string $entityClassName)
     {
         if(array_key_exists($class, $this->loadedRepositories)) {
             return $this->loadedRepositories[$class];
         }
 
         if(class_exists($class)) {
-            return (new $class())->setTableName($tableName);
+            return (new $class())
+                ->setTableName($tableName)
+                ->setClassName($entityClassName);
         } else {
-            return (new DefaultEntityRepository())->setTableName($tableName);
+            return (new DefaultEntityRepository($this->pdo))
+                ->setTableName($tableName)
+                ->setClassName($entityClassName);
+            ;
         }
     }
 }

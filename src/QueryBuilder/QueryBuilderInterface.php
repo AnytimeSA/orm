@@ -21,9 +21,10 @@ interface QueryBuilderInterface
 
     /**
      * @param string $tableName
+     * @param string|null $alias
      * @return QueryBuilderInterface
      */
-    public function from(string $tableName): QueryBuilderInterface;
+    public function from(string $tableName, $alias = null): QueryBuilderInterface;
 
     /**
      * @param string $where

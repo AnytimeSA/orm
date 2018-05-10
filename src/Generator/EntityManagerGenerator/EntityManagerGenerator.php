@@ -28,6 +28,11 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
     private $userEntityRepositoryNamespace;
 
     /**
+     * @var string
+     */
+    private $entityNamespace;
+
+    /**
      * @var SnakeToCamelCaseStringConverter
      */
     private $snakeToCamelCaseStringConverter;
@@ -45,6 +50,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
      * @param string|null $entityManagerNamespace
      * @param string $userEntityRepositoryDirectory
      * @param string $userEntityRepositoryNamespace
+     * @param string $entityNamespace
      */
     public function __construct(
         SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter,
@@ -52,7 +58,8 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         string $entityManagerDirectory,
         string $entityManagerNamespace,
         string $userEntityRepositoryDirectory,
-        string $userEntityRepositoryNamespace)
+        string $userEntityRepositoryNamespace,
+        string $entityNamespace)
     {
         $this->snakeToCamelCaseStringConverter = $snakeToCamelCaseStringConverter;
         $this->tableStructureRetriever = $tableStructureRetriever;
@@ -61,6 +68,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
             ->setEntityManagerNamespace($entityManagerNamespace)
             ->setUserEntityRepositoryDirectory($userEntityRepositoryDirectory)
             ->setUserEntityRepositoryNamespace($userEntityRepositoryNamespace)
+            ->setEntityNamespace($entityNamespace)
         ;
     }
 
@@ -127,6 +135,16 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         return $this;
     }
 
+    /**
+     * @param string $entityNamespace
+     * @return EntityManagerGenerator
+     */
+    public function setEntityNamespace(string $entityNamespace): EntityManagerGenerator
+    {
+        $this->entityNamespace = $entityNamespace;
+        return $this;
+    }
+
     public function generate(array $tableList = [])
     {
         $tableStructList = $this->tableStructureRetriever->retrieve($tableList);
@@ -158,16 +176,18 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
 
         // Methods
         foreach($tableStructList as $tableName => $tableStruct) {
-            $repositoryClassName = $this->snakeToCamelCaseStringConverter->convert($tableName).'EntityRepository';
+            $entityName = $this->snakeToCamelCaseStringConverter->convert($tableName);
+            $repositoryClassName = $entityName.'EntityRepository';
             $repositoryGetterName = "get" . $repositoryClassName;
             $repositoryFullClassName = $this->userEntityRepositoryNamespace . "\\" . $repositoryClassName;
+            $entityFullClassName = $this->entityNamespace . '\\' . $entityName;
 
             $sourceCode .= "    /**\n";
             $sourceCode .= "     * @return $repositoryClassName|EntityRepository\n";
             $sourceCode .= "     */\n";
             $sourceCode .= "    public function $repositoryGetterName(): EntityRepository\n";
             $sourceCode .= "    {\n";
-            $sourceCode .= "        return \$this->loadAndGetRepository('$repositoryFullClassName', '$tableName');\n";
+            $sourceCode .= "        return \$this->loadAndGetRepository('$repositoryFullClassName', '$tableName', '$entityFullClassName');\n";
             $sourceCode .= "    }\n";
             $sourceCode .= "\n";
         }
