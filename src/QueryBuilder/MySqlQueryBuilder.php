@@ -77,7 +77,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
      */
     public function from(string $tableName, $alias = null): QueryBuilderInterface
     {
-        $this->from = "`$tableName` AS `$alias`";
+        $this->from = "`$tableName`".($alias ? "AS `$alias`": '');
         return $this;
     }
 
