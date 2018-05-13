@@ -45,16 +45,6 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
     private $join = [];
 
     /**
-     * @var int
-     */
-    private $fetchMode = \PDO::FETCH_ASSOC;
-
-    /**
-     * @var int
-     */
-    private $returnType = self::RETURN_TYPE_ENTITY;
-
-    /**
      * @inheritDoc
      */
     public function setEntityClass(string $entityClass): QueryBuilderInterface
@@ -126,50 +116,4 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         $this->join[] = $join;
         return $this;
     }
-
-    /**
-     * @inheritDoc
-     */
-    public function setFetchMode(int $fetchMode): QueryBuilderInterface
-    {
-        $this->fetchMode = $fetchMode;
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setReturnType(int $returnType = self::RETURN_TYPE_ENTITY): QueryBuilderInterface
-    {
-        $this->returnType = $returnType;
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function fetchOne()
-    {
-        // TODO implements
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function fetchAll(): array
-    {
-        // TODO implements
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function countResults(): int
-    {
-        // TODO implements
-        return $this;
-    }
-
 }

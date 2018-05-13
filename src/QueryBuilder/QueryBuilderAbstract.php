@@ -4,9 +4,6 @@ namespace DVE\EntityORM\QueryBuilder;
 
 abstract class QueryBuilderAbstract implements QueryBuilderInterface
 {
-    const RETURN_TYPE_ENTITY = 1;
-    const RETURN_TYPE_ARRAY = 2;
-
     /**
      * @var \PDO
      */

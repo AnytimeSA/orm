@@ -53,31 +53,4 @@ interface QueryBuilderInterface
      * @return QueryBuilderInterface
      */
     public function join(string $join): QueryBuilderInterface;
-
-    /**
-     * @param int $fetchMode
-     * @return QueryBuilderInterface
-     */
-    public function setFetchMode(int $fetchMode): QueryBuilderInterface;
-
-    /**
-     * @param int $returnType
-     * @return QueryBuilderInterface
-     */
-    public function setReturnType(int $returnType = self::RETURN_TYPE_ENTITY): QueryBuilderInterface;
-
-    /**
-     * @return mixed
-     */
-    public function fetchOne();
-
-    /**
-     * @return array
-     */
-    public function fetchAll(): array;
-
-    /**
-     * @return int
-     */
-    public function countResults(): int;
 }
