@@ -257,6 +257,13 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         $sourceCode .= "use DVE\EntityORM\EntityManager\Repositories;\n";
         $sourceCode .= "use DVE\EntityORM\EntityManager\EntityRepository;\n";
 
+        foreach($tableStructList as $tableName => $tableStruct) {
+            $entityName = $this->snakeToCamelCaseStringConverter->convert($tableName);
+            $repositoryClassName = $entityName.'EntityRepository';
+            $repositoryFullClassName = $this->userEntityRepositoryNamespace . "\\" . $repositoryClassName;
+            $sourceCode .= "use $repositoryFullClassName;\n";
+        }
+
         // Class
         $sourceCode .= "\n";
         $sourceCode .= "class DynamicRepositories extends Repositories\n";
@@ -298,6 +305,13 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         $sourceCode .= "use DVE\EntityORM\EntityManager\Managers;\n";
         $sourceCode .= "use DVE\EntityORM\EntityManager\Manager;\n";
 
+        foreach($tableStructList as $tableName => $tableStruct) {
+            $entityName = $this->snakeToCamelCaseStringConverter->convert($tableName);
+            $managerClassName = $entityName.'Manager';
+            $managerFullClassName = $this->userManagerNamespace . "\\" . $managerClassName;
+            $sourceCode .= "use $managerFullClassName;\n";
+        }
+
         // Class
         $sourceCode .= "\n";
         $sourceCode .= "class DynamicManagers extends Managers\n";
@@ -307,8 +321,9 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         $sourceCode .= "    private \$dynamicRepositories;\n";
 
         // Constructor
-        $sourceCode .= "    public function __construct(DynamicRepositories \$dynamicRepositories) {\n";
+        $sourceCode .= "    public function __construct(\\PDO \$pdo, DynamicRepositories \$dynamicRepositories) {\n";
         $sourceCode .= "        \$this->dynamicRepositories = \$dynamicRepositories;\n";
+        $sourceCode .= "        parent::__construct(\$pdo);\n";
         $sourceCode .= "    }\n";
 
         // Methods
