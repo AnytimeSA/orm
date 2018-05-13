@@ -30,6 +30,16 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
     /**
      * @var string
      */
+    private $userManagerDirectory;
+
+    /**
+     * @var string
+     */
+    private $userManagerNamespace;
+
+    /**
+     * @var string
+     */
     private $entityNamespace;
 
     /**
@@ -50,6 +60,8 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
      * @param string|null $entityManagerNamespace
      * @param string $userEntityRepositoryDirectory
      * @param string $userEntityRepositoryNamespace
+     * @param string $userManagerDirectory
+     * @param string $userManagerNamespace
      * @param string $entityNamespace
      */
     public function __construct(
@@ -59,6 +71,8 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         string $entityManagerNamespace,
         string $userEntityRepositoryDirectory,
         string $userEntityRepositoryNamespace,
+        string $userManagerDirectory,
+        string $userManagerNamespace,
         string $entityNamespace)
     {
         $this->snakeToCamelCaseStringConverter = $snakeToCamelCaseStringConverter;
@@ -68,6 +82,8 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
             ->setEntityManagerNamespace($entityManagerNamespace)
             ->setUserEntityRepositoryDirectory($userEntityRepositoryDirectory)
             ->setUserEntityRepositoryNamespace($userEntityRepositoryNamespace)
+            ->setUserManagerDirectory($userManagerDirectory)
+            ->setUserManagerNamespace($userManagerNamespace)
             ->setEntityNamespace($entityNamespace)
         ;
     }
@@ -136,6 +152,38 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
     }
 
     /**
+     * Define the directory where users will create the concrete Manager classes extending Manager
+     *
+     * @param string $userManagerDirectory
+     * @return EntityManagerGenerator
+     */
+    public function setUserManagerDirectory(string $userManagerDirectory): EntityManagerGenerator
+    {
+        if(is_dir($userManagerDirectory)) {
+            $this->userManagerDirectory = $userManagerDirectory;
+        } else {
+            throw new \RuntimeException('The user manager directory should exists.');
+        }
+        return $this;
+    }
+
+    /**
+     * @param string $userManagerNamespace
+     * @return EntityManagerGenerator
+     */
+    public function setUserManagerNamespace(string $userManagerNamespace): EntityManagerGenerator
+    {
+        $userManagerNamespace = trim($userManagerNamespace, '\\');
+
+        if(preg_match('/^([a-z0-9_\\\]+)$/i', $userManagerNamespace)) {
+            $this->userManagerNamespace = $userManagerNamespace;
+        } else {
+            throw new \RuntimeException('Invalid user manager namespace please use a correct namespace format. Example: My\\Namespace.');
+        }
+        return $this;
+    }
+
+    /**
      * @param string $entityNamespace
      * @return EntityManagerGenerator
      */
@@ -149,6 +197,18 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
     {
         $tableStructList = $this->tableStructureRetriever->retrieve($tableList);
 
+        $sourceCode = $this->generateDynamicRepositories($tableStructList);
+        file_put_contents($this->entityManagerDirectory . '/DynamicRepositories.php', $sourceCode);
+
+        $sourceCode = $this->generateDynamicManagers($tableStructList);
+        file_put_contents($this->entityManagerDirectory . '/DynamicManagers.php', $sourceCode);
+
+        $sourceCode = $this->generateDynamicEntityManager($tableStructList);
+        file_put_contents($this->entityManagerDirectory . '/DynamicEntityManager.php', $sourceCode);
+    }
+
+    private function generateDynamicEntityManager(array $tableStructList)
+    {
         $sourceCode = "<?php\n\n";
 
         // Namespace block
@@ -171,8 +231,42 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         // Class block
         $sourceCode .= "class DynamicEntityManager extends EntityManager\n";
         $sourceCode .= "{\n";
+        $sourceCode .= "    /**\n";
+        $sourceCode .= "     * @var DynamicRepositories\n";
+        $sourceCode .= "     */\n";
+        $sourceCode .= "    public \$repositories;\n";
+        $sourceCode .= "\n";
+        $sourceCode .= "    /**\n";
+        $sourceCode .= "     * @var DynamicManagers\n";
+        $sourceCode .= "     */\n";
+        $sourceCode .= "    public \$managers;\n";
+        $sourceCode .= "\n";
+        $sourceCode .= "    public function __construct(DynamicRepositories \$dynamicRepositories, DynamicManagers \$dynamicManagers)\n";
+        $sourceCode .= "    {\n";
+        $sourceCode .= "        \$this->repositories = \$dynamicRepositories;\n";
+        $sourceCode .= "        \$this->managers = \$dynamicManagers;\n";
+        $sourceCode .= "    }\n";
+        $sourceCode .= "}\n\n";
 
+        return $sourceCode;
+    }
 
+    private function generateDynamicRepositories(array $tableStructList)
+    {
+        $sourceCode = "<?php\n\n";
+
+        // Namespace block
+        if($this->entityManagerNamespace) {
+            $sourceCode .= "namespace " . $this->entityManagerNamespace.";\n";
+        }
+
+        // Use block
+        $sourceCode .= "use DVE\EntityORM\EntityManager\Repositories;\n";
+
+        // Class
+        $sourceCode .= "\n";
+        $sourceCode .= "class DynamicRepositories extends Repositories\n";
+        $sourceCode .= "{\n";
 
         // Methods
         foreach($tableStructList as $tableName => $tableStruct) {
@@ -192,8 +286,60 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
             $sourceCode .= "\n";
         }
 
-        $sourceCode .= "}";
+        $sourceCode .= "}\n";
 
-        file_put_contents($this->entityManagerDirectory . '/DynamicEntityManager.php', $sourceCode);
+        return $sourceCode;
     }
+
+    private function generateDynamicManagers(array $tableStructList)
+    {
+        $sourceCode = "<?php\n\n";
+
+        // Namespace block
+        if($this->entityManagerNamespace) {
+            $sourceCode .= "namespace " . $this->entityManagerNamespace.";\n";
+        }
+
+        // Use block
+        $sourceCode .= "use DVE\EntityORM\EntityManager\Managers;\n";
+        $sourceCode .= "use DVE\EntityORM\EntityManager\Manager;\n";
+
+        // Class
+        $sourceCode .= "\n";
+        $sourceCode .= "class DynamicManagers extends Managers\n";
+        $sourceCode .= "{\n";
+
+        // Properties
+        $sourceCode .= "    private \$dynamicRepositories;\n";
+
+        // Constructor
+        $sourceCode .= "    public function __construct(DynamicRepositories \$dynamicRepositories) {\n";
+        $sourceCode .= "        \$this->dynamicRepositories = \$dynamicRepositories;\n";
+        $sourceCode .= "    }\n";
+
+        // Methods
+        foreach($tableStructList as $tableName => $tableStruct) {
+            $entityName = $this->snakeToCamelCaseStringConverter->convert($tableName);
+            $managerClassName = $entityName.'Manager';
+            $managerGetterName = "get" . $managerClassName;
+            $managerFullClassName = $this->userManagerNamespace . "\\" . $managerClassName;
+            //$entityFullClassName = $this->entityNamespace . '\\' . $entityName;
+
+            $entityRepositoryGetterCall = 'get'.$entityName.'EntityRepository';
+
+            $sourceCode .= "    /**\n";
+            $sourceCode .= "     * @return $managerClassName|Manager\n";
+            $sourceCode .= "     */\n";
+            $sourceCode .= "    public function $managerGetterName(): Manager\n";
+            $sourceCode .= "    {\n";
+            $sourceCode .= "        return \$this->loadAndGetManager('$managerFullClassName',\$this->dynamicRepositories->$entityRepositoryGetterCall());\n";
+            $sourceCode .= "    }\n";
+            $sourceCode .= "\n";
+        }
+
+        $sourceCode .= "}\n";
+
+        return $sourceCode;
+    }
+
 }

@@ -71,7 +71,7 @@ abstract class EntityRepository
      * @param string|null $alias
      * @return QueryBuilderInterface
      */
-    public function createQueryBuilder(string $alias = null): QueryBuilderInterface
+    public function createQueryBuilder($alias = null): QueryBuilderInterface
     {
         $queryBuilder = new MySqlQueryBuilder($this->pdo); // TODO Remplacer par une factory
         $queryBuilder
