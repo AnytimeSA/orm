@@ -203,11 +203,11 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         $sourceCode = $this->generateDynamicManagers($tableStructList);
         file_put_contents($this->entityManagerDirectory . '/DynamicManagers.php', $sourceCode);
 
-        $sourceCode = $this->generateDynamicEntityManager($tableStructList);
+        $sourceCode = $this->generateDynamicEntityManager();
         file_put_contents($this->entityManagerDirectory . '/DynamicEntityManager.php', $sourceCode);
     }
 
-    private function generateDynamicEntityManager(array $tableStructList)
+    private function generateDynamicEntityManager()
     {
         $sourceCode = "<?php\n\n";
 
@@ -219,13 +219,6 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         // Use block
         $sourceCode .= "\n";
         $sourceCode .= "use DVE\EntityORM\EntityManager\EntityManager;\n";
-        $sourceCode .= "use DVE\EntityORM\EntityManager\EntityRepository;\n";
-
-        foreach($tableStructList as $tableName => $tableStruct) {
-            $repositoryClassName = $this->snakeToCamelCaseStringConverter->convert($tableName).'EntityRepository';
-            $sourceCode .= "use ".$this->userEntityRepositoryNamespace."\\$repositoryClassName;\n";
-        }
-
         $sourceCode .= "\n";
 
         // Class block
@@ -262,6 +255,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
 
         // Use block
         $sourceCode .= "use DVE\EntityORM\EntityManager\Repositories;\n";
+        $sourceCode .= "use DVE\EntityORM\EntityManager\EntityRepository;\n";
 
         // Class
         $sourceCode .= "\n";
