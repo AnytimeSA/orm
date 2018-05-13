@@ -53,4 +53,14 @@ interface QueryBuilderInterface
      * @return QueryBuilderInterface
      */
     public function join(string $join): QueryBuilderInterface;
+
+    /**
+     * @return string
+     */
+    public function getSQL(): string;
+
+    /**
+     * @return Query
+     */
+    public function getQuery(): QueryInterface;
 }

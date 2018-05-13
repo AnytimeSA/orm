@@ -3,6 +3,7 @@
 namespace DVE\EntityORM\EntityManager;
 
 use DVE\EntityORM\QueryBuilder\MySqlQueryBuilder;
+use DVE\EntityORM\QueryBuilder\QueryBuilderAbstract;
 use DVE\EntityORM\QueryBuilder\QueryBuilderInterface;
 
 abstract class EntityRepository
@@ -71,7 +72,7 @@ abstract class EntityRepository
      * @param string|null $alias
      * @return QueryBuilderInterface
      */
-    public function createQueryBuilder($alias = null): QueryBuilderInterface
+    public function createQueryBuilder($alias = null): QueryBuilderAbstract
     {
         $queryBuilder = new MySqlQueryBuilder($this->pdo); // TODO Remplacer par une factory
         $queryBuilder
