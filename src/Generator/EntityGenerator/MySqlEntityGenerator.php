@@ -98,6 +98,7 @@ class MySqlEntityGenerator implements EntityGeneratorInterface
      */
     public function generateEntityClassString(string $tableName, array $tableStruct): string
     {
+        $primaryKeys = '';
         $className = ucfirst($this->snakeToCamelCaseStringConverter->convert($tableName));
 
         $propertyDeclarationSourceCode = "    protected \$data = [\n";
@@ -119,6 +120,12 @@ class MySqlEntityGenerator implements EntityGeneratorInterface
             $mysqlType = array_key_exists('Type', $fieldStruct) ? $fieldStruct['Type'] : null;
             $nullable = array_key_exists('Null', $fieldStruct) && $fieldStruct['Null'] === 'YES' ? true : false;
             $default = array_key_exists('Default', $fieldStruct) ? $fieldStruct['Default'] : null;
+            $isPrimary = array_key_exists('Key', $fieldStruct) && $fieldStruct['Key'] === 'PRI' ? true : false;
+
+            if($isPrimary) {
+                $primaryKeys .= ($primaryKeys ? "','" : '').$fieldName;
+            }
+
             $phpType = $this->mysqlToPhpType($mysqlType);
             $isString = $phpType === 'string';
 
@@ -180,6 +187,9 @@ class MySqlEntityGenerator implements EntityGeneratorInterface
 
         $propertyDeclarationSourceCode .= "    ];\n";
 
+        $primaryKeys = "    const PRIMARY_KEYS = ['" .$primaryKeys. "'];\n";
+
+        $sourceCode .= $primaryKeys;
         $sourceCode .= "\n".$propertyDeclarationSourceCode;
         $sourceCode .= "\n".$gettersSettersSourceCode;
         $sourceCode .= "\n}\n";
