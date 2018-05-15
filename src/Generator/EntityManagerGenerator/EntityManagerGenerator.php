@@ -193,6 +193,9 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         return $this;
     }
 
+    /**
+     * @param array $tableList
+     */
     public function generate(array $tableList = [])
     {
         $tableStructList = $this->tableStructureRetriever->retrieve($tableList);
@@ -207,6 +210,9 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         file_put_contents($this->entityManagerDirectory . '/DynamicEntityManager.php', $sourceCode);
     }
 
+    /**
+     * @return string
+     */
     private function generateDynamicEntityManager()
     {
         $sourceCode = "<?php\n\n";
@@ -244,6 +250,10 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         return $sourceCode;
     }
 
+    /**
+     * @param array $tableStructList
+     * @return string
+     */
     private function generateDynamicRepositories(array $tableStructList)
     {
         $sourceCode = "<?php\n\n";
@@ -292,6 +302,10 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         return $sourceCode;
     }
 
+    /**
+     * @param array $tableStructList
+     * @return string
+     */
     private function generateDynamicManagers(array $tableStructList)
     {
         $sourceCode = "<?php\n\n";
