@@ -34,6 +34,11 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
             }
         }
 
+        // --- GROUP BY
+        if($this->groupBy) {
+            $sql .= "GROUP BY " . $this->groupBy . "\n";
+        }
+
         // --- ORDER BY
         if($this->orderBy) {
             $sql .= "ORDER BY " . $this->orderBy . "\n";

@@ -49,6 +49,12 @@ interface QueryBuilderInterface
     public function orderBy(string $orderBy): QueryBuilderInterface;
 
     /**
+     * @param string $groupBy
+     * @return QueryBuilderInterface
+     */
+    public function groupBy(string $groupBy): QueryBuilderInterface;
+
+    /**
      * @param string $join
      * @return QueryBuilderInterface
      */

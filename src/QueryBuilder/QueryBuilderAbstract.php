@@ -26,6 +26,11 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
     protected $from;
 
     /**
+     * @var string
+     */
+    protected $groupBy;
+
+    /**
      * @var array
      */
     protected $where = [];
@@ -120,6 +125,15 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
     public function join(string $join): QueryBuilderInterface
     {
         $this->join[] = $join;
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function groupBy(string $groupBy): QueryBuilderInterface
+    {
+        $this->groupBy = $groupBy;
         return $this;
     }
 
