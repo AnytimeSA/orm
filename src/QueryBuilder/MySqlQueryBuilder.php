@@ -7,6 +7,11 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
     /**
      * @inheritDoc
      */
+    protected $select = '*';
+
+    /**
+     * @inheritDoc
+     */
     public function from(string $tableName, $alias = null): QueryBuilderInterface
     {
         $this->from = "`$tableName`".($alias ? " AS `$alias`": '');
@@ -18,7 +23,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
      */
     public function getSQL(): string
     {
-        $sql  = "SELECT *\n";
+        $sql  = "SELECT " . $this->select . "\n";
         $sql .= "FROM " . $this->from . "\n";
 
         // --- JOIN

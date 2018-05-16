@@ -17,6 +17,12 @@ interface QueryBuilderInterface
     public function setParameters(array $parameters): QueryBuilderInterface;
 
     /**
+     * @param string $select
+     * @return QueryBuilderInterface
+     */
+    public function select(string $select): QueryBuilderInterface;
+
+    /**
      * @param string $tableName
      * @param string|null $alias
      * @return QueryBuilderInterface

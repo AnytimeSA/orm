@@ -23,6 +23,11 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
     /**
      * @var string
      */
+    protected $select;
+
+    /**
+     * @var string
+     */
     protected $from;
 
     /**
@@ -79,6 +84,15 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
     public function setParameters(array $parameters): QueryBuilderInterface
     {
         $this->parameters = $parameters;
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function select(string $select): QueryBuilderInterface
+    {
+        $this->select = $select;
         return $this;
     }
 
