@@ -119,4 +119,20 @@ class Query implements QueryInterface
             return $fetchedData;
         }
     }
+
+    /**
+     * @return mixed
+     */
+    public function fetchSingleScalarResult()
+    {
+        $this->PDOStatement->execute($this->parameters);
+        $fetchedData = $this->PDOStatement->fetch(\PDO::FETCH_NUM);
+        $this->PDOStatement->closeCursor();
+
+        if($fetchedData && isset($fetchedData[0])) {
+            return $fetchedData[0];
+        }
+
+        return null;
+    }
 }
