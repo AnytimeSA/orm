@@ -72,7 +72,7 @@ interface QueryBuilderInterface
     public function getSQL(): string;
 
     /**
-     * @return Query
+     * @return SelectQuery
      */
-    public function getQuery(): QueryInterface;
+    public function getQuery(): SelectQueryInterface;
 }

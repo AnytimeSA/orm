@@ -2,13 +2,13 @@
 
 namespace DVE\EntityORM\QueryBuilder;
 
-interface QueryInterface
+interface SelectQueryInterface
 {
     /**
      * @param string $fetchDataFormat
-     * @return Query
+     * @return SelectQuery
      */
-    public function setFetchDataFormat(string $fetchDataFormat): Query;
+    public function setFetchDataFormat(string $fetchDataFormat): SelectQuery;
 
     /**
      * @return mixed

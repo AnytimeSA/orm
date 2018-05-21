@@ -31,6 +31,28 @@ abstract class Entity
     }
 
     /**
+     * @return array
+     */
+    public function extractPrimaryKeyValues()
+    {
+        $pkeyValues = [];
+
+        foreach(static::PRIMARY_KEYS as $pkey) {
+            $pkeyValues[$pkey] = $this->data[$pkey];
+        }
+
+        return $pkeyValues;
+    }
+
+    /**
+     * @return array
+     */
+    public function extractData(): array
+    {
+        return $this->data;
+    }
+
+    /**
      * @param string $method
      * @param string $dateTimeString
      * @return mixed

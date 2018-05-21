@@ -4,11 +4,15 @@ namespace DVE\EntityORM\QueryBuilder;
 
 abstract class QueryBuilderAbstract implements QueryBuilderInterface
 {
+    const QUERY_TYPE_SELECT = 'SELECT';
+    const QUERY_TYPE_INSERT = 'INSERT';
+    const QUERY_TYPE_UPDATE = 'UPDATE';
+    const QUERY_TYPE_DELETE = 'DELETE';
+
     /**
      * @var \PDO
      */
     private $pdo;
-
 
     /**
      * @var string
@@ -19,6 +23,11 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
      * @var array
      */
     protected $parameters = [];
+
+    /**
+     * @var string
+     */
+    protected $queryType = self::QUERY_TYPE_SELECT;
 
     /**
      * @var string
@@ -67,6 +76,24 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
     public function __construct(\PDO $pdo)
     {
         $this->pdo = $pdo;
+    }
+
+    /**
+     * @return string
+     */
+    public function getQueryType(): string
+    {
+        return $this->queryType;
+    }
+
+    /**
+     * @param string $queryType
+     * @return QueryBuilderAbstract
+     */
+    public function setQueryType(string $queryType): QueryBuilderAbstract
+    {
+        $this->queryType = $queryType;
+        return $this;
     }
 
     /**
@@ -154,10 +181,10 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
     /**
      * @inheritDoc
      */
-    public function getQuery(): QueryInterface
+    public function getQuery(): SelectQueryInterface
     {
         $statement = $this->pdo->prepare($this->getSQL());
-        $query = new Query($statement, $this->parameters);
+        $query = new SelectQuery($statement, $this->parameters);
         $query->setEntityClass($this->entityClass);
         return $query;
     }

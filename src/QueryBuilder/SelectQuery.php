@@ -2,20 +2,10 @@
 
 namespace DVE\EntityORM\QueryBuilder;
 
-class Query implements QueryInterface
+class SelectQuery extends QueryAbstract implements SelectQueryInterface
 {
     const FETCH_DATA_FORMAT_ENTITY = 'entity';
     const FETCH_DATA_FORMAT_ARRAY = 'array';
-
-    /**
-     * @var \PDOStatement
-     */
-    private $PDOStatement;
-
-    /**
-     * @var array
-     */
-    private $parameters;
 
     /**
      * @var string
@@ -33,21 +23,10 @@ class Query implements QueryInterface
     private $fetchDataFormat = self::FETCH_DATA_FORMAT_ENTITY;
 
     /**
-     * Query constructor.
-     * @param \PDOStatement $PDOStatement
-     * @param $parameters
-     */
-    public function __construct(\PDOStatement $PDOStatement, $parameters)
-    {
-        $this->PDOStatement = $PDOStatement;
-        $this->parameters = $parameters;
-    }
-
-    /**
      * @param string $entityClass
-     * @return Query
+     * @return SelectQuery
      */
-    public function setEntityClass(string $entityClass): Query
+    public function setEntityClass(string $entityClass): SelectQuery
     {
         $this->entityClass = $entityClass;
         return $this;
@@ -55,9 +34,9 @@ class Query implements QueryInterface
 
     /**
      * @param string $fetchDataFormat
-     * @return Query
+     * @return SelectQuery
      */
-    public function setFetchDataFormat(string $fetchDataFormat): Query
+    public function setFetchDataFormat(string $fetchDataFormat): SelectQuery
     {
         $this->fetchDataFormat = $fetchDataFormat;
         return $this;
