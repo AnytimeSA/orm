@@ -74,10 +74,9 @@ interface QueryBuilderInterface
     public function getSelectSQL(): string;
 
     /**
-     * @param array $fields
      * @return string
      */
-    public function getDeleteSQL(array $fields): string;
+    public function getDeleteSQL(): string;
 
     /**
      * @param array $fields

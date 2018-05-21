@@ -34,11 +34,16 @@ abstract class EntityManager
      */
     public function insert($entities)
     {
-        if(is_object($entities)) {
+        if(!is_array($entities)) {
             $entities = [$entities];
         }
 
         foreach($entities as $entity) {
+
+            if(!is_object($entity) || !is_subclass_of($entity, Entity::class)) {
+                throw new \InvalidArgumentException('Entities to insert should be an instance of ' . Entity::class);
+            }
+
             $pkeyValues = $entity->extractPrimaryKeyValues();
             $entityClass = get_class($entity);
             $isComposite = count($pkeyValues) > 1;
@@ -68,5 +73,70 @@ abstract class EntityManager
         }
     }
 
+    /**
+     * @param Entity|Entity[] $entities
+     */
+    public function update($entities)
+    {
+        if(!is_array($entities)) {
+            $entities = [$entities];
+        }
+
+        foreach($entities as $entity) {
+
+            if(!is_object($entity) || !is_subclass_of($entity, Entity::class)) {
+                throw new \InvalidArgumentException('Entities to update should be an instance of ' . Entity::class);
+            }
+
+            $pkeyValues = $entity->extractPrimaryKeyValues();
+            $entityClass = get_class($entity);
+
+            if(in_array(null, $pkeyValues)) {
+                throw new \RuntimeException('Null values for primary keys are not allowed in an update context.');
+            }
+
+            $queryBuilder = new MySqlQueryBuilder($this->pdo, $this->snakeToCamelCaseStringConverter);
+            $query = $queryBuilder
+                ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_UPDATE)
+                ->setEntityClass($entityClass)
+                ->getUpdateQuery($entity)
+            ;
+
+            $query->execute();
+        }
+    }
+
+    /**
+     * @param Entity|Entity[] $entities
+     */
+    public function delete($entities)
+    {
+        if(!is_array($entities)) {
+            $entities = [$entities];
+        }
+
+        foreach($entities as $entity) {
+
+            if(!is_object($entity) || !is_subclass_of($entity, Entity::class)) {
+                throw new \InvalidArgumentException('Entities to delete should be an instance of ' . Entity::class);
+            }
+
+            $pkeyValues = $entity->extractPrimaryKeyValues();
+            $entityClass = get_class($entity);
+
+            if(in_array(null, $pkeyValues)) {
+                throw new \RuntimeException('Null values for primary keys are not allowed in a delete context.');
+            }
+
+            $queryBuilder = new MySqlQueryBuilder($this->pdo, $this->snakeToCamelCaseStringConverter);
+            $query = $queryBuilder
+                ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_DELETE)
+                ->setEntityClass($entityClass)
+                ->getDeleteQuery($entity)
+            ;
+
+            $query->execute();
+        }
+    }
 
 }

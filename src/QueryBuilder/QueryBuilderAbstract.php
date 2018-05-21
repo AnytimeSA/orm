@@ -227,7 +227,9 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
             throw new \RuntimeException('Not in an ' . QueryBuilderAbstract::QUERY_TYPE_UPDATE . ' context');
         }
 
-        // TODO Implements method
+        $data = $entity->extractData();
+        $statement = $this->pdo->prepare($this->getUpdateSQL($data));
+        return (new UpdateQuery($this->pdo, $statement, $data))->setEntityClass($this->entityClass);
     }
 
     /**
@@ -239,7 +241,15 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
             throw new \RuntimeException('Not in an ' . QueryBuilderAbstract::QUERY_TYPE_DELETE . ' context');
         }
 
-        // TODO Implements method
+        $parameters = [];
+
+        foreach($this->entityClass::PRIMARY_KEYS as $pkeyName) {
+            $getter = 'get' . $this->snakeToCamelCaseStringConverter->convert($pkeyName);
+            $parameters[$pkeyName] = $entity->$getter();
+        }
+
+        $statement = $this->pdo->prepare($this->getDeleteSQL());
+        return (new DeleteQuery($this->pdo, $statement, $parameters))->setEntityClass($this->entityClass);
     }
 
 }

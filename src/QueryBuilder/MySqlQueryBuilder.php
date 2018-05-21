@@ -79,17 +79,46 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         return $sql;
     }
 
+    /**
+     * @param array $fields
+     * @return string
+     */
     public function getUpdateSQL(array $fields): string
     {
-        // TODO: Implement getUpdateSQL() method.
+        $tableName = $this->entityClass::TABLENAME;
+        $primaryKeys = $this->entityClass::PRIMARY_KEYS;
+
+        $sql = "UPDATE `$tableName`";
+        $sqlSet = '';
+
+        foreach($fields as $fieldName => $value) {
+            $sqlSet .= ($sqlSet ? ",\n" : '') . "`$fieldName` = :$fieldName";
+        }
+        $sqlSet = " SET \n" . $sqlSet . "\n";
+
+        $sqlWhere = '';
+        foreach($primaryKeys as $pkeyName) {
+            $sqlWhere .= ($sqlWhere ? ' AND ' : 'WHERE ') . "`$pkeyName` = :$pkeyName\n";
+        }
+
+        return $sql . $sqlSet . $sqlWhere . ';';
     }
 
-    public function getDeleteSQL(array $fields): string
+    /**
+     * @return string
+     */
+    public function getDeleteSQL(): string
     {
-        // TODO: Implement getDeleteSQL() method.
+        $tableName = $this->entityClass::TABLENAME;
+        $primaryKeys = $this->entityClass::PRIMARY_KEYS;
+
+        $sql = "DELETE FROM `$tableName`\n";
+        $sqlWhere = '';
+
+        foreach($primaryKeys as $pkeyName) {
+            $sqlWhere .= ($sqlWhere ? ' AND ' : 'WHERE ') . "`$pkeyName` = :$pkeyName\n";
+        }
+
+        return $sql . $sqlWhere . ';';
     }
-
-
-
-
 }
