@@ -2,6 +2,9 @@
 
 namespace DVE\EntityORM\QueryBuilder;
 
+use DVE\EntityORM\Converter\SnakeToCamelCaseStringConverter;
+use DVE\EntityORM\EntityManager\Entity;
+
 abstract class QueryBuilderAbstract implements QueryBuilderInterface
 {
     const QUERY_TYPE_SELECT = 'SELECT';
@@ -12,7 +15,13 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
     /**
      * @var \PDO
      */
-    private $pdo;
+    protected $pdo;
+
+    /**
+     * @var SnakeToCamelCaseStringConverter
+     */
+    protected $snakeToCamelCaseStringConverter;
+
 
     /**
      * @var string
@@ -72,9 +81,11 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
     /**
      * QueryBuilderAbstract constructor.
      * @param \PDO $pdo
+     * @param SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter
      */
-    public function __construct(\PDO $pdo)
+    public function __construct(\PDO $pdo, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter)
     {
+        $this->snakeToCamelCaseStringConverter = $snakeToCamelCaseStringConverter;
         $this->pdo = $pdo;
     }
 
@@ -181,11 +192,54 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
     /**
      * @inheritDoc
      */
-    public function getQuery(): SelectQueryInterface
+    public function getSelectQuery(): QueryAbstract
     {
-        $statement = $this->pdo->prepare($this->getSQL());
-        $query = new SelectQuery($statement, $this->parameters);
-        $query->setEntityClass($this->entityClass);
-        return $query;
+        if($this->queryType !== QueryBuilderAbstract::QUERY_TYPE_SELECT) {
+            throw new \RuntimeException('Not in an ' . QueryBuilderAbstract::QUERY_TYPE_SELECT . ' context');
+        }
+
+        $statement = $this->pdo->prepare($this->getSelectSQL());
+        return (new SelectQuery($this->pdo, $statement, $this->parameters))->setEntityClass($this->entityClass);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getInsertQuery(Entity $entity): QueryAbstract
+    {
+        if($this->queryType !== QueryBuilderAbstract::QUERY_TYPE_INSERT) {
+            throw new \RuntimeException('Not in an ' . QueryBuilderAbstract::QUERY_TYPE_INSERT . ' context');
+        }
+
+        $data = $entity->extractData();
+        $statement = $this->pdo->prepare($this->getInsertSQL($data));
+        return (new InsertQuery($this->pdo, $statement, $data))->setEntityClass($this->entityClass);
+    }
+
+
+
+    /**
+     * @inheritDoc
+     */
+    public function getUpdateQuery(Entity $entity): QueryAbstract
+    {
+        if($this->queryType !== QueryBuilderAbstract::QUERY_TYPE_UPDATE) {
+            throw new \RuntimeException('Not in an ' . QueryBuilderAbstract::QUERY_TYPE_UPDATE . ' context');
+        }
+
+        // TODO Implements method
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getDeleteQuery(Entity $entity): QueryAbstract
+    {
+        if($this->queryType !== QueryBuilderAbstract::QUERY_TYPE_DELETE) {
+            throw new \RuntimeException('Not in an ' . QueryBuilderAbstract::QUERY_TYPE_DELETE . ' context');
+        }
+
+        // TODO Implements method
+    }
+
 }

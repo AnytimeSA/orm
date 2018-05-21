@@ -9,6 +9,11 @@ class DeleteQuery extends QueryAbstract implements DeleteQueryInterface
      */
     public function execute(): int
     {
-        // TODO: Implement execute() method.
+        if(!$this->PDOStatement->execute($this->parameters)) {
+            $errInfo = implode(' ; ', $this->PDOStatement->errorInfo());
+            $errCode = $this->PDOStatement->errorCode();
+            throw new \RuntimeException('Err #' . $errCode . ' - ' . $errInfo);
+        }
+        return $this->PDOStatement->rowCount();
     }
 }

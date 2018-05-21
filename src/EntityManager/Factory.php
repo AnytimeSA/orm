@@ -14,6 +14,11 @@ class Factory
     const DATABASE_TYPE_MYSQL = 'mysql';
 
     /**
+     * @var SnakeToCamelCaseStringConverter
+     */
+    private $snakeToCamelCaseStringConverter;
+
+    /**
      * @var string
      */
     private $entityDirectory;
@@ -57,6 +62,14 @@ class Factory
      * @var string
      */
     private $userManagerNamespace;
+
+    /**
+     * Factory constructor.
+     */
+    public function __construct()
+    {
+        $this->snakeToCamelCaseStringConverter = new SnakeToCamelCaseStringConverter();
+    }
 
     /**
      * This is the directory where the auto-generated entities are created
@@ -177,11 +190,16 @@ class Factory
         $dynamicRepositoriesClass = $this->entityManagerNamespace . '\\DynamicRepositories';
         $dynamicManagersClass = $this->entityManagerNamespace . '\\DynamicManagers';
 
-        $dynamicRepositories = new $dynamicRepositoriesClass($pdo);
+        $dynamicRepositories = new $dynamicRepositoriesClass($pdo, $this->snakeToCamelCaseStringConverter);
         $dynamicManagers = new $dynamicManagersClass($pdo, $dynamicRepositories);
 
         $dynamicEntityManagerClass = $this->entityManagerNamespace . '\\DynamicEntityManager';
-        return new $dynamicEntityManagerClass($dynamicRepositories, $dynamicManagers);
+        return new $dynamicEntityManagerClass(
+            $pdo,
+            $this->snakeToCamelCaseStringConverter,
+            $dynamicRepositories,
+            $dynamicManagers
+        );
     }
 
     /**
@@ -193,7 +211,7 @@ class Factory
         switch($this->databaseType) {
             case self::DATABASE_TYPE_MYSQL :
                 return new MySqlEntityGenerator(
-                    new SnakeToCamelCaseStringConverter(),
+                    $this->snakeToCamelCaseStringConverter,
                     new MySqlTableStructureRetriever($pdo),
                     $this->entityDirectory,
                     $this->entityNamespace
@@ -212,7 +230,7 @@ class Factory
         switch($this->databaseType) {
             case self::DATABASE_TYPE_MYSQL :
                 return new EntityManagerGenerator(
-                    new SnakeToCamelCaseStringConverter(),
+                    $this->snakeToCamelCaseStringConverter,
                     new MySqlTableStructureRetriever($pdo),
                     $this->entityManagerDirectory,
                     $this->entityManagerNamespace,

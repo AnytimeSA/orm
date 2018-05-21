@@ -8,11 +8,6 @@ class SelectQuery extends QueryAbstract implements SelectQueryInterface
     const FETCH_DATA_FORMAT_ARRAY = 'array';
 
     /**
-     * @var string
-     */
-    private $entityClass;
-
-    /**
      * @var bool
      */
     private $fetchDone = true;
@@ -22,15 +17,7 @@ class SelectQuery extends QueryAbstract implements SelectQueryInterface
      */
     private $fetchDataFormat = self::FETCH_DATA_FORMAT_ENTITY;
 
-    /**
-     * @param string $entityClass
-     * @return SelectQuery
-     */
-    public function setEntityClass(string $entityClass): SelectQuery
-    {
-        $this->entityClass = $entityClass;
-        return $this;
-    }
+
 
     /**
      * @param string $fetchDataFormat

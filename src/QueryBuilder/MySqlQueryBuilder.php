@@ -21,7 +21,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
     /**
      * @return string
      */
-    public function getSQL(): string
+    public function getSelectSQL(): string
     {
         $sql  = "SELECT " . $this->select . "\n";
         $sql .= "FROM " . $this->from . "\n";
@@ -40,21 +40,56 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         }
 
         // --- GROUP BY
-        if($this->groupBy) {
+        if ($this->groupBy) {
             $sql .= "GROUP BY " . $this->groupBy . "\n";
         }
 
         // --- ORDER BY
-        if($this->orderBy) {
+        if ($this->orderBy) {
             $sql .= "ORDER BY " . $this->orderBy . "\n";
         }
 
         // --- LIMIT
-        if($this->limitNumber) {
+        if ($this->limitNumber) {
             $sql .= "LIMIT " . $this->limitNumber . " OFFSET " . $this->limitOffset . "\n";
         }
 
         return $sql;
     }
+
+    /**
+     * @param array $fields
+     * @return string
+     */
+    public function getInsertSQL(array $fields): string
+    {
+        $tableName = $this->entityClass::TABLENAME;
+
+        $sql = "INSERT INTO `$tableName`\n";
+        $sqlFields = '';
+        $sqlValues = '';
+
+        foreach($fields as $fieldName => $value) {
+            $sqlFields .= ($sqlFields ? ",\n" : '') . "`$fieldName`";
+            $sqlValues .= ($sqlValues ? ",\n" : '') . ":$fieldName";
+        }
+
+        $sql .= "($sqlFields) VALUES ($sqlValues);";
+
+        return $sql;
+    }
+
+    public function getUpdateSQL(array $fields): string
+    {
+        // TODO: Implement getUpdateSQL() method.
+    }
+
+    public function getDeleteSQL(array $fields): string
+    {
+        // TODO: Implement getDeleteSQL() method.
+    }
+
+
+
 
 }

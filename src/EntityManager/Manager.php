@@ -47,6 +47,7 @@ abstract class Manager
     /**
      * @param mixed $primaryKeyValues,... If primary key is a composite you need to pass as many parameters as required
      * @return Entity|null
+     * TODO THis should ne moved in the query builder concrete class + interface
      */
     public function findByPrimaryKey(...$primaryKeyValues)
     {
@@ -64,6 +65,6 @@ abstract class Manager
             ->where($where)
         ;
 
-        return $queryBuilder->getQuery()->fetchOne();
+        return $queryBuilder->getSelectQuery()->fetchOne();
     }
 }

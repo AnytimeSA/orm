@@ -2,6 +2,8 @@
 
 namespace DVE\EntityORM\QueryBuilder;
 
+use DVE\EntityORM\EntityManager\Entity;
+
 interface QueryBuilderInterface
 {
     /**
@@ -69,10 +71,46 @@ interface QueryBuilderInterface
     /**
      * @return string
      */
-    public function getSQL(): string;
+    public function getSelectSQL(): string;
 
     /**
-     * @return SelectQuery
+     * @param array $fields
+     * @return string
      */
-    public function getQuery(): SelectQueryInterface;
+    public function getDeleteSQL(array $fields): string;
+
+    /**
+     * @param array $fields
+     * @return string
+     */
+    public function getInsertSQL(array $fields): string;
+
+    /**
+     * @param array $fields
+     * @return string
+     */
+    public function getUpdateSQL(array $fields): string;
+
+    /**
+     * @return QueryAbstract|SelectQueryInterface
+     */
+    public function getSelectQuery(): QueryAbstract;
+
+    /**
+     * @param Entity $entity
+     * @return QueryAbstract|InsertQueryInterface
+     */
+    public function getInsertQuery(Entity $entity): QueryAbstract;
+
+    /**
+     * @param Entity $entity
+     * @return QueryAbstract|UpdateQueryInterface
+     */
+    public function getUpdateQuery(Entity $entity): QueryAbstract;
+
+    /**
+     * @param Entity $entity
+     * @return QueryAbstract|DeleteQueryInterface
+     */
+    public function getDeleteQuery(Entity $entity): QueryAbstract;
 }

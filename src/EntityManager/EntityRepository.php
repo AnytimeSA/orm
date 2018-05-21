@@ -2,6 +2,7 @@
 
 namespace DVE\EntityORM\EntityManager;
 
+use DVE\EntityORM\Converter\SnakeToCamelCaseStringConverter;
 use DVE\EntityORM\QueryBuilder\MySqlQueryBuilder;
 use DVE\EntityORM\QueryBuilder\QueryBuilderAbstract;
 use DVE\EntityORM\QueryBuilder\QueryBuilderInterface;
@@ -24,12 +25,19 @@ abstract class EntityRepository
     protected $pdo;
 
     /**
+     * @var SnakeToCamelCaseStringConverter
+     */
+    protected $snakeToCamelCaseStringConverter;
+
+    /**
      * EntityRepository constructor.
      * @param \PDO $pdo
+     * @param SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter
      */
-    public function __construct(\PDO $pdo)
+    public function __construct(\PDO $pdo, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter)
     {
         $this->pdo = $pdo;
+        $this->snakeToCamelCaseStringConverter = $snakeToCamelCaseStringConverter;
     }
 
     /**
@@ -72,9 +80,9 @@ abstract class EntityRepository
      * @param string|null $alias
      * @return QueryBuilderInterface
      */
-    public function createQueryBuilder($alias = null): QueryBuilderAbstract
+    public function createQueryBuilder($alias = null): QueryBuilderInterface
     {
-        $queryBuilder = new MySqlQueryBuilder($this->pdo); // TODO Remplacer par une factory
+        $queryBuilder = new MySqlQueryBuilder($this->pdo, $this->snakeToCamelCaseStringConverter); // TODO Remplacer par une factory
         $queryBuilder
             ->setEntityClass($this->className)
             ->from($this->getTableName(), $alias)
