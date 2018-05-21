@@ -8,6 +8,7 @@ use DVE\EntityORM\Generator\EntityGenerator\MySqlEntityGenerator;
 use DVE\EntityORM\Generator\EntityGenerator\MySqlTableStructureRetriever;
 use DVE\EntityORM\Generator\EntityManagerGenerator\EntityManagerGenerator;
 use DVE\EntityORM\Generator\EntityManagerGenerator\EntityManagerGeneratorInterface;
+use DVE\EntityORM\QueryBuilder\QueryBuilderFactory;
 
 class Factory
 {
@@ -190,7 +191,9 @@ class Factory
         $dynamicRepositoriesClass = $this->entityManagerNamespace . '\\DynamicRepositories';
         $dynamicManagersClass = $this->entityManagerNamespace . '\\DynamicManagers';
 
-        $dynamicRepositories = new $dynamicRepositoriesClass($pdo, $this->snakeToCamelCaseStringConverter);
+        $queryBuilderFactory = new QueryBuilderFactory($pdo, $this->snakeToCamelCaseStringConverter);
+
+        $dynamicRepositories = new $dynamicRepositoriesClass($pdo, $this->snakeToCamelCaseStringConverter, $queryBuilderFactory);
         $dynamicManagers = new $dynamicManagersClass($pdo, $dynamicRepositories);
 
         $dynamicEntityManagerClass = $this->entityManagerNamespace . '\\DynamicEntityManager';
@@ -198,7 +201,9 @@ class Factory
             $pdo,
             $this->snakeToCamelCaseStringConverter,
             $dynamicRepositories,
-            $dynamicManagers
+            $dynamicManagers,
+            $queryBuilderFactory,
+            $this->databaseType
         );
     }
 

@@ -3,6 +3,7 @@
 namespace DVE\EntityORM\EntityManager;
 
 use DVE\EntityORM\Converter\SnakeToCamelCaseStringConverter;
+use DVE\EntityORM\QueryBuilder\QueryBuilderFactory;
 
 class Repositories
 {
@@ -22,13 +23,21 @@ class Repositories
     protected $snakeToCamelCaseStringConverter;
 
     /**
+     * @var QueryBuilderFactory
+     */
+    protected $queryBuilderFactory;
+
+    /**
      * EntityManager constructor.
      * @param \PDO $pdo
+     * @param SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter
+     * @param QueryBuilderFactory $queryBuilderFactory
      */
-    public function __construct(\PDO $pdo, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter)
+    public function __construct(\PDO $pdo, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter, QueryBuilderFactory $queryBuilderFactory)
     {
         $this->pdo = $pdo;
         $this->snakeToCamelCaseStringConverter = $snakeToCamelCaseStringConverter;
+        $this->queryBuilderFactory = $queryBuilderFactory;
     }
 
     /**
@@ -44,11 +53,11 @@ class Repositories
         }
 
         if(class_exists($class)) {
-            return (new $class($this->pdo, $this->snakeToCamelCaseStringConverter))
+            return (new $class($this->pdo, $this->snakeToCamelCaseStringConverter, $this->queryBuilderFactory))
                 ->setTableName($tableName)
                 ->setClassName($entityClassName);
         } else {
-            return (new DefaultEntityRepository($this->pdo, $this->snakeToCamelCaseStringConverter))
+            return (new DefaultEntityRepository($this->pdo, $this->snakeToCamelCaseStringConverter, $this->queryBuilderFactory))
                 ->setTableName($tableName)
                 ->setClassName($entityClassName);
             ;

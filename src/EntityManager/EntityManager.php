@@ -3,8 +3,8 @@
 namespace DVE\EntityORM\EntityManager;
 
 use DVE\EntityORM\Converter\SnakeToCamelCaseStringConverter;
-use DVE\EntityORM\QueryBuilder\MySqlQueryBuilder;
 use DVE\EntityORM\QueryBuilder\QueryBuilderAbstract;
+use DVE\EntityORM\QueryBuilder\QueryBuilderFactory;
 
 abstract class EntityManager
 {
@@ -19,14 +19,23 @@ abstract class EntityManager
     protected $snakeToCamelCaseStringConverter;
 
     /**
+     * @var string
+     */
+    protected $databaseType;
+
+    /**
      * EntityManager constructor.
      * @param \PDO $pdo
      * @param SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter
+     * @param QueryBuilderFactory $queryBuilderFactory
+     * @param string $databaseType
      */
-    public function __construct(\PDO $pdo, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter)
+    public function __construct(\PDO $pdo, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter, QueryBuilderFactory $queryBuilderFactory, string $databaseType)
     {
         $this->pdo = $pdo;
         $this->snakeToCamelCaseStringConverter = $snakeToCamelCaseStringConverter;
+        $this->databaseType = $databaseType;
+        $this->queryBuilderFactory = $queryBuilderFactory;
     }
 
     /**
@@ -53,7 +62,7 @@ abstract class EntityManager
                 throw new \RuntimeException('Composite primary key values should\'nt be null.');
             }
 
-            $queryBuilder = new MySqlQueryBuilder($this->pdo, $this->snakeToCamelCaseStringConverter);
+            $queryBuilder = $this->queryBuilderFactory->create($this->databaseType);
             $query = $queryBuilder
                 ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_INSERT)
                 ->setEntityClass($entityClass)
@@ -95,7 +104,7 @@ abstract class EntityManager
                 throw new \RuntimeException('Null values for primary keys are not allowed in an update context.');
             }
 
-            $queryBuilder = new MySqlQueryBuilder($this->pdo, $this->snakeToCamelCaseStringConverter);
+            $queryBuilder = $this->queryBuilderFactory->create($this->databaseType);
             $query = $queryBuilder
                 ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_UPDATE)
                 ->setEntityClass($entityClass)
@@ -128,7 +137,7 @@ abstract class EntityManager
                 throw new \RuntimeException('Null values for primary keys are not allowed in a delete context.');
             }
 
-            $queryBuilder = new MySqlQueryBuilder($this->pdo, $this->snakeToCamelCaseStringConverter);
+            $queryBuilder = $this->queryBuilderFactory->create($this->databaseType);
             $query = $queryBuilder
                 ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_DELETE)
                 ->setEntityClass($entityClass)

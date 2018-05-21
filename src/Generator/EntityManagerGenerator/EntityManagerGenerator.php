@@ -226,6 +226,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         $sourceCode .= "\n";
         $sourceCode .= "use DVE\EntityORM\EntityManager\EntityManager;\n";
         $sourceCode .= "use DVE\EntityORM\Converter\SnakeToCamelCaseStringConverter;\n";
+        $sourceCode .= "use DVE\EntityORM\QueryBuilder\QueryBuilderFactory;\n";
         $sourceCode .= "\n";
 
         // Class block
@@ -241,11 +242,11 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         $sourceCode .= "     */\n";
         $sourceCode .= "    public \$managers;\n";
         $sourceCode .= "\n";
-        $sourceCode .= "    public function __construct(\\PDO \$pdo, SnakeToCamelCaseStringConverter \$snakeToCamelCaseStringConverter, DynamicRepositories \$dynamicRepositories, DynamicManagers \$dynamicManagers)\n";
+        $sourceCode .= "    public function __construct(\\PDO \$pdo, SnakeToCamelCaseStringConverter \$snakeToCamelCaseStringConverter, DynamicRepositories \$dynamicRepositories, DynamicManagers \$dynamicManagers, QueryBuilderFactory \$queryBuilderFactory, string \$databaseType)\n";
         $sourceCode .= "    {\n";
         $sourceCode .= "        \$this->repositories = \$dynamicRepositories;\n";
         $sourceCode .= "        \$this->managers = \$dynamicManagers;\n";
-        $sourceCode .= "        parent::__construct(\$pdo, \$snakeToCamelCaseStringConverter);\n";
+        $sourceCode .= "        parent::__construct(\$pdo, \$snakeToCamelCaseStringConverter, \$queryBuilderFactory, \$databaseType);\n";
         $sourceCode .= "    }\n";
         $sourceCode .= "}\n\n";
 

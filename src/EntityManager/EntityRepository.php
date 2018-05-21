@@ -4,7 +4,7 @@ namespace DVE\EntityORM\EntityManager;
 
 use DVE\EntityORM\Converter\SnakeToCamelCaseStringConverter;
 use DVE\EntityORM\QueryBuilder\MySqlQueryBuilder;
-use DVE\EntityORM\QueryBuilder\QueryBuilderAbstract;
+use DVE\EntityORM\QueryBuilder\QueryBuilderFactory;
 use DVE\EntityORM\QueryBuilder\QueryBuilderInterface;
 
 abstract class EntityRepository
@@ -25,6 +25,11 @@ abstract class EntityRepository
     protected $pdo;
 
     /**
+     * @var QueryBuilderFactory
+     */
+    protected $queryBuilderFactory;
+
+    /**
      * @var SnakeToCamelCaseStringConverter
      */
     protected $snakeToCamelCaseStringConverter;
@@ -33,11 +38,13 @@ abstract class EntityRepository
      * EntityRepository constructor.
      * @param \PDO $pdo
      * @param SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter
+     * @param QueryBuilderFactory $queryBuilderFactory
      */
-    public function __construct(\PDO $pdo, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter)
+    public function __construct(\PDO $pdo, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter, QueryBuilderFactory $queryBuilderFactory)
     {
         $this->pdo = $pdo;
         $this->snakeToCamelCaseStringConverter = $snakeToCamelCaseStringConverter;
+        $this->queryBuilderFactory = $queryBuilderFactory;
     }
 
     /**
