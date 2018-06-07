@@ -112,4 +112,10 @@ interface QueryBuilderInterface
      * @return QueryAbstract|DeleteQueryInterface
      */
     public function getDeleteQuery(Entity $entity): QueryAbstract;
+
+    /**
+     * @param array $primaryKeys
+     * @return string
+     */
+    public function getFindByPrimaryKeySQLWhere(array $primaryKeys): string;
 }

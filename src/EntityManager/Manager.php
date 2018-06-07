@@ -47,20 +47,14 @@ abstract class Manager
     /**
      * @param mixed $primaryKeyValues,... If primary key is a composite you need to pass as many parameters as required
      * @return Entity|null
-     * TODO THis should ne moved in the query builder concrete class + interface
      */
     public function findByPrimaryKey(...$primaryKeyValues)
     {
         $entityClassName = $this->getRepository()->getClassName();
-        $primaryKeys = $entityClassName::PRIMARY_KEYS;
-        $tableName = $this->getRepository()->getTableName();
-        $where = '';
+        $queryBuilder = $this->createQueryBuilder();
+        $where = $queryBuilder->getFindByPrimaryKeySQLWhere($entityClassName::PRIMARY_KEYS);
 
-        foreach($primaryKeys as $primaryKey) {
-            $where .= ($where ? ' AND ' : ''). '`' . $tableName.'`.`'.$primaryKey . '` = ?';
-        }
-
-        $queryBuilder = $this->createQueryBuilder()
+        $queryBuilder
             ->setParameters($primaryKeyValues)
             ->where($where)
         ;

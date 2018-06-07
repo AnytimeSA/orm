@@ -2,6 +2,8 @@
 
 namespace DVE\EntityORM\QueryBuilder;
 
+use DVE\EntityORM\EntityManager\Entity;
+
 class MySqlQueryBuilder extends QueryBuilderAbstract
 {
     /**
@@ -120,5 +122,20 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         }
 
         return $sql . $sqlWhere . ';';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getFindByPrimaryKeySQLWhere(array $primaryKeys): string
+    {
+        $where = '';
+        $tableName = $this->entityClass::TABLENAME;
+
+        foreach($primaryKeys as $primaryKey) {
+            $where .= ($where ? ' AND ' : ''). '`' . $tableName.'`.`'.$primaryKey . '` = ?';
+        }
+
+        return $where;
     }
 }
