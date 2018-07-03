@@ -229,7 +229,67 @@ If you have a record with the ID "1" it will return a Car entity fully hydrated.
 
 If you have to retrieve an entity with a composite primary key do like this :
  
- ```
- $someCompopsiteEntity = $entityManager->managers->getSomeCompositeManager()->findByPrimaryKey(1, 2);
- print_r($someCompositeEntity);
- ```
+```
+$someCompopsiteEntity = $entityManager->managers->getSomeCompositeManager()->findByPrimaryKey(1, 2);
+print_r($someCompositeEntity);
+```
+ 
+### Using query builder to retrieve data
+ 
+If you have to retrieve data based on several criteria, you will have to use a query builder.
+ 
+#### Create the query builder 
+
+```
+$queryBuilder = $entityManager->managers->getCarManager()->createQueryBuilder('c');
+``` 
+
+#### Defining parameters used in the query
+```
+$queryBuilder->setParameters(['BMW']);
+```
+
+You can also use the named parameters :
+
+```
+$queryBuilder->setParameters(['carName' => 'BMW']);
+```
+
+#### Define where clause
+
+```
+$queryBuilder->where('c.brand LIKE ?%');
+```
+
+Or this if you have used the named parameters
+
+```
+$queryBuilder->where('c.brand = :carName');
+```
+
+#### Prepare the query
+```
+$query = $queryBuilder->getSelectQuery();
+```
+
+#### Fetch only one result (the first one)
+```
+$car = $query->fetchOne();
+```
+
+#### Fetch one by one
+```
+while($car = $query->fetch()) {
+    print_r($car);
+}
+```
+
+#### Fetch all data
+```
+$cars = $query->fetchAll();
+```
+
+#### If you don't need entities you can change the fetch data format value
+```
+$query->setFetchDataFormat(SelectQuery::FETCH_DATA_FORMAT_ARRAY);
+```
