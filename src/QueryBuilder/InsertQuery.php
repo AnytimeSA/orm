@@ -9,11 +9,8 @@ class InsertQuery extends QueryAbstract implements InsertQueryInterface
      */
     public function execute(): int
     {
-        if(!$this->PDOStatement->execute($this->parameters)) {
-            $errInfo = implode(' ; ', $this->PDOStatement->errorInfo());
-            $errCode = $this->PDOStatement->errorCode();
-            throw new \RuntimeException('Err #' . $errCode . ' - ' . $errInfo);
-        }
+        $this->PDOStatement->execute($this->parameters);
+        $this->throwPdoError($this->PDOStatement);
         return $this->pdo->lastInsertId();
     }
 }

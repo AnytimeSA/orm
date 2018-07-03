@@ -17,8 +17,6 @@ class SelectQuery extends QueryAbstract implements SelectQueryInterface
      */
     private $fetchDataFormat = self::FETCH_DATA_FORMAT_ENTITY;
 
-
-
     /**
      * @param string $fetchDataFormat
      * @return SelectQuery
@@ -47,6 +45,7 @@ class SelectQuery extends QueryAbstract implements SelectQueryInterface
     {
         if($this->fetchDone) {
             $this->PDOStatement->execute($this->parameters);
+            $this->throwPdoError($this->PDOStatement);
             $this->fetchDone = false;
         }
 
@@ -71,6 +70,7 @@ class SelectQuery extends QueryAbstract implements SelectQueryInterface
         $results = [];
 
         $this->PDOStatement->execute($this->parameters);
+        $this->throwPdoError($this->PDOStatement);
         $fetchedData = $this->PDOStatement->fetchAll(\PDO::FETCH_ASSOC);
 
         if($this->entityClass && $this->fetchDataFormat === self::FETCH_DATA_FORMAT_ENTITY) {
@@ -92,6 +92,7 @@ class SelectQuery extends QueryAbstract implements SelectQueryInterface
     public function fetchSingleScalarResult()
     {
         $this->PDOStatement->execute($this->parameters);
+        $this->throwPdoError($this->PDOStatement);
         $fetchedData = $this->PDOStatement->fetch(\PDO::FETCH_NUM);
         $this->PDOStatement->closeCursor();
 

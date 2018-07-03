@@ -46,4 +46,16 @@ class QueryAbstract
         $this->entityClass = $entityClass;
         return $this;
     }
+
+    /**
+     * @param \PDOStatement $PDOStatement
+     */
+    protected function throwPdoError(\PDOStatement $PDOStatement)
+    {
+        $errInfo = $PDOStatement->errorInfo();
+        if(array_key_exists(1, $errInfo) && $errInfo[1]) {
+            $msg = array_key_exists(2, $errInfo) ? $errInfo[2] : 'Unknown error';
+            throw new \RuntimeException($msg, (int)$errInfo[1]);
+        }
+    }
 }
