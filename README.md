@@ -380,17 +380,20 @@ use DVE\EntityORM\EntityManager\Manager;
 
 class CarManager extends Manager
 {
-    /** @var CarEntityRepository $repository */
-    $repository = $this->getRepository();
-    $queryBuilder = $repository->createCarWithOwnerQueryBuilder();
-
-    $queryBuilder->setParameters([
-        'ownerName' => $ownerName
-    ]);
-    $queryBuilder->where('o.name = :ownerName');
-
-
-    return $queryBuilder->getSelectQuery()->fetchAll();
+    public function findCarsByOwnerName(string $ownerName)
+    {
+        /** @var CarEntityRepository $repository */
+        $repository = $this->getRepository();
+        $queryBuilder = $repository->createCarWithOwnerQueryBuilder();
+    
+        $queryBuilder->setParameters([
+            'ownerName' => $ownerName
+        ]);
+        $queryBuilder->where('o.name = :ownerName');
+    
+    
+        return $queryBuilder->getSelectQuery()->fetchAll();
+    }
 }
 ```
 
