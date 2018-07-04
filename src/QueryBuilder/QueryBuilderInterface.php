@@ -76,7 +76,12 @@ interface QueryBuilderInterface
     /**
      * @return string
      */
-    public function getDeleteSQL(): string;
+    public function getDeleteByPrimaryKeySQL(): string;
+
+    /**
+     * @return string
+     */
+    public function getDeleteByCriteriaSQL(): string;
 
     /**
      * @param array $fields
@@ -102,16 +107,16 @@ interface QueryBuilderInterface
     public function getInsertQuery(Entity $entity): QueryAbstract;
 
     /**
-     * @param Entity $entity
+     * @param Entity|null $entity
      * @return QueryAbstract|UpdateQueryInterface
      */
-    public function getUpdateQuery(Entity $entity): QueryAbstract;
+    public function getUpdateQuery(Entity $entity = null): QueryAbstract;
 
     /**
-     * @param Entity $entity
+     * @param Entity|null $entity
      * @return QueryAbstract|DeleteQueryInterface
      */
-    public function getDeleteQuery(Entity $entity): QueryAbstract;
+    public function getDeleteQuery(Entity $entity = null): QueryAbstract;
 
     /**
      * @param array $primaryKeys

@@ -109,7 +109,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
     /**
      * @return string
      */
-    public function getDeleteSQL(): string
+    public function getDeleteByPrimaryKeySQL(): string
     {
         $tableName = $this->entityClass::TABLENAME;
         $primaryKeys = $this->entityClass::PRIMARY_KEYS;
@@ -122,6 +122,26 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         }
 
         return $sql . $sqlWhere . ';';
+    }
+
+    /**
+     * @return string
+     */
+    public function getDeleteByCriteriaSQL(): string
+    {
+        $tableName = $this->entityClass::TABLENAME;
+
+        $sql = "DELETE FROM `$tableName`\n";
+
+        // --- WHERE
+        if(count($this->where) > 0) {
+            $sql .= "WHERE \n";
+            foreach($this->where as $iw => $where) {
+                $sql .= ($iw > 0 ? ' AND ' : '') . "($where)\n";
+            }
+        }
+
+        return $sql;
     }
 
     /**

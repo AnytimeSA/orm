@@ -4,6 +4,7 @@ namespace DVE\EntityORM\EntityManager;
 
 use DVE\EntityORM\Converter\SnakeToCamelCaseStringConverter;
 use DVE\EntityORM\QueryBuilder\MySqlQueryBuilder;
+use DVE\EntityORM\QueryBuilder\QueryBuilderAbstract;
 use DVE\EntityORM\QueryBuilder\QueryBuilderFactory;
 use DVE\EntityORM\QueryBuilder\QueryBuilderInterface;
 
@@ -85,16 +86,27 @@ abstract class EntityRepository
 
     /**
      * @param string|null $alias
+     * @param string $queryType
      * @return QueryBuilderInterface
      */
-    public function createQueryBuilder($alias = null): QueryBuilderInterface
+    public function createQueryBuilder($alias = null, string $queryType = QueryBuilderAbstract::QUERY_TYPE_SELECT): QueryBuilderInterface
     {
         $queryBuilder = new MySqlQueryBuilder($this->pdo, $this->snakeToCamelCaseStringConverter); // TODO Remplacer par une factory
         $queryBuilder
+            ->setQueryType($queryType)
             ->setEntityClass($this->className)
             ->from($this->getTableName(), $alias)
             ->select(($alias ? $alias : $this->getTableName()) . '.*')
         ;
         return $queryBuilder;
+    }
+
+    /**
+     * @param string|null $alias
+     * @return QueryBuilderInterface
+     */
+    public function createDeleteQueryBuilder($alias = null)
+    {
+        return $this->createQueryBuilder($alias, QueryBuilderAbstract::QUERY_TYPE_DELETE);
     }
 }

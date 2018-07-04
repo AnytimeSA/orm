@@ -221,7 +221,7 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
     /**
      * @inheritDoc
      */
-    public function getUpdateQuery(Entity $entity): QueryAbstract
+    public function getUpdateQuery(Entity $entity = null): QueryAbstract
     {
         if($this->queryType !== QueryBuilderAbstract::QUERY_TYPE_UPDATE) {
             throw new \RuntimeException('Not in an ' . QueryBuilderAbstract::QUERY_TYPE_UPDATE . ' context');
@@ -235,20 +235,24 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
     /**
      * @inheritDoc
      */
-    public function getDeleteQuery(Entity $entity): QueryAbstract
+    public function getDeleteQuery(Entity $entity = null): QueryAbstract
     {
         if($this->queryType !== QueryBuilderAbstract::QUERY_TYPE_DELETE) {
             throw new \RuntimeException('Not in an ' . QueryBuilderAbstract::QUERY_TYPE_DELETE . ' context');
         }
 
-        $parameters = [];
-
-        foreach($this->entityClass::PRIMARY_KEYS as $pkeyName) {
-            $getter = 'get' . $this->snakeToCamelCaseStringConverter->convert($pkeyName);
-            $parameters[$pkeyName] = $entity->$getter();
+        if($entity) {
+            $parameters = [];
+            foreach($this->entityClass::PRIMARY_KEYS as $pkeyName) {
+                $getter = 'get' . $this->snakeToCamelCaseStringConverter->convert($pkeyName);
+                $parameters[$pkeyName] = $entity->$getter();
+            }
+            $statement = $this->pdo->prepare($this->getDeleteByPrimaryKeySQL());
+        } else {
+            $statement = $this->pdo->prepare($this->getDeleteByCriteriaSQL());
+            $parameters = $this->parameters;
         }
 
-        $statement = $this->pdo->prepare($this->getDeleteSQL());
         return (new DeleteQuery($this->pdo, $statement, $parameters))->setEntityClass($this->entityClass);
     }
 

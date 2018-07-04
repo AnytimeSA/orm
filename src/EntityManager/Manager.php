@@ -2,6 +2,7 @@
 
 namespace DVE\EntityORM\EntityManager;
 
+use DVE\EntityORM\QueryBuilder\QueryBuilderAbstract;
 use DVE\EntityORM\QueryBuilder\QueryBuilderInterface;
 
 abstract class Manager
@@ -37,11 +38,21 @@ abstract class Manager
 
     /**
      * @param string|null $alias
+     * @param string $queryType
      * @return QueryBuilderInterface
      */
-    public function createQueryBuilder(string $alias = null): QueryBuilderInterface
+    public function createQueryBuilder($alias = null, string $queryType = QueryBuilderAbstract::QUERY_TYPE_SELECT): QueryBuilderInterface
     {
-        return $this->entityRepository->createQueryBuilder($alias);
+        return $this->entityRepository->createQueryBuilder($alias, $queryType)
+    }
+
+    /**
+     * @param string|null $alias
+     * @return QueryBuilderInterface
+     */
+    public function createDeleteQueryBuilder($alias = null)
+    {
+        return $this->entityRepository->createDeleteQueryBuilder($alias);
     }
 
     /**

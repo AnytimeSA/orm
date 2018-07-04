@@ -440,8 +440,17 @@ $entityManager->delete($entity);
 ```
 
 ### Delete multiple entities
-
 ```
 $entityManager->delete([$entity1,$entity2,...,$entityN]);
+```
+
+### Massive delete based on where criteria
+```
+$qb = $entityManager->managers->getCarManager()->createDeleteQueryBuilder();
+$qb->setParameters(['ownerId' => 1]);
+$qb->where('car.owner_id = :ownerId');
+$affectedRows = $qb->getDeleteQuery()->execute();
+
+echo $affectedRows . ' rows deleted.';
 ```
 
