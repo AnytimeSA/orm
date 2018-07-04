@@ -93,6 +93,7 @@ abstract class EntityRepository
         $queryBuilder
             ->setEntityClass($this->className)
             ->from($this->getTableName(), $alias)
+            ->select(($alias ? $alias : $this->getTableName()) . '.*')
         ;
         return $queryBuilder;
     }
