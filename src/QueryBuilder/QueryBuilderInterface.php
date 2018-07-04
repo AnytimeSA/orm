@@ -93,7 +93,13 @@ interface QueryBuilderInterface
      * @param array $fields
      * @return string
      */
-    public function getUpdateSQL(array $fields): string;
+    public function getUpdateByPrimaryKeySQL(array $fields): string;
+
+    /**
+     * @param array $fields
+     * @return string
+     */
+    public function getUpdateByCriteriaSQL(array $fields): string;
 
     /**
      * @return QueryAbstract|SelectQueryInterface

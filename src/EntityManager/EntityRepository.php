@@ -109,4 +109,13 @@ abstract class EntityRepository
     {
         return $this->createQueryBuilder($alias, QueryBuilderAbstract::QUERY_TYPE_DELETE);
     }
+
+    /**
+     * @param string|null $alias
+     * @return QueryBuilderInterface
+     */
+    public function createUpdateQueryBuilder($alias = null)
+    {
+        return $this->createQueryBuilder($alias, QueryBuilderAbstract::QUERY_TYPE_UPDATE);
+    }
 }

@@ -2,8 +2,6 @@
 
 namespace DVE\EntityORM\QueryBuilder;
 
-use DVE\EntityORM\EntityManager\Entity;
-
 class MySqlQueryBuilder extends QueryBuilderAbstract
 {
     /**
@@ -85,7 +83,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
      * @param array $fields
      * @return string
      */
-    public function getUpdateSQL(array $fields): string
+    public function getUpdateByPrimaryKeySQL(array $fields): string
     {
         $tableName = $this->entityClass::TABLENAME;
         $primaryKeys = $this->entityClass::PRIMARY_KEYS;
@@ -94,13 +92,41 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         $sqlSet = '';
 
         foreach($fields as $fieldName => $value) {
-            $sqlSet .= ($sqlSet ? ",\n" : '') . "`$fieldName` = :$fieldName";
+            $sqlSet .= ($sqlSet ? ",\n" : '') . "`$fieldName` = :UPDATE_VALUE_$fieldName";
         }
         $sqlSet = " SET \n" . $sqlSet . "\n";
 
         $sqlWhere = '';
         foreach($primaryKeys as $pkeyName) {
             $sqlWhere .= ($sqlWhere ? ' AND ' : 'WHERE ') . "`$pkeyName` = :$pkeyName\n";
+        }
+
+        return $sql . $sqlSet . $sqlWhere . ';';
+    }
+
+    /**
+     * @param array $fields
+     * @return string
+     */
+    public function getUpdateByCriteriaSQL(array $fields): string
+    {
+        $tableName = $this->entityClass::TABLENAME;
+
+        $sql = "UPDATE `$tableName`";
+        $sqlWhere = '';
+        $sqlSet = '';
+
+        foreach($fields as $fieldName => $value) {
+            $sqlSet .= ($sqlSet ? ",\n" : '') . "`$fieldName` = :UPDATE_VALUE_$fieldName";
+        }
+        $sqlSet = " SET \n" . $sqlSet . "\n";
+
+        // --- WHERE
+        if(count($this->where) > 0) {
+            $sqlWhere .= "WHERE \n";
+            foreach($this->where as $iw => $where) {
+                $sqlWhere .= ($iw > 0 ? ' AND ' : '') . "($where)\n";
+            }
         }
 
         return $sql . $sqlSet . $sqlWhere . ';';

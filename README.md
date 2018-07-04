@@ -430,6 +430,20 @@ $entityManager->update($entity);
 $entityManager->update([$entity1,$entity2,...,$entityN]);
 ```
 
+### Massive update based on where criteria
+```
+$qb = $entityManager->managers->getCarManager()->createUpdateQueryBuilder();
+$qb->setParameters([
+    'ownerId' => 20
+]);
+$qb->where('car.owner_id = :ownerId');
+$qb->setFieldsToUpdate([
+    'brand' => 'Minicooper'
+]);
+$affectedRows = $qb->getUpdateQuery()->execute();
+
+echo $affectedRows . ' rows updated';
+```
 
 ## Delete data
 

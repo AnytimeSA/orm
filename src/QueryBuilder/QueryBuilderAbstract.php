@@ -79,6 +79,11 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
     protected $join = [];
 
     /**
+     * @var array
+     */
+    protected $fieldsToUpdate = [];
+
+    /**
      * QueryBuilderAbstract constructor.
      * @param \PDO $pdo
      * @param SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter
@@ -122,6 +127,16 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
     public function setParameters(array $parameters): QueryBuilderInterface
     {
         $this->parameters = $parameters;
+        return $this;
+    }
+
+    /**
+     * @param array $fieldsToUpdate
+     * @return QueryBuilderAbstract
+     */
+    public function setFieldsToUpdate(array $fieldsToUpdate): QueryBuilderAbstract
+    {
+        $this->fieldsToUpdate = $fieldsToUpdate;
         return $this;
     }
 
@@ -216,8 +231,6 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
         return (new InsertQuery($this->pdo, $statement, $data))->setEntityClass($this->entityClass);
     }
 
-
-
     /**
      * @inheritDoc
      */
@@ -227,9 +240,23 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
             throw new \RuntimeException('Not in an ' . QueryBuilderAbstract::QUERY_TYPE_UPDATE . ' context');
         }
 
-        $data = $entity->extractData();
-        $statement = $this->pdo->prepare($this->getUpdateSQL($data));
-        return (new UpdateQuery($this->pdo, $statement, $data))->setEntityClass($this->entityClass);
+        if($entity) {
+            $primaryKeys = $this->entityClass::PRIMARY_KEYS;
+
+            $fieldsToUpdate = $entity->extractData();
+            $data = [];
+
+            foreach($primaryKeys as $pkeyName) {
+                $data[$pkeyName] = $fieldsToUpdate[$pkeyName];
+            }
+
+            $statement = $this->pdo->prepare($this->getUpdateByPrimaryKeySQL($fieldsToUpdate));
+            return (new UpdateQuery($this->pdo, $statement, $data, $fieldsToUpdate))->setEntityClass($this->entityClass);
+
+        } else {
+            $statement = $this->pdo->prepare($this->getUpdateByCriteriaSQL($this->fieldsToUpdate));
+            return (new UpdateQuery($this->pdo, $statement, $this->parameters, $this->fieldsToUpdate))->setEntityClass($this->entityClass);
+        }
     }
 
     /**

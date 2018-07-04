@@ -43,7 +43,8 @@ abstract class Manager
      */
     public function createQueryBuilder($alias = null, string $queryType = QueryBuilderAbstract::QUERY_TYPE_SELECT): QueryBuilderInterface
     {
-        return $this->entityRepository->createQueryBuilder($alias, $queryType)
+        return $this->entityRepository->createQueryBuilder($alias, $queryType);
+
     }
 
     /**
@@ -53,6 +54,15 @@ abstract class Manager
     public function createDeleteQueryBuilder($alias = null)
     {
         return $this->entityRepository->createDeleteQueryBuilder($alias);
+    }
+
+    /**
+     * @param string|null $alias
+     * @return QueryBuilderInterface
+     */
+    public function createUpdateQueryBuilder($alias = null)
+    {
+        return $this->entityRepository->createUpdateQueryBuilder($alias);
     }
 
     /**
