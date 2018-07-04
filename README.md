@@ -204,7 +204,7 @@ class SomeServiceContainer
 { 
     public function getEntityManagerService(): DynamicEntityManager
     {
-        $entityManager = $factory->createEntityManager($pdo);
+        $entityManager = $factory->createEntityManager($this->pdo);
     }
 }
 ```
@@ -258,7 +258,7 @@ $queryBuilder->setParameters(['carName' => 'BMW']);
 #### Define where clause
 
 ```
-$queryBuilder->where('c.brand LIKE ?%');
+$queryBuilder->where('c.brand = ?');
 ```
 
 Or this if you have used the named parameters
@@ -293,3 +293,6 @@ $cars = $query->fetchAll();
 ```
 $query->setFetchDataFormat(SelectQuery::FETCH_DATA_FORMAT_ARRAY);
 ```
+
+### Create custom repository and managers
+
