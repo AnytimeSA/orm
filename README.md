@@ -296,3 +296,114 @@ $query->setFetchDataFormat(SelectQuery::FETCH_DATA_FORMAT_ARRAY);
 
 ### Create custom repository and managers
 
+Let's take the "car" table and add a foreign key to the owner table for the example.
+
+```
+CREATE TABLE `car` (
+  `id_car` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `owner_id` int(11) NOT NULL,
+  `brand` varchar(25) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id_car`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+ 
+CREATE TABLE `owner` (
+  `id_owner` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  PRIMARY KEY (`id_owner`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+We create a custom repository class in the configured directory for this table.
+In our case you will create it in the "src/EntityRepository/" directory :
+
+```
+<?php
+ 
+namespace Dummy\Project\EntityRepository;
+ 
+use DVE\EntityORM\EntityManager\EntityRepository;
+ 
+class CarEntityRepository extends EntityRepository
+{
+}
+```
+
+Now add a custom method that will make a join between "car" and "owner" : 
+
+```
+<?php
+ 
+namespace Dummy\Project\EntityRepository;
+ 
+use DVE\EntityORM\EntityManager\EntityRepository;
+ 
+class CarEntityRepository extends EntityRepository
+{
+    /**
+     * @return \DVE\EntityORM\QueryBuilder\QueryBuilderInterface
+     */
+    public function createCarWithOwnerQueryBuilder()
+    {
+        $queryBuilder = $this->createQueryBuilder('c');
+        $queryBuilder->join('INNER JOIN owner o ON o.id_owner = c.owner_id');
+        return $queryBuilder;
+    }
+}
+```
+
+This repository class will be loaded now instead of the DefaultRepositoryClass
+
+Now let's create a manager class in the configured directory. In our case it is "src/Manager/" :
+
+```
+<?php
+
+namespace Dummy\Project\Manager;
+
+use DVE\EntityORM\EntityManager\Manager;
+
+class CarManager extends Manager
+{
+}
+```
+
+Now let's add a method that use the repository : 
+
+
+```
+<?php
+
+namespace Dummy\Project\Manager;
+
+use DVE\DummyProject\EntityRepository\CarEntityRepository;
+use DVE\EntityORM\EntityManager\Manager;
+
+class CarManager extends Manager
+{
+    /** @var CarEntityRepository $repository */
+    $repository = $this->getRepository();
+    $queryBuilder = $repository->createCarWithOwnerQueryBuilder();
+
+    $queryBuilder->setParameters([
+        'ownerName' => $ownerName
+    ]);
+    $queryBuilder->where('o.name = :ownerName');
+
+
+    return $queryBuilder->getSelectQuery()->fetchAll();
+}
+```
+
+It will returns all the cars linked to the owner called "John Smith".
+
+## Insert data
+
+Todo.
+
+## Update data
+
+Todo.
+
+## Delete data
+
+Todo.
