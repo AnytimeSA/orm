@@ -401,12 +401,47 @@ It will returns all the cars linked to the owner called "John Smith".
 
 ## Insert data
 
-Todo.
+### Insert a single entity
+
+```
+$car = (new Car())
+    ->setBrand('Audi')
+    ->setOwnerId(1)
+;
+$entityManager->insert($car);
+echo 'record inserted with ID #'.$car->getIdCar();
+```
+
+### Insert multiple entities
+```
+$entityManager->insert([$entity1, $entity2,..., $entityN]);
+```
 
 ## Update data
 
-Todo.
+### Update a single entity
+```
+$entity->setSomeProperty('new value');
+$entityManager->update($entity);
+```
+
+### Update multiple entities
+```
+$entityManager->update([$entity1,$entity2,...,$entityN]);
+```
+
 
 ## Delete data
 
-Todo.
+### Delete a single entity
+
+```
+$entityManager->delete($entity);
+```
+
+### Delete multiple entities
+
+```
+$entityManager->delete([$entity1,$entity2,...,$entityN]);
+```
+
