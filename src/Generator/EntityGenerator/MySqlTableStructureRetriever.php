@@ -32,7 +32,7 @@ class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
             $stmt->execute();
 
             foreach($stmt->fetchAll() as $elem) {
-                $tableList[] = $elem[0];
+                $tableList[] = array_values($elem)[0];
             }
         }
 
