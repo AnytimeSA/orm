@@ -14,7 +14,6 @@ $db = 'dbname';
 $user = 'user';
 $pass = 'pass';
 
-
 $pdo = new \PDO("mysql:host=$host;port=$port;dbname=$db", $user, $pass);
 
 $entityGenerator = new MySqlEntityGenerator(

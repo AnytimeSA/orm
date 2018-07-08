@@ -367,5 +367,4 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
 
         return $sourceCode;
     }
-
 }

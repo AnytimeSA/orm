@@ -467,4 +467,3 @@ $affectedRows = $qb->getDeleteQuery()->execute();
 
 echo $affectedRows . ' rows deleted.';
 ```
-

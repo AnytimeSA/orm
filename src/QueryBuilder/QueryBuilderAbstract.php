@@ -282,5 +282,4 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
 
         return (new DeleteQuery($this->pdo, $statement, $parameters))->setEntityClass($this->entityClass);
     }
-
 }

@@ -64,6 +64,4 @@ abstract class Entity
         }
         return $this->cachedReturnedObject[$method];
     }
-
-
 }

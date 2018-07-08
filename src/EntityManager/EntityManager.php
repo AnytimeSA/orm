@@ -147,5 +147,4 @@ abstract class EntityManager
             $query->execute();
         }
     }
-
 }
