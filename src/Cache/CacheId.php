@@ -20,10 +20,4 @@ class CacheId
         }
         return $cacheID;
     }
-
-    public function getEntityCacheIdByQueryBuilder(QueryBuilderAbstract $queryBuilder)
-    {
-//        $queryType = $queryBuilder->getQueryType();
-//        $queryBuilder->
-    }
 }
