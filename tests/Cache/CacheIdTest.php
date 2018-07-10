@@ -8,13 +8,13 @@ use PHPUnit\Framework\TestCase;
 class CacheIdTest extends TestCase
 {
     /**
-     * @dataProvider getEntityCacheByPrimaryKeyValuesProvider
+     * @dataProvider getEntityCacheIdByPrimaryKeyValuesProvider
      * @param string $class
      * @param string|null $pk1
      * @param string|null $pk2
      * @param string $expected
      */
-    public function testGetEntityCacheByPrimaryKeyValues(string $class, $pk1, $pk2, string $expected)
+    public function testGetEntityCacheIdByPrimaryKeyValues(string $class, $pk1, $pk2, string $expected)
     {
         $pks = [];
 
@@ -22,13 +22,13 @@ class CacheIdTest extends TestCase
         if(!is_null($pk2)) $pks[] = $pk2;
 
         $cacheId = new CacheId();
-        $this->assertSame($expected, $cacheId->getEntityCacheByPrimaryKeyValues($class, $pks));
+        $this->assertSame($expected, $cacheId->getEntityCacheIdByPrimaryKeyValues($class, $pks));
     }
 
     /**
      * @return array
      */
-    public function getEntityCacheByPrimaryKeyValuesProvider()
+    public function getEntityCacheIdByPrimaryKeyValuesProvider()
     {
         return [
             ['My\\Class', 1, 2, 'ENTITY-34e68847-1-2'],
