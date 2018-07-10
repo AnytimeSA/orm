@@ -3,7 +3,6 @@
 namespace DVE\EntityORM\Cache;
 
 use DVE\EntityORM\QueryBuilder\QueryBuilderAbstract;
-use DVE\EntityORM\QueryBuilder\QueryBuilderInterface;
 
 class CacheId
 {
@@ -13,7 +12,7 @@ class CacheId
      * @param array $primaryValues
      * @return string
      */
-    public function getEntityCacheByPrimaryKeyValues(string $entityClass, array $primaryValues)
+    public function getEntityCacheIdByPrimaryKeyValues(string $entityClass, array $primaryValues)
     {
         $cacheID = 'ENTITY-' . hash('fnv132', $entityClass);
         foreach($primaryValues as $value) {
@@ -21,10 +20,10 @@ class CacheId
         }
         return $cacheID;
     }
-//
-//    public function getEntityCacheByQueryBuilder(QueryBuilderAbstract $queryBuilder)
-//    {
-////        $queryType = $queryBuilder->getQueryType();
-////        $queryBuilder->
-//    }
+
+    public function getEntityCacheIdByQueryBuilder(QueryBuilderAbstract $queryBuilder)
+    {
+//        $queryType = $queryBuilder->getQueryType();
+//        $queryBuilder->
+    }
 }
