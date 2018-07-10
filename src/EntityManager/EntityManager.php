@@ -1,10 +1,10 @@
 <?php
 
-namespace DVE\EntityORM\EntityManager;
+namespace Anytime\ORM\EntityManager;
 
-use DVE\EntityORM\Converter\SnakeToCamelCaseStringConverter;
-use DVE\EntityORM\QueryBuilder\QueryBuilderAbstract;
-use DVE\EntityORM\QueryBuilder\QueryBuilderFactory;
+use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
+use Anytime\ORM\QueryBuilder\QueryBuilderAbstract;
+use Anytime\ORM\QueryBuilder\QueryBuilderFactory;
 
 abstract class EntityManager
 {

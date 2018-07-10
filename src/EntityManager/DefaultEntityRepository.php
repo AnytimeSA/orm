@@ -1,6 +1,6 @@
 <?php
 
-namespace DVE\EntityORM\EntityManager;
+namespace Anytime\ORM\EntityManager;
 
 class DefaultEntityRepository extends EntityRepository
 {

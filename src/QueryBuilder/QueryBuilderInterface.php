@@ -1,8 +1,8 @@
 <?php
 
-namespace DVE\EntityORM\QueryBuilder;
+namespace Anytime\ORM\QueryBuilder;
 
-use DVE\EntityORM\EntityManager\Entity;
+use Anytime\ORM\EntityManager\Entity;
 
 interface QueryBuilderInterface
 {

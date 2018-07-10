@@ -1,8 +1,8 @@
 <?php
 
-namespace DVE\EntityORM\Tests\Converter;
+namespace Anytime\ORM\Tests\Converter;
 
-use DVE\EntityORM\Converter\SnakeToCamelCaseStringConverter;
+use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
 use PHPUnit\Framework\TestCase;
 
 class SnakeToCamelCaseStringConverterTest extends TestCase

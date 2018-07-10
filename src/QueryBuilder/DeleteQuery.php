@@ -1,6 +1,6 @@
 <?php
 
-namespace DVE\EntityORM\QueryBuilder;
+namespace Anytime\ORM\QueryBuilder;
 
 class DeleteQuery extends QueryAbstract implements DeleteQueryInterface
 {

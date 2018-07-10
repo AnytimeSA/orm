@@ -1,8 +1,8 @@
 <?php
 
-namespace DVE\EntityORM\Cache;
+namespace Anytime\ORM\Cache;
 
-use DVE\EntityORM\QueryBuilder\QueryBuilderAbstract;
+use Anytime\ORM\QueryBuilder\QueryBuilderAbstract;
 
 class CacheId
 {

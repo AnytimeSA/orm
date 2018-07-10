@@ -1,9 +1,9 @@
 <?php
 
-namespace DVE\EntityORM\QueryBuilder;
+namespace Anytime\ORM\QueryBuilder;
 
-use DVE\EntityORM\Converter\SnakeToCamelCaseStringConverter;
-use DVE\EntityORM\EntityManager\Factory;
+use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
+use Anytime\ORM\EntityManager\Factory;
 
 class QueryBuilderFactory
 {

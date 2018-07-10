@@ -1,10 +1,10 @@
 <?php
 
-namespace DVE\EntityORM\Generator\EntityGenerator;
+namespace Anytime\ORM\Generator\EntityGenerator;
 
 /**
  * Interface EntityGeneratorInterface
- * @package DVE\EntityORM\Generator\EntityGenerator
+ * @package Anytime\ORM\Generator\EntityGenerator
  */
 interface EntityGeneratorInterface
 {

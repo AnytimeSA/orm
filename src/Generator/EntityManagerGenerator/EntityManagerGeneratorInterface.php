@@ -1,6 +1,6 @@
 <?php
 
-namespace DVE\EntityORM\Generator\EntityManagerGenerator;
+namespace Anytime\ORM\Generator\EntityManagerGenerator;
 
 interface EntityManagerGeneratorInterface
 {

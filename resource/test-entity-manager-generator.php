@@ -2,9 +2,9 @@
 
 namespace Resource\Test;
 
-use DVE\EntityORM\Converter\SnakeToCamelCaseStringConverter;
-use DVE\EntityORM\Generator\EntityGenerator\MySqlTableStructureRetriever;
-use DVE\EntityORM\Generator\EntityManagerGenerator\EntityManagerGenerator;
+use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
+use Anytime\ORM\Generator\EntityGenerator\MySqlTableStructureRetriever;
+use Anytime\ORM\Generator\EntityManagerGenerator\EntityManagerGenerator;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 

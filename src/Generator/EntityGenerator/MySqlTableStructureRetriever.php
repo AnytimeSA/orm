@@ -1,6 +1,6 @@
 <?php
 
-namespace DVE\EntityORM\Generator\EntityGenerator;
+namespace Anytime\ORM\Generator\EntityGenerator;
 
 class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
 {

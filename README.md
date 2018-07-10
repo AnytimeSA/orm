@@ -135,7 +135,7 @@ Our generated entity class should looks like this :
 ```
 namespace Dummy\Project\Entities;
  
-use DVE\EntityORM\EntityManager\Entity; 
+use Anytime\ORM\EntityManager\Entity; 
  
 class Car extends Entity
 {
@@ -321,7 +321,7 @@ In our case you will create it in the "src/EntityRepository/" directory :
  
 namespace Dummy\Project\EntityRepository;
  
-use DVE\EntityORM\EntityManager\EntityRepository;
+use Anytime\ORM\EntityManager\EntityRepository;
  
 class CarEntityRepository extends EntityRepository
 {
@@ -335,12 +335,12 @@ Now add a custom method that will make a join between "car" and "owner" :
  
 namespace Dummy\Project\EntityRepository;
  
-use DVE\EntityORM\EntityManager\EntityRepository;
+use Anytime\ORM\EntityManager\EntityRepository;
  
 class CarEntityRepository extends EntityRepository
 {
     /**
-     * @return \DVE\EntityORM\QueryBuilder\QueryBuilderInterface
+     * @return \Anytime\ORM\QueryBuilder\QueryBuilderInterface
      */
     public function createCarWithOwnerQueryBuilder()
     {
@@ -360,7 +360,7 @@ Now let's create a manager class in the configured directory. In our case it is 
 
 namespace Dummy\Project\Manager;
 
-use DVE\EntityORM\EntityManager\Manager;
+use Anytime\ORM\EntityManager\Manager;
 
 class CarManager extends Manager
 {
@@ -375,8 +375,8 @@ Now let's add a method that use the repository :
 
 namespace Dummy\Project\Manager;
 
-use DVE\DummyProject\EntityRepository\CarEntityRepository;
-use DVE\EntityORM\EntityManager\Manager;
+use Dummy\Project\EntityRepository\CarEntityRepository;
+use Anytime\ORM\EntityManager\Manager;
 
 class CarManager extends Manager
 {

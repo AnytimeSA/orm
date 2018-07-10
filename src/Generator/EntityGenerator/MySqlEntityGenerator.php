@@ -1,9 +1,9 @@
 <?php
 
-namespace DVE\EntityORM\Generator\EntityGenerator;
+namespace Anytime\ORM\Generator\EntityGenerator;
 
-use DVE\EntityORM\Converter\SnakeToCamelCaseStringConverter;
-use DVE\EntityORM\EntityManager\Entity;
+use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
+use Anytime\ORM\EntityManager\Entity;
 
 class MySqlEntityGenerator implements EntityGeneratorInterface
 {

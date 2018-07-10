@@ -1,12 +1,12 @@
 <?php
 
-namespace DVE\EntityORM\EntityManager;
+namespace Anytime\ORM\EntityManager;
 
-use DVE\EntityORM\Converter\SnakeToCamelCaseStringConverter;
-use DVE\EntityORM\QueryBuilder\MySqlQueryBuilder;
-use DVE\EntityORM\QueryBuilder\QueryBuilderAbstract;
-use DVE\EntityORM\QueryBuilder\QueryBuilderFactory;
-use DVE\EntityORM\QueryBuilder\QueryBuilderInterface;
+use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
+use Anytime\ORM\QueryBuilder\MySqlQueryBuilder;
+use Anytime\ORM\QueryBuilder\QueryBuilderAbstract;
+use Anytime\ORM\QueryBuilder\QueryBuilderFactory;
+use Anytime\ORM\QueryBuilder\QueryBuilderInterface;
 
 abstract class EntityRepository
 {

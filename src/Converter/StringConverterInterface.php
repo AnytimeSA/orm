@@ -1,6 +1,6 @@
 <?php
 
-namespace DVE\EntityORM\Converter;
+namespace Anytime\ORM\Converter;
 
 interface StringConverterInterface
 {

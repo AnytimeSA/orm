@@ -1,9 +1,9 @@
 <?php
 
-namespace DVE\EntityORM\EntityManager;
+namespace Anytime\ORM\EntityManager;
 
-use DVE\EntityORM\QueryBuilder\QueryBuilderAbstract;
-use DVE\EntityORM\QueryBuilder\QueryBuilderInterface;
+use Anytime\ORM\QueryBuilder\QueryBuilderAbstract;
+use Anytime\ORM\QueryBuilder\QueryBuilderInterface;
 
 abstract class Manager
 {

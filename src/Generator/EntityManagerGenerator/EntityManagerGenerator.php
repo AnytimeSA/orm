@@ -1,9 +1,9 @@
 <?php
 
-namespace DVE\EntityORM\Generator\EntityManagerGenerator;
+namespace Anytime\ORM\Generator\EntityManagerGenerator;
 
-use DVE\EntityORM\Converter\SnakeToCamelCaseStringConverter;
-use DVE\EntityORM\Generator\EntityGenerator\TableStructureRetrieverInterface;
+use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
+use Anytime\ORM\Generator\EntityGenerator\TableStructureRetrieverInterface;
 
 class EntityManagerGenerator implements EntityManagerGeneratorInterface
 {
@@ -224,9 +224,9 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
 
         // Use block
         $sourceCode .= "\n";
-        $sourceCode .= "use DVE\EntityORM\EntityManager\EntityManager;\n";
-        $sourceCode .= "use DVE\EntityORM\Converter\SnakeToCamelCaseStringConverter;\n";
-        $sourceCode .= "use DVE\EntityORM\QueryBuilder\QueryBuilderFactory;\n";
+        $sourceCode .= "use Anytime\ORM\EntityManager\EntityManager;\n";
+        $sourceCode .= "use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;\n";
+        $sourceCode .= "use Anytime\ORM\QueryBuilder\QueryBuilderFactory;\n";
         $sourceCode .= "\n";
 
         // Class block
@@ -267,8 +267,8 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         }
 
         // Use block
-        $sourceCode .= "use DVE\EntityORM\EntityManager\Repositories;\n";
-        $sourceCode .= "use DVE\EntityORM\EntityManager\EntityRepository;\n";
+        $sourceCode .= "use Anytime\ORM\EntityManager\Repositories;\n";
+        $sourceCode .= "use Anytime\ORM\EntityManager\EntityRepository;\n";
 
         foreach($tableStructList as $tableName => $tableStruct) {
             $entityName = $this->snakeToCamelCaseStringConverter->convert($tableName);
@@ -319,8 +319,8 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         }
 
         // Use block
-        $sourceCode .= "use DVE\EntityORM\EntityManager\Managers;\n";
-        $sourceCode .= "use DVE\EntityORM\EntityManager\Manager;\n";
+        $sourceCode .= "use Anytime\ORM\EntityManager\Managers;\n";
+        $sourceCode .= "use Anytime\ORM\EntityManager\Manager;\n";
 
         foreach($tableStructList as $tableName => $tableStruct) {
             $entityName = $this->snakeToCamelCaseStringConverter->convert($tableName);

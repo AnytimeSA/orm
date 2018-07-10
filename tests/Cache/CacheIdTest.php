@@ -1,8 +1,8 @@
 <?php
 
-namespace DVE\EntityORM\Tests\Cache;
+namespace Anytime\ORM\Tests\Cache;
 
-use DVE\EntityORM\Cache\CacheId;
+use Anytime\ORM\Cache\CacheId;
 use PHPUnit\Framework\TestCase;
 
 class CacheIdTest extends TestCase

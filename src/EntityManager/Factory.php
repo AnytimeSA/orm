@@ -1,14 +1,14 @@
 <?php
 
-namespace DVE\EntityORM\EntityManager;
+namespace Anytime\ORM\EntityManager;
 
-use DVE\EntityORM\Converter\SnakeToCamelCaseStringConverter;
-use DVE\EntityORM\Generator\EntityGenerator\EntityGeneratorInterface;
-use DVE\EntityORM\Generator\EntityGenerator\MySqlEntityGenerator;
-use DVE\EntityORM\Generator\EntityGenerator\MySqlTableStructureRetriever;
-use DVE\EntityORM\Generator\EntityManagerGenerator\EntityManagerGenerator;
-use DVE\EntityORM\Generator\EntityManagerGenerator\EntityManagerGeneratorInterface;
-use DVE\EntityORM\QueryBuilder\QueryBuilderFactory;
+use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
+use Anytime\ORM\Generator\EntityGenerator\EntityGeneratorInterface;
+use Anytime\ORM\Generator\EntityGenerator\MySqlEntityGenerator;
+use Anytime\ORM\Generator\EntityGenerator\MySqlTableStructureRetriever;
+use Anytime\ORM\Generator\EntityManagerGenerator\EntityManagerGenerator;
+use Anytime\ORM\Generator\EntityManagerGenerator\EntityManagerGeneratorInterface;
+use Anytime\ORM\QueryBuilder\QueryBuilderFactory;
 
 class Factory
 {
