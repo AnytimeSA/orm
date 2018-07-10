@@ -2,8 +2,6 @@
 
 namespace Anytime\ORM\Cache;
 
-use Anytime\ORM\QueryBuilder\QueryBuilderAbstract;
-
 class CacheId
 {
     /**
@@ -19,5 +17,25 @@ class CacheId
             $cacheID .= '-' . $value;
         }
         return $cacheID;
+    }
+
+    /**
+     * @param string $sqlQuery This is the SQL string passed to the PDOStatement
+     * @param array $sqlParams This is the parameters passed to the PDOStatement
+     * @param int $index This is the index in the results. When you make the first "fetch" the index is 1, and the next one 2,..., 3...
+     * @return string
+     */
+    public function getSelectQueryResultCacheId(string $sqlQuery, array $sqlParams, int $index = 1)
+    {
+        $paramsString = '';
+        $sqlHash = hash('fnv132', $sqlQuery);
+
+        foreach($sqlParams as $sqlParamName => $sqlParamValue) {
+            $paramsString .= ($paramsString ? '|' : '').$sqlParamName . ':' . $sqlParamValue;
+        }
+
+        $paramsHash = hash('fnv132', $paramsString);
+
+        return $sqlHash . '-' . $paramsHash . '-' . $index;
     }
 }
