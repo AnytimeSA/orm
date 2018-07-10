@@ -1,5 +1,5 @@
 {
-    "name": "dve/entity-orm",
+    "name": "lecompteanytime/orm",
     "description": "A simple ORM using PDO to manage entities, repositories and managers optimized for best performances.",
     "type": "library",
     "authors": [
