@@ -208,6 +208,22 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
 
         $sourceCode = $this->generateDynamicEntityManager();
         file_put_contents($this->entityManagerDirectory . '/DynamicEntityManager.php', $sourceCode);
+
+        $managersDir = $this->entityManagerDirectory . '/Manager';
+        if(file_exists($managersDir) && is_dir($managersDir)) {
+            foreach(glob($managersDir.'/*') as $file) {
+                if(is_file($file)) {
+                    unlink($file);
+                }
+            }
+        } else {
+            mkdir($managersDir);
+        }
+        foreach($tableStructList as $tableName => $tableStruct) {
+            $className = $this->snakeToCamelCaseStringConverter->convert($tableName).'Manager';
+            $sourceCode = $this->generateDynamicManager($tableStruct, $className);
+            file_put_contents($this->entityManagerDirectory . '/Manager/'.$className.'.php', $sourceCode);
+        }
     }
 
     /**
@@ -366,6 +382,30 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
             $sourceCode .= "    }\n";
             $sourceCode .= "\n";
         }
+
+        $sourceCode .= "}\n";
+
+        return $sourceCode;
+    }
+
+
+    /**
+     * @param array $tableStruct
+     * @param string $className
+     * @return string
+     */
+    private function generateDynamicManager(array $tableStruct, string $className)
+    {
+        $namespace = $this->entityManagerNamespace . '\\Manager';
+
+        $sourceCode = "<?php\n";
+        $sourceCode .= "\n";
+        $sourceCode .= "namespace $namespace;\n";
+        $sourceCode .= "\n";
+        $sourceCode .= "use Anytime\ORM\EntityManager\Manager;\n";
+        $sourceCode .= "\n";
+        $sourceCode .= "class $className extends Manager\n";
+        $sourceCode .= "{\n";
 
         $sourceCode .= "}\n";
 
