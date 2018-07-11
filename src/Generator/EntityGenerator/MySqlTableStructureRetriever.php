@@ -70,7 +70,7 @@ class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
                 $returnStruct[$fieldName] = [];
             }
 
-            $returnStruct[$fieldName][] = [
+            $returnStruct[$fieldName] = [
                 'fieldName'     =>  $fieldName,
                 'type'          =>  $this->mysqlToPhpType($field['Type']),
                 'allowNull'     =>  $field['Type'] === 'YES' ? true : false,

@@ -115,7 +115,7 @@ class EntityGenerator implements EntityGeneratorInterface
         $sourceCode .= "{\n";
         $sourceCode .= '    const TABLENAME = \''.$tableName.'\''.";\n";
 
-        foreach($tableStruct as $fieldStruct) {
+        foreach($tableStruct['structure'] as $fieldStruct) {
             $fieldName = array_key_exists('fieldName', $fieldStruct) ? $fieldStruct['fieldName'] : null;
             $fieldType = array_key_exists('type', $fieldStruct) ? $fieldStruct['type'] : null;
             $nullable = array_key_exists('allowNull', $fieldStruct) ? $fieldStruct['allowNull'] : false;
