@@ -1,4 +1,4 @@
-# Entity ORM
+# Anytime ORM
 
 EntityORM is an ORM that use PDO to manage entities, repositories and managers optimized for best performances.
 
