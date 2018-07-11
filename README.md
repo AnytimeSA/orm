@@ -80,7 +80,6 @@ You also have to configure your composer.json to make the autoloaded able to loa
 To do that you have to spcify each directory and namespace in the autoload property of composer.json.
 
 
-
 ```
     ...
     
@@ -261,7 +260,7 @@ $queryBuilder->setParameters(['carName' => 'BMW']);
 $queryBuilder->where('c.brand = ?');
 ```
 
-Or this if you have used the named parameters
+Or this if you have used the named parameters :
 
 ```
 $queryBuilder->where('c.brand = :carName');
