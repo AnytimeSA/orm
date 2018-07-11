@@ -43,7 +43,6 @@ class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
             ];
         }
 
-        print_r($result);exit;
         return $result;
     }
 
