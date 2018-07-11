@@ -326,7 +326,9 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
             $entityName = $this->snakeToCamelCaseStringConverter->convert($tableName);
             $managerClassName = $entityName.'Manager';
             $managerFullClassName = $this->userManagerNamespace . "\\" . $managerClassName;
+            $defaultManagerFullClassname = $this->entityManagerNamespace . '\\Manager\\' . $managerClassName;
             $sourceCode .= "use $managerFullClassName;\n";
+            $sourceCode .= "use $defaultManagerFullClassname\n";
         }
 
         // Class
@@ -353,8 +355,10 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
 
             $entityRepositoryGetterCall = 'get'.$entityName.'EntityRepository';
 
+            $defaultManagerClassname = $this->entityManagerNamespace . '\\Manager\\' . $managerClassName;
+
             $sourceCode .= "    /**\n";
-            $sourceCode .= "     * @return $managerClassName|Manager\n";
+            $sourceCode .= "     * @return $managerClassName|$defaultManagerClassname\n";
             $sourceCode .= "     */\n";
             $sourceCode .= "    public function $managerGetterName(): Manager\n";
             $sourceCode .= "    {\n";
