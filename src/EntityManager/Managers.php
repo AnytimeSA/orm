@@ -25,10 +25,11 @@ class Managers
 
     /**
      * @param string $class
+     * @param string $defaultClass
      * @param EntityRepository $entityRepository
      * @return Manager
      */
-    protected function loadAndGetManager(string $class, EntityRepository $entityRepository)
+    protected function loadAndGetManager(string $class, string $defaultClass, EntityRepository $entityRepository)
     {
         if(array_key_exists($class, $this->loadedManagers)) {
             return $this->loadedManagers[$class];
@@ -36,6 +37,8 @@ class Managers
 
         if(class_exists($class)) {
             return (new $class($this->pdo, $entityRepository));
+        } elseif(class_exists($defaultClass)) {
+            return (new $defaultClass($this->pdo, $entityRepository));
         } else {
             return (new DefaultManager($this->pdo, $entityRepository));
         }

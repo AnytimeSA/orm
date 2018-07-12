@@ -200,16 +200,20 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
     {
         $tableStructList = $this->tableStructureRetriever->retrieve($tableList);
 
+        // Repositories class
         $sourceCode = $this->generateDynamicRepositories($tableStructList);
         file_put_contents($this->entityManagerDirectory . '/DynamicRepositories.php', $sourceCode);
 
+        // Managers class
         $sourceCode = $this->generateDynamicManagers($tableStructList);
         file_put_contents($this->entityManagerDirectory . '/DynamicManagers.php', $sourceCode);
 
+        // EntityManager class
         $sourceCode = $this->generateDynamicEntityManager();
         file_put_contents($this->entityManagerDirectory . '/DynamicEntityManager.php', $sourceCode);
 
-        $managersDir = $this->entityManagerDirectory . '/Manager';
+        // DefaultManager classes
+        $managersDir = $this->entityManagerDirectory . '/DefaultManager';
         if(file_exists($managersDir) && is_dir($managersDir)) {
             foreach(glob($managersDir.'/*') as $file) {
                 if(is_file($file)) {
@@ -221,8 +225,25 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         }
         foreach($tableStructList as $tableName => $tableStruct) {
             $className = $this->snakeToCamelCaseStringConverter->convert($tableName).'Manager';
-            $sourceCode = $this->generateDynamicManager($tableStruct, $className);
-            file_put_contents($this->entityManagerDirectory . '/Manager/'.$className.'.php', $sourceCode);
+            $sourceCode = $this->generateDynamicManager($tableStruct, $className, $tableName);
+            file_put_contents($this->entityManagerDirectory . '/DefaultManager/'.$className.'.php', $sourceCode);
+        }
+
+        // DefaultRepository classes
+        $repositoriesDir = $this->entityManagerDirectory . '/DefaultRepository';
+        if(file_exists($repositoriesDir) && is_dir($repositoriesDir)) {
+            foreach(glob($repositoriesDir.'/*') as $file) {
+                if(is_file($file)) {
+                    unlink($file);
+                }
+            }
+        } else {
+            mkdir($repositoriesDir);
+        }
+        foreach($tableStructList as $tableName => $tableStruct) {
+            $className = $this->snakeToCamelCaseStringConverter->convert($tableName).'EntityRepository';
+            $sourceCode = $this->generateDynamicRepository($tableStruct, $className);
+            file_put_contents($this->entityManagerDirectory . '/DefaultRepository/'.$className.'.php', $sourceCode);
         }
     }
 
@@ -305,13 +326,14 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
             $repositoryGetterName = "get" . $repositoryClassName;
             $repositoryFullClassName = $this->userEntityRepositoryNamespace . "\\" . $repositoryClassName;
             $entityFullClassName = $this->entityNamespace . '\\' . $entityName;
+            $defaultRepositoryFullClassName = $this->entityManagerNamespace . '\\DefaultRepository\\' . $repositoryClassName;
 
             $sourceCode .= "    /**\n";
-            $sourceCode .= "     * @return $repositoryClassName|EntityRepository\n";
+            $sourceCode .= "     * @return $repositoryClassName|\\$defaultRepositoryFullClassName\n";
             $sourceCode .= "     */\n";
-            $sourceCode .= "    public function $repositoryGetterName(): EntityRepository\n";
+            $sourceCode .= "    public function $repositoryGetterName(): \\$defaultRepositoryFullClassName\n";
             $sourceCode .= "    {\n";
-            $sourceCode .= "        return \$this->loadAndGetRepository('$repositoryFullClassName', '$tableName', '$entityFullClassName');\n";
+            $sourceCode .= "        return \$this->loadAndGetRepository('$repositoryFullClassName', '$defaultRepositoryFullClassName', '$tableName', '$entityFullClassName');\n";
             $sourceCode .= "    }\n";
             $sourceCode .= "\n";
         }
@@ -342,9 +364,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
             $entityName = $this->snakeToCamelCaseStringConverter->convert($tableName);
             $managerClassName = $entityName.'Manager';
             $managerFullClassName = $this->userManagerNamespace . "\\" . $managerClassName;
-            $defaultManagerFullClassname = $this->entityManagerNamespace . '\\Manager\\' . $managerClassName;
             $sourceCode .= "use $managerFullClassName;\n";
-            $sourceCode .= "use $defaultManagerFullClassname\n";
         }
 
         // Class
@@ -367,18 +387,17 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
             $managerClassName = $entityName.'Manager';
             $managerGetterName = "get" . $managerClassName;
             $managerFullClassName = $this->userManagerNamespace . "\\" . $managerClassName;
-            //$entityFullClassName = $this->entityNamespace . '\\' . $entityName;
 
             $entityRepositoryGetterCall = 'get'.$entityName.'EntityRepository';
 
-            $defaultManagerClassname = $this->entityManagerNamespace . '\\Manager\\' . $managerClassName;
+            $defaultManagerFullClassName = $this->entityManagerNamespace . "\\DefaultManager\\" . $managerClassName;
 
             $sourceCode .= "    /**\n";
-            $sourceCode .= "     * @return $managerClassName|$defaultManagerClassname\n";
+            $sourceCode .= "     * @return $managerClassName|\\$defaultManagerFullClassName\n";
             $sourceCode .= "     */\n";
-            $sourceCode .= "    public function $managerGetterName(): Manager\n";
+            $sourceCode .= "    public function $managerGetterName(): \\$defaultManagerFullClassName\n";
             $sourceCode .= "    {\n";
-            $sourceCode .= "        return \$this->loadAndGetManager('$managerFullClassName',\$this->dynamicRepositories->$entityRepositoryGetterCall());\n";
+            $sourceCode .= "        return \$this->loadAndGetManager('$managerFullClassName','$defaultManagerFullClassName',\$this->dynamicRepositories->$entityRepositoryGetterCall());\n";
             $sourceCode .= "    }\n";
             $sourceCode .= "\n";
         }
@@ -392,23 +411,160 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
     /**
      * @param array $tableStruct
      * @param string $className
+     * @param string $tableName
      * @return string
      */
-    private function generateDynamicManager(array $tableStruct, string $className)
+    private function generateDynamicManager(array $tableStruct, string $className, string $tableName)
     {
-        $namespace = $this->entityManagerNamespace . '\\Manager';
+        $createdMethods = [];
+
+        $namespace = $this->entityManagerNamespace . '\\DefaultManager';
+
+        $entityName = $this->snakeToCamelCaseStringConverter->convert($tableName);
+        $entityFullClassName = $this->entityNamespace . '\\' . $entityName;
+        $repositoryClassName = $entityName.'EntityRepository';
+        $defaultRepositoryFullClassName = $this->entityManagerNamespace . '\\DefaultRepository\\' . $repositoryClassName;
 
         $sourceCode = "<?php\n";
         $sourceCode .= "\n";
         $sourceCode .= "namespace $namespace;\n";
         $sourceCode .= "\n";
         $sourceCode .= "use Anytime\ORM\EntityManager\Manager;\n";
+        $sourceCode .= "use $entityFullClassName;\n";
+        $sourceCode .= "use $defaultRepositoryFullClassName;\n";
         $sourceCode .= "\n";
+
+        $sourceCode .= "/**\n";
+        $sourceCode .= " * @method $repositoryClassName getRepository()\n";
+        $sourceCode .= " */\n";
         $sourceCode .= "class $className extends Manager\n";
         $sourceCode .= "{\n";
+        $sourceCode .= "    \n";
+
+        foreach($tableStruct['indexes'] as $indexParts) {
+
+            if(count($indexParts) < 1) {
+                continue;
+            }
+
+            $methodName = 'findBy';
+            $phpParamList = '';
+            $phpDocParamList = '';
+            $phpParamListNoHintNoDefault = '';
+
+            foreach ($indexParts as $iP => $indexPart) {
+
+                $columnType = $tableStruct['structure'][$indexPart['columnName']]['type'];
+
+                $columnNameCCase = $this->snakeToCamelCaseStringConverter->convert($indexPart['columnName']);
+                $methodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
+                $paramVarName = lcfirst($columnNameCCase);
+                $phpParamList .= ($iP > 0 ? ', ' : '') . ($columnType === 'date' ? ($indexPart['allowNull'] ? '' : '\DateTime') : $columnType) .' $' . $paramVarName . ($indexPart['allowNull'] ? ' = NULL' : '');
+                $phpParamListNoHintNoDefault .= ($iP > 0 ? ', ' : '') . '$' . $paramVarName;
+                $phpDocParamList .= "     * @param " . ($columnType === 'date' ? '\DateTime' : $columnType) . " \$$paramVarName\n";
+            }
+
+            if(in_array($methodName, $createdMethods)) {
+                continue;
+            }
+
+            $createdMethods[] = $methodName;
+
+            $sourceCode .= "    /**\n";
+            $sourceCode .= $phpDocParamList;
+            $sourceCode .= "     * @return $entityName"."[]\n";
+            $sourceCode .= "     */\n";
+            $sourceCode .= "     public function $methodName($phpParamList): array\n";
+            $sourceCode .= "     {\n";
+            $sourceCode .= "         return \$this->getRepository()->$methodName($phpParamListNoHintNoDefault)->getSelectQuery()->fetchAll();\n";
+            $sourceCode .= "     }\n";
+        }
 
         $sourceCode .= "}\n";
 
         return $sourceCode;
+    }
+
+    /**
+     * @param array $tableStruct
+     * @param string $className
+     * @return string
+     */
+    private function generateDynamicRepository(array $tableStruct, string $className)
+    {
+        $createdMethods = [];
+
+        $namespace = $this->entityManagerNamespace . '\\DefaultRepository';
+
+        $sourceCode = "<?php\n";
+        $sourceCode .= "\n";
+        $sourceCode .= "namespace $namespace;\n";
+        $sourceCode .= "\n";
+        $sourceCode .= "use Anytime\ORM\EntityManager\EntityRepository;\n";
+        $sourceCode .= "use Anytime\ORM\QueryBuilder\QueryBuilderInterface;\n";
+        $sourceCode .= "\n";
+        $sourceCode .= "class $className extends EntityRepository\n";
+        $sourceCode .= "{\n";
+
+        foreach($tableStruct['indexes'] as $indexParts) {
+            if(count($indexParts) < 1) {
+                continue;
+            }
+
+            $tableShortAlias = $this->getTableShortAlias($indexParts[0]['tableName']);
+            $methodName = 'findBy';
+            $phpParamList = '';
+            $phpDocParamList = '';
+            $where = '';
+            $qbParameters = '';
+
+            foreach($indexParts as $iP => $indexPart) {
+                $columnType = $tableStruct['structure'][$indexPart['columnName']]['type'];
+                $dateFormat = $tableStruct['structure'][$indexPart['columnName']]['dateFormat'];
+                $columnNameCCase = $this->snakeToCamelCaseStringConverter->convert($indexPart['columnName']);
+                $methodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
+                $paramVarName = lcfirst($columnNameCCase);
+                $phpParamList .= ($iP > 0 ? ', ' : '') . ($columnType === 'date' ? ($indexPart['allowNull'] ? '' : '\DateTime') : $columnType) .' $' . $paramVarName . ($indexPart['allowNull'] ? ' = NULL' : '');
+                $phpDocParamList .= "     * @param " . ($columnType === 'date' ? '\DateTime' : $columnType) . " \$$paramVarName\n";
+                $where .= ($iP > 0 ? ' AND ' : '') . $tableShortAlias . '.' . $indexPart['columnName'] . ' = ?';
+                $qbParameters .= ($iP > 0 ? ', ' : '') . "\$$paramVarName".($columnType === 'date' && $dateFormat ? '->format("'.$dateFormat.'")' : '');
+            }
+
+            if(in_array($methodName, $createdMethods)) {
+                continue;
+            }
+
+            $createdMethods[] = $methodName;
+
+            $sourceCode .= "    /**\n";
+            $sourceCode .= $phpDocParamList;
+            $sourceCode .= "     * @return \Anytime\ORM\QueryBuilder\QueryBuilderInterface\n";
+            $sourceCode .= "     */\n";
+            $sourceCode .= "    public function $methodName($phpParamList): QueryBuilderInterface\n";
+            $sourceCode .= "    {\n";
+            $sourceCode .= "        \$queryBuilder = \$this->createQueryBuilder('$tableShortAlias');\n";
+            $sourceCode .= "        \$queryBuilder->where('$where')->setParameters([$qbParameters]);\n";
+            $sourceCode .= "        return \$queryBuilder;\n";
+            $sourceCode .= "    }\n";
+            $sourceCode .= "\n";
+        }
+
+        $sourceCode .= "}\n";
+
+        return $sourceCode;
+    }
+
+    /**
+     * @param string $tableName
+     * @return string
+     */
+    private function getTableShortAlias(string $tableName): string
+    {
+        $alias = '';
+        $parse = explode('_', $tableName);
+        foreach($parse as $elem) {
+            $alias .= $elem[0];
+        }
+        return $alias;
     }
 }

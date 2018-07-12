@@ -17,11 +17,13 @@ interface TableStructureRetrieverInterface
      *                         (
      *                             [0] => Array
      *                                 (
+     *                                     [tableName] => example_table
      *                                     [fieldName] => id
      *                                     [type] => int
      *                                     [allowNull] =>
-     *                                     [keyType] => PRI
+     *                                     [keyType] =>
      *                                     [defaultValue] =>
+     *                                     [dateFormat] =>
      *                                 )
      *
      *                         )
@@ -30,11 +32,28 @@ interface TableStructureRetrieverInterface
      *                         (
      *                             [0] => Array
      *                                 (
+     *                                     [tableName] => example_table
      *                                     [fieldName] => some_field
      *                                     [type] => string
      *                                     [allowNull] =>
-     *                                     [keyType] => MUL
+     *                                     [keyType] =>
      *                                     [defaultValue] =>
+     *                                     [dateFormat] =>
+     *                                 )
+     *
+     *                         )
+     *
+     *                     [some_date_field] => Array
+     *                         (
+     *                             [0] => Array
+     *                                 (
+     *                                     [tableName] => example_table
+     *                                     [fieldName] => some_date_field
+     *                                     [type] => string
+     *                                     [allowNull] =>
+     *                                     [keyType] =>
+     *                                     [defaultValue] =>
+     *                                     [dateFormat] => Y-m-d H:i:s
      *                                 )
      *
      *                         )
@@ -48,6 +67,7 @@ interface TableStructureRetrieverInterface
      *                         (
      *                             [0] => Array
      *                                 (
+     *                                     [tableName] => example_table
      *                                     [indexName] => index_name_example_1
      *                                     [columnName] => some_field
      *                                     [allowNull] =>

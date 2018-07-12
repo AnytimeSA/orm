@@ -122,29 +122,33 @@ class EntityGenerator implements EntityGeneratorInterface
             $default = array_key_exists('defaultValue', $fieldStruct) ? $fieldStruct['defaultValue'] : null;
             $isPrimary = array_key_exists('keyType', $fieldStruct) && $fieldStruct['keyType'] === 'PRI' ? true : false;
 
-            if($isPrimary) {
-                $primaryKeys .= ($primaryKeys ? "','" : '').$fieldName;
+            if ($isPrimary) {
+                $primaryKeys .= ($primaryKeys ? "','" : '') . $fieldName;
             }
 
-            $isString = $fieldType === 'string';
+            $isString = $fieldType === 'string' || $fieldType === 'date';
 
-            if($default === 'CURRENT_TIMESTAMP') {
+            if ($default === 'CURRENT_TIMESTAMP') {
                 $default = null;
             }
 
             // Properties declaration
             $defaultPropertyValue = $this->getDefaultPhpValueByFieldType($fieldType);
             $propertyName = lcfirst($this->snakeToCamelCaseStringConverter->convert($fieldName));
+            $quote = ($isString ? "'" : '');
+
+            if(!is_null($default)) {
+                $propertyValueCode = $quote . addslashes($default) . $quote;
+            } else {
+                if($nullable) {
+                    $propertyValueCode = 'null';
+                } else {
+                    $propertyValueCode = $quote . $defaultPropertyValue.$quote;
+                }
+            }
+
             $propertyDeclarationSourceCode .=
-                "        '$fieldName' => " .
-                (!is_null($default)
-                    ? ($isString?"'":'') . addslashes($default).($isString?"'":'')
-                    : (
-                        $nullable
-                            ? 'null'
-                            : ($isString?"'":'').$defaultPropertyValue.($isString?"'":'')
-                    )
-                ) .
+                "        '$fieldName' => " . $propertyValueCode .
                 ",\n";
 
             // Setters

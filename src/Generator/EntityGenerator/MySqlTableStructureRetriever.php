@@ -70,12 +70,18 @@ class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
                 $returnStruct[$fieldName] = [];
             }
 
+            $phpType = $this->mysqlToPhpType($field['Type']);
+
             $returnStruct[$fieldName] = [
-                'fieldName'     =>  $fieldName,
-                'type'          =>  $this->mysqlToPhpType($field['Type']),
-                'allowNull'     =>  $field['Type'] === 'YES' ? true : false,
-                'keyType'       =>  $field['Key'],
-                'defaultValue'  =>  $field['Default']
+                'tableName'         =>  $tableName,
+                'fieldName'         =>  $fieldName,
+                'type'              =>  $phpType,
+                'allowNull'         =>  $field['Null'] === 'YES' ? true : false,
+                'keyType'           =>  $field['Key'],
+                'defaultValue'      =>  $field['Default'],
+                'dateFormat'        =>  $phpType === 'date'
+                    ? $this->getDateDefaultValue($field['Default'], $field['Type'])
+                    : $this->getDateFormatByFieldType($field['Type'])
             ];
         }
 
@@ -114,6 +120,7 @@ class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
 
                 if($index['Index_type'] === 'BTREE') {
                     $returnIndexes[$indexName][] = [
+                        'tableName'     => $tableName,
                         'indexName'     => $indexName,
                         'columnName'    => $index['Column_name'],
                         'allowNull'     => $index['Null'] === 'YES' ? true : false
@@ -129,7 +136,7 @@ class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
      * @param string $mysqlType
      * @return int|string
      */
-    protected function mysqlToPhpType(string $mysqlType)
+    protected function mysqlToPhpType(string $mysqlType): string
     {
         $patterns = [
             'float'     =>  '(decimal|float|double|real)(.*)',
@@ -148,5 +155,38 @@ class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
         }
 
         return 'string';
+    }
+
+    /**
+     * @param string $fieldType
+     * @return string
+     */
+    protected function getDateFormatByFieldType(string $fieldType): string
+    {
+        switch($fieldType) {
+            case 'datetime': return "Y-m-d H:i:s";
+            case 'date': return "Y-m-d";
+            case 'year': return "Y";
+        }
+        return '';
+    }
+
+    /**
+     * @param string $defaultValue
+     * @param string $fieldType
+     * @return string
+     */
+    protected function getDateDefaultValue($defaultValue, string $fieldType): string
+    {
+        if(!$defaultValue) {
+            return '';
+        }
+
+        switch($fieldType) {
+            case 'datetime': return $defaultValue;
+            case 'date': return $defaultValue . ' 00:00:00';
+            case 'year': return $defaultValue . '-01-01 00:00:00';
+        }
+        return '';
     }
 }
