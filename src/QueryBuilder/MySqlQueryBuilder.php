@@ -23,35 +23,39 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
      */
     public function getSelectSQL(): string
     {
-        $sql  = "SELECT " . $this->select . "\n";
-        $sql .= "FROM " . $this->from . "\n";
+        if(!$this->from) {
+            throw new \RuntimeException('No table defined in FROM clause. Please use "from" method.');
+        }
+
+        $sql  = 'SELECT ' . $this->select;
+        $sql .= ' FROM ' . $this->from;
 
         // --- JOIN
         foreach($this->join as $join) {
-            $sql .= $join . "\n";
+            $sql .= ' ' . $join;
         }
 
         // --- WHERE
         if(count($this->where) > 0) {
-            $sql .= "WHERE \n";
+            $sql .= ' WHERE';
             foreach($this->where as $iw => $where) {
-                $sql .= ($iw > 0 ? ' AND ' : '') . "($where)\n";
+                $sql .= ' ' . ($iw > 0 ? 'AND ' : '') . "($where)";
             }
         }
 
         // --- GROUP BY
         if ($this->groupBy) {
-            $sql .= "GROUP BY " . $this->groupBy . "\n";
+            $sql .= ' GROUP BY ' . $this->groupBy;
         }
 
         // --- ORDER BY
         if ($this->orderBy) {
-            $sql .= "ORDER BY " . $this->orderBy . "\n";
+            $sql .= ' ORDER BY ' . $this->orderBy;
         }
 
         // --- LIMIT
         if ($this->limitNumber) {
-            $sql .= "LIMIT " . $this->limitNumber . " OFFSET " . $this->limitOffset . "\n";
+            $sql .= ' LIMIT ' . $this->limitNumber . ' OFFSET ' . $this->limitOffset;
         }
 
         return $sql;
@@ -94,7 +98,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         foreach($fields as $fieldName => $value) {
             $sqlSet .= ($sqlSet ? ",\n" : '') . "`$fieldName` = :UPDATE_VALUE_$fieldName";
         }
-        $sqlSet = " SET \n" . $sqlSet . "\n";
+        $sqlSet = " SET \n" . $sqlSet . " ";
 
         $sqlWhere = '';
         foreach($primaryKeys as $pkeyName) {
@@ -119,7 +123,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         foreach($fields as $fieldName => $value) {
             $sqlSet .= ($sqlSet ? ",\n" : '') . "`$fieldName` = :UPDATE_VALUE_$fieldName";
         }
-        $sqlSet = " SET \n" . $sqlSet . "\n";
+        $sqlSet = " SET \n" . $sqlSet . " ";
 
         // --- WHERE
         if(count($this->where) > 0) {

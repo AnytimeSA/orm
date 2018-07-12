@@ -5,7 +5,8 @@ EntityORM is an ORM that use PDO to manage entities, repositories and managers o
 The architecture looks like this :
 
 1. Entities generated classes based on database table and fields.
-1. A generated entity manager used to access the generated managers and repositories. By default a DefaultManager or a default DefaultEntityRepository is used. 
+1. A generated entity manager used to access the generated managers and repositories. 
+1. The default generated managers and repositories contains pre-built methods based on table indexes to retrieve data using indexes easily. 
 1. The developer create their own managers and/or repositories if needed extending the default ones.
 
 ## Getting started
@@ -78,7 +79,6 @@ $factory->setUserManagerNamespace('Dummy\\Project\\Manager');
 
 You also have to configure your composer.json to make the autoloaded able to load the generated classes.
 To do that you have to spcify each directory and namespace in the autoload property of composer.json.
-
 
 
 ```
@@ -192,6 +192,13 @@ This class contains a getter methods for each manager of each table. In our exam
 
 The managers will help you to find data related to the table in the database.
 
+#### Directory DefaultRepository
+
+This directory contains the auto-generated Repositories containing methods based on table indexes.
+
+#### Directory DefaultManager
+
+This directory contains the auto-generated Managers containing methods based on table indexes.
 
 ### Instantiating the Entity Manager
 
@@ -261,7 +268,7 @@ $queryBuilder->setParameters(['carName' => 'BMW']);
 $queryBuilder->where('c.brand = ?');
 ```
 
-Or this if you have used the named parameters
+Or this if you have used the named parameters :
 
 ```
 $queryBuilder->where('c.brand = :carName');
@@ -335,14 +342,12 @@ Now add a custom method that will make a join between "car" and "owner" :
  
 namespace Dummy\Project\EntityRepository;
  
-use Anytime\ORM\EntityManager\EntityRepository;
- 
-class CarEntityRepository extends EntityRepository
+class CarEntityRepository extends \Dummy\Project\EntityManager\DefaultRepository\CarEntityRepository
 {
     /**
      * @return \Anytime\ORM\QueryBuilder\QueryBuilderInterface
      */
-    public function createCarWithOwnerQueryBuilder()
+    public function findCarWithOwner()
     {
         $queryBuilder = $this->createQueryBuilder('c');
         $queryBuilder->join('INNER JOIN owner o ON o.id_owner = c.owner_id');
@@ -360,9 +365,7 @@ Now let's create a manager class in the configured directory. In our case it is 
 
 namespace Dummy\Project\Manager;
 
-use Anytime\ORM\EntityManager\Manager;
-
-class CarManager extends Manager
+class CarManager extends \Dummy\Project\EntityManager\DefaultManager\CarManager
 {
 }
 ```
@@ -375,23 +378,19 @@ Now let's add a method that use the repository :
 
 namespace Dummy\Project\Manager;
 
-use Dummy\Project\EntityRepository\CarEntityRepository;
-use Anytime\ORM\EntityManager\Manager;
-
-class CarManager extends Manager
+class CarManager extends \Dummy\Project\EntityManager\DefaultManager\CarManager
 {
     public function findCarsByOwnerName(string $ownerName)
     {
-        /** @var CarEntityRepository $repository */
         $repository = $this->getRepository();
         $queryBuilder = $repository->createCarWithOwnerQueryBuilder();
-    
+
         $queryBuilder->setParameters([
             'ownerName' => $ownerName
         ]);
         $queryBuilder->where('o.name = :ownerName');
-    
-    
+
+
         return $queryBuilder->getSelectQuery()->fetchAll();
     }
 }

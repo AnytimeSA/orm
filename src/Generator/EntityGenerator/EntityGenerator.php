@@ -5,7 +5,7 @@ namespace Anytime\ORM\Generator\EntityGenerator;
 use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
 use Anytime\ORM\EntityManager\Entity;
 
-class MySqlEntityGenerator implements EntityGeneratorInterface
+class EntityGenerator implements EntityGeneratorInterface
 {
     /**
      * @var string
@@ -50,9 +50,9 @@ class MySqlEntityGenerator implements EntityGeneratorInterface
 
     /**
      * @param string $entityDirectory
-     * @return MySqlEntityGenerator
+     * @return EntityGenerator
      */
-    public function setEntityDirectory(string $entityDirectory): MySqlEntityGenerator
+    public function setEntityDirectory(string $entityDirectory): EntityGenerator
     {
         if(is_dir($entityDirectory) && is_writable($entityDirectory)) {
             $this->entityDirectory = $entityDirectory;
@@ -64,9 +64,9 @@ class MySqlEntityGenerator implements EntityGeneratorInterface
 
     /**
      * @param string $entityNamespace
-     * @return MySqlEntityGenerator
+     * @return EntityGenerator
      */
-    public function setEntityNamespace(string $entityNamespace): MySqlEntityGenerator
+    public function setEntityNamespace(string $entityNamespace): EntityGenerator
     {
         $entityNamespace = trim($entityNamespace, '\\');
 
@@ -115,41 +115,45 @@ class MySqlEntityGenerator implements EntityGeneratorInterface
         $sourceCode .= "{\n";
         $sourceCode .= '    const TABLENAME = \''.$tableName.'\''.";\n";
 
-        foreach($tableStruct as $fieldStruct) {
-            $fieldName = array_key_exists('Field', $fieldStruct) ? $fieldStruct['Field'] : null;
-            $mysqlType = array_key_exists('Type', $fieldStruct) ? $fieldStruct['Type'] : null;
-            $nullable = array_key_exists('Null', $fieldStruct) && $fieldStruct['Null'] === 'YES' ? true : false;
-            $default = array_key_exists('Default', $fieldStruct) ? $fieldStruct['Default'] : null;
-            $isPrimary = array_key_exists('Key', $fieldStruct) && $fieldStruct['Key'] === 'PRI' ? true : false;
+        foreach($tableStruct['structure'] as $fieldStruct) {
+            $fieldName = array_key_exists('fieldName', $fieldStruct) ? $fieldStruct['fieldName'] : null;
+            $fieldType = array_key_exists('type', $fieldStruct) ? $fieldStruct['type'] : null;
+            $nullable = array_key_exists('allowNull', $fieldStruct) ? $fieldStruct['allowNull'] : false;
+            $default = array_key_exists('defaultValue', $fieldStruct) ? $fieldStruct['defaultValue'] : null;
+            $isPrimary = array_key_exists('keyType', $fieldStruct) && $fieldStruct['keyType'] === 'PRI' ? true : false;
 
-            if($isPrimary) {
-                $primaryKeys .= ($primaryKeys ? "','" : '').$fieldName;
+            if ($isPrimary) {
+                $primaryKeys .= ($primaryKeys ? "','" : '') . $fieldName;
             }
 
-            $phpType = $this->mysqlToPhpType($mysqlType);
-            $isString = $phpType === 'string';
+            $isString = $fieldType === 'string' || $fieldType === 'date';
 
-            if($default === 'CURRENT_TIMESTAMP') {
+            if ($default === 'CURRENT_TIMESTAMP') {
                 $default = null;
             }
 
             // Properties declaration
-            $defaultPropertyValue = $this->getDefaultPhpValueByPhpType($phpType);
+            $defaultPropertyValue = $this->getDefaultPhpValueByFieldType($fieldType);
             $propertyName = lcfirst($this->snakeToCamelCaseStringConverter->convert($fieldName));
+            $quote = ($isString ? "'" : '');
+
+            if(!is_null($default)) {
+                $propertyValueCode = $quote . addslashes($default) . $quote;
+            } else {
+                if($nullable) {
+                    $propertyValueCode = 'null';
+                } else {
+                    $propertyValueCode = $quote . $defaultPropertyValue.$quote;
+                }
+            }
+
             $propertyDeclarationSourceCode .=
-                "        '$fieldName' => " .
-                (!is_null($default)
-                    ? ($isString?"'":'') . addslashes($default).($isString?"'":'')
-                    : (
-                        $nullable
-                            ? 'null'
-                            : ($isString?"'":'').$defaultPropertyValue.($isString?"'":'')
-                    )
-                ) .
+                "        '$fieldName' => " . $propertyValueCode .
                 ",\n";
 
             // Setters
-            $isDateType = $this->isDateType($mysqlType);
+            $isDateType = $fieldType === 'date';
+
             if($isDateType) {
                 $typeHintingArg = $nullable ? '' : '\DateTime ';
                 $gettersSettersSourceCode .= "    public function set" . ucfirst($propertyName) . '('.$typeHintingArg.'$'.$propertyName.'): '.$className."\n";
@@ -159,7 +163,7 @@ class MySqlEntityGenerator implements EntityGeneratorInterface
                 $gettersSettersSourceCode .= '        return $this;'."\n";
                 $gettersSettersSourceCode .= "    }\n\n";
             } else {
-                $typeHintingArg = $nullable ? '' : $phpType.' ';
+                $typeHintingArg = $nullable ? '' : $fieldType.' ';
                 $gettersSettersSourceCode .= "    public function set" . ucfirst($propertyName) . '('.$typeHintingArg.'$'.$propertyName.'): '.$className."\n";
                 $gettersSettersSourceCode .= "    {\n";
                 $gettersSettersSourceCode .= '        $this->data[\''. $fieldName .'\'] = $' . $propertyName. ';'."\n";
@@ -177,10 +181,10 @@ class MySqlEntityGenerator implements EntityGeneratorInterface
                 $gettersSettersSourceCode .= "        }\n";
                 $gettersSettersSourceCode .= "    }\n\n";
             } else {
-                $typeHintingReturn = $nullable ? '' : ': '.$phpType;
-                $gettersSettersSourceCode .= "    public function " . ($phpType === 'bool' ? 'is' : 'get') . ucfirst($propertyName) . "()$typeHintingReturn\n";
+                $typeHintingReturn = $nullable ? '' : ': '.$fieldType;
+                $gettersSettersSourceCode .= "    public function " . ($fieldType === 'bool' ? 'is' : 'get') . ucfirst($propertyName) . "()$typeHintingReturn\n";
                 $gettersSettersSourceCode .= "    {\n";
-                $gettersSettersSourceCode .= '        return ('.$phpType.')$this->data[\'' . $fieldName . '\'];'."\n";
+                $gettersSettersSourceCode .= '        return ('.$fieldType.')$this->data[\'' . $fieldName . '\'];'."\n";
                 $gettersSettersSourceCode .= "    }\n\n";
             }
         }
@@ -198,33 +202,12 @@ class MySqlEntityGenerator implements EntityGeneratorInterface
     }
 
     /**
-     * @param string $mysqlType
-     * @return int|string
-     */
-    protected function mysqlToPhpType(string $mysqlType)
-    {
-        $patterns = [
-            'float'     =>  '(decimal|float|double|real)(.*)',
-            'bool'      =>  '(boolean|tinyint\(1\))(.*)',
-            'int'       =>  '(int|smallint|mediumint|bigint|tinyint)(.*)'
-        ];
-
-        foreach($patterns as $phpType => $pattern) {
-            if(preg_match('/^'.$pattern.'$/i', $mysqlType)) {
-                return $phpType;
-            }
-        }
-
-        return 'string';
-    }
-
-    /**
-     * @param string $phpType
+     * @param string $fieldType
      * @return string
      */
-    protected function getDefaultPhpValueByPhpType(string $phpType)
+    protected function getDefaultPhpValueByFieldType(string $fieldType)
     {
-        switch($phpType) {
+        switch($fieldType) {
             case 'int': return '0';
             case 'float': return '.0';
             case 'bool': return 'false';
@@ -232,14 +215,5 @@ class MySqlEntityGenerator implements EntityGeneratorInterface
             default:
                 return '';
         }
-    }
-
-    /**
-     * @param string $mysqlType
-     * @return int
-     */
-    protected function isDateType(string $mysqlType)
-    {
-        return preg_match('/^(date|datetime|year)$/i', $mysqlType);
     }
 }

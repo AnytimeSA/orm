@@ -4,7 +4,7 @@ namespace Anytime\ORM\EntityManager;
 
 use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
 use Anytime\ORM\Generator\EntityGenerator\EntityGeneratorInterface;
-use Anytime\ORM\Generator\EntityGenerator\MySqlEntityGenerator;
+use Anytime\ORM\Generator\EntityGenerator\EntityGenerator;
 use Anytime\ORM\Generator\EntityGenerator\MySqlTableStructureRetriever;
 use Anytime\ORM\Generator\EntityManagerGenerator\EntityManagerGenerator;
 use Anytime\ORM\Generator\EntityManagerGenerator\EntityManagerGeneratorInterface;
@@ -191,7 +191,7 @@ class Factory
         $dynamicRepositoriesClass = $this->entityManagerNamespace . '\\DynamicRepositories';
         $dynamicManagersClass = $this->entityManagerNamespace . '\\DynamicManagers';
 
-        $queryBuilderFactory = new QueryBuilderFactory($pdo, $this->snakeToCamelCaseStringConverter);
+        $queryBuilderFactory = new QueryBuilderFactory($pdo, $this->snakeToCamelCaseStringConverter, $this->databaseType);
 
         $dynamicRepositories = new $dynamicRepositoriesClass($pdo, $this->snakeToCamelCaseStringConverter, $queryBuilderFactory);
         $dynamicManagers = new $dynamicManagersClass($pdo, $dynamicRepositories);
@@ -215,7 +215,7 @@ class Factory
     {
         switch($this->databaseType) {
             case self::DATABASE_TYPE_MYSQL :
-                return new MySqlEntityGenerator(
+                return new EntityGenerator(
                     $this->snakeToCamelCaseStringConverter,
                     new MySqlTableStructureRetriever($pdo),
                     $this->entityDirectory,

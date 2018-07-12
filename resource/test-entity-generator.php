@@ -3,7 +3,7 @@
 namespace Resource\Test;
 
 use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
-use Anytime\ORM\Generator\EntityGenerator\MySqlEntityGenerator;
+use Anytime\ORM\Generator\EntityGenerator\EntityGenerator;
 use Anytime\ORM\Generator\EntityGenerator\MySqlTableStructureRetriever;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -16,7 +16,7 @@ $pass = 'pass';
 
 $pdo = new \PDO("mysql:host=$host;port=$port;dbname=$db", $user, $pass);
 
-$entityGenerator = new MySqlEntityGenerator(
+$entityGenerator = new EntityGenerator(
     new SnakeToCamelCaseStringConverter(),
     new MySqlTableStructureRetriever($pdo),
     __DIR__ . '/entities/',
