@@ -424,6 +424,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         $entityFullClassName = $this->entityNamespace . '\\' . $entityName;
         $repositoryClassName = $entityName.'EntityRepository';
         $defaultRepositoryFullClassName = $this->entityManagerNamespace . '\\DefaultRepository\\' . $repositoryClassName;
+        $userRepositoryFullClassName = $this->userEntityRepositoryNamespace . '\\' . $repositoryClassName;
 
         $sourceCode = "<?php\n";
         $sourceCode .= "\n";
@@ -435,7 +436,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         $sourceCode .= "\n";
 
         $sourceCode .= "/**\n";
-        $sourceCode .= " * @method $repositoryClassName getRepository()\n";
+        $sourceCode .= " * @method $repositoryClassName|\\$userRepositoryFullClassName getRepository()\n";
         $sourceCode .= " */\n";
         $sourceCode .= "class $className extends Manager\n";
         $sourceCode .= "{\n";
