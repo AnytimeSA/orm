@@ -3,7 +3,6 @@
 namespace Anytime\ORM\EntityManager;
 
 use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
-use Anytime\ORM\QueryBuilder\MySqlQueryBuilder;
 use Anytime\ORM\QueryBuilder\QueryBuilderAbstract;
 use Anytime\ORM\QueryBuilder\QueryBuilderFactory;
 use Anytime\ORM\QueryBuilder\QueryBuilderInterface;
@@ -91,7 +90,7 @@ abstract class EntityRepository
      */
     public function createQueryBuilder($alias = null, string $queryType = QueryBuilderAbstract::QUERY_TYPE_SELECT): QueryBuilderInterface
     {
-        $queryBuilder = new MySqlQueryBuilder($this->pdo, $this->snakeToCamelCaseStringConverter); // TODO Remplacer par une factory
+        $queryBuilder = $this->queryBuilderFactory->create();
         $queryBuilder
             ->setQueryType($queryType)
             ->setEntityClass($this->className)

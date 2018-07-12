@@ -191,7 +191,7 @@ class Factory
         $dynamicRepositoriesClass = $this->entityManagerNamespace . '\\DynamicRepositories';
         $dynamicManagersClass = $this->entityManagerNamespace . '\\DynamicManagers';
 
-        $queryBuilderFactory = new QueryBuilderFactory($pdo, $this->snakeToCamelCaseStringConverter);
+        $queryBuilderFactory = new QueryBuilderFactory($pdo, $this->snakeToCamelCaseStringConverter, $this->databaseType);
 
         $dynamicRepositories = new $dynamicRepositoriesClass($pdo, $this->snakeToCamelCaseStringConverter, $queryBuilderFactory);
         $dynamicManagers = new $dynamicManagersClass($pdo, $dynamicRepositories);

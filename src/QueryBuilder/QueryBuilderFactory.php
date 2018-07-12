@@ -18,27 +18,33 @@ class QueryBuilderFactory
     protected $snakeToCamelCaseStringConverter;
 
     /**
+     * @var string
+     */
+    protected $databaseType;
+
+    /**
      * QueryBuilderAbstract constructor.
      * @param \PDO $pdo
      * @param SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter
+     * @param string $databaseType
      */
-    public function __construct(\PDO $pdo, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter)
+    public function __construct(\PDO $pdo, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter, string $databaseType)
     {
         $this->snakeToCamelCaseStringConverter = $snakeToCamelCaseStringConverter;
         $this->pdo = $pdo;
+        $this->databaseType = $databaseType;
     }
 
     /**
-     * @param string $databaseType
      * @return QueryBuilderInterface
      */
-    public function create(string $databaseType): QueryBuilderInterface
+    public function create(): QueryBuilderInterface
     {
-        switch($databaseType) {
+        switch($this->databaseType) {
             case Factory::DATABASE_TYPE_MYSQL:
                 return new MySqlQueryBuilder($this->pdo, $this->snakeToCamelCaseStringConverter);
             default:
-                throw new \InvalidArgumentException($databaseType . 'is not a supported database type');
+                throw new \InvalidArgumentException($this->databaseType . 'is not a supported database type');
         }
     }
 }
