@@ -158,8 +158,19 @@ class EntityGenerator implements EntityGeneratorInterface
                 $typeHintingArg = $nullable ? '' : '\DateTime ';
                 $gettersSettersSourceCode .= "    public function set" . ucfirst($propertyName) . '('.$typeHintingArg.'$'.$propertyName.'): '.$className."\n";
                 $gettersSettersSourceCode .= "    {\n";
-                $gettersSettersSourceCode .= '        $this->data[\''. $fieldName .'\'] = $' . $propertyName. '->format(\'Y-m-d H:i:s\');'."\n";
-                $gettersSettersSourceCode .= '        if($'.$propertyName.') $this->cachedReturnedObject[__METHOD__] = $'.$propertyName.';'."\n";
+                if($nullable) {
+                    $gettersSettersSourceCode .= "        if(is_object(\$$propertyName) && get_class(\$$propertyName) === 'DateTime')) {\n";
+                }
+
+                $gettersSettersSourceCode .= '            $this->data[\''. $fieldName .'\'] = $' . $propertyName. '->format(\'Y-m-d H:i:s\');'."\n";
+                $gettersSettersSourceCode .= '            $this->cachedReturnedObject[__METHOD__] = $'.$propertyName.';'."\n";
+
+                if($nullable) {
+                    $gettersSettersSourceCode .= "        } else {\n";
+                    $gettersSettersSourceCode .= '            $this->data[\''. $fieldName .'\'] = null;'."\n";
+                    $gettersSettersSourceCode .= "        }\n";
+                }
+
                 $gettersSettersSourceCode .= '        return $this;'."\n";
                 $gettersSettersSourceCode .= "    }\n\n";
             } else {
