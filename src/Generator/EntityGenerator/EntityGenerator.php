@@ -156,8 +156,17 @@ class EntityGenerator implements EntityGeneratorInterface
 
             if($isDateType) {
                 $typeHintingArg = $nullable ? '' : '\DateTime ';
+
+
+
+                $gettersSettersSourceCode .= "    /**\n";
+                $gettersSettersSourceCode .= "     * @param \\DateTime".($nullable ? '|null' : '')." \$$propertyName\n";
+                $gettersSettersSourceCode .= "     * @return Users\n";
+                $gettersSettersSourceCode .= "     */\n";
+
                 $gettersSettersSourceCode .= "    public function set" . ucfirst($propertyName) . '('.$typeHintingArg.'$'.$propertyName.'): '.$className."\n";
                 $gettersSettersSourceCode .= "    {\n";
+
                 if($nullable) {
                     $gettersSettersSourceCode .= "        if(is_object(\$$propertyName) && get_class(\$$propertyName) === 'DateTime')) {\n";
                 }
@@ -175,6 +184,11 @@ class EntityGenerator implements EntityGeneratorInterface
                 $gettersSettersSourceCode .= "    }\n\n";
             } else {
                 $typeHintingArg = $nullable ? '' : $fieldType.' ';
+
+                $gettersSettersSourceCode .= "    /**\n";
+                $gettersSettersSourceCode .= "     * @param $fieldType".($nullable ? '|null' : '')." \$$propertyName\n";
+                $gettersSettersSourceCode .= "     * @return Users\n";
+                $gettersSettersSourceCode .= "     */\n";
                 $gettersSettersSourceCode .= "    public function set" . ucfirst($propertyName) . '('.$typeHintingArg.'$'.$propertyName.'): '.$className."\n";
                 $gettersSettersSourceCode .= "    {\n";
                 $gettersSettersSourceCode .= '        $this->data[\''. $fieldName .'\'] = $' . $propertyName. ';'."\n";
