@@ -168,7 +168,7 @@ class EntityGenerator implements EntityGeneratorInterface
                 $gettersSettersSourceCode .= "    {\n";
 
                 if($nullable) {
-                    $gettersSettersSourceCode .= "        if(is_object(\$$propertyName) && get_class(\$$propertyName) === 'DateTime')) {\n";
+                    $gettersSettersSourceCode .= "        if(is_object(\$$propertyName) && get_class(\$$propertyName) === 'DateTime') {\n";
                 }
 
                 $gettersSettersSourceCode .= '            $this->data[\''. $fieldName .'\'] = $' . $propertyName. '->format(\'Y-m-d H:i:s\');'."\n";
