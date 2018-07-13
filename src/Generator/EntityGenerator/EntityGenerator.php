@@ -199,6 +199,9 @@ class EntityGenerator implements EntityGeneratorInterface
             // Getters
             if($isDateType) {
                 $typeHintingReturn = $nullable ? '' : ': \DateTime';
+                $gettersSettersSourceCode .= "    /**\n";
+                $gettersSettersSourceCode .= "     * @return \\DateTime".($nullable ? '|null' : '')."\n";
+                $gettersSettersSourceCode .= "     */\n";
                 $gettersSettersSourceCode .= "    public function get" . ucfirst($propertyName) . "()$typeHintingReturn\n";
                 $gettersSettersSourceCode .= "    {\n";
                 $gettersSettersSourceCode .= '        if($this->data[\'' . $fieldName . '\']) {'."\n";
@@ -206,6 +209,9 @@ class EntityGenerator implements EntityGeneratorInterface
                 $gettersSettersSourceCode .= "        }\n";
                 $gettersSettersSourceCode .= "    }\n\n";
             } else {
+                $gettersSettersSourceCode .= "    /**\n";
+                $gettersSettersSourceCode .= "     * @return $fieldType".($nullable ? '|null' : '')."\n";
+                $gettersSettersSourceCode .= "     */\n";
                 $typeHintingReturn = $nullable ? '' : ': '.$fieldType;
                 $gettersSettersSourceCode .= "    public function " . ($fieldType === 'bool' ? 'is' : 'get') . ucfirst($propertyName) . "()$typeHintingReturn\n";
                 $gettersSettersSourceCode .= "    {\n";
