@@ -226,7 +226,7 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
             throw new \RuntimeException('Not in an ' . QueryBuilderAbstract::QUERY_TYPE_INSERT . ' context');
         }
 
-        $data = $entity->extractData();
+        $data = $entity->extractSetterUsedData();
         $statement = $this->pdo->prepare($this->getInsertSQL($data));
         return (new InsertQuery($this->pdo, $statement, $data))->setEntityClass($this->entityClass);
     }
@@ -242,12 +242,13 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
 
         if($entity) {
             $primaryKeys = $this->entityClass::PRIMARY_KEYS;
+            $primaryKeysData = $entity->extractPrimaryKeyValues();
 
-            $fieldsToUpdate = $entity->extractData();
+            $fieldsToUpdate = $entity->extractSetterUsedData();
             $data = [];
 
             foreach($primaryKeys as $pkeyName) {
-                $data[$pkeyName] = $fieldsToUpdate[$pkeyName];
+                $data[$pkeyName] = $primaryKeysData[$pkeyName];
             }
 
             $statement = $this->pdo->prepare($this->getUpdateByPrimaryKeySQL($fieldsToUpdate));

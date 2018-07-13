@@ -102,6 +102,7 @@ class EntityGenerator implements EntityGeneratorInterface
         $className = ucfirst($this->snakeToCamelCaseStringConverter->convert($tableName));
 
         $propertyDeclarationSourceCode = "    protected \$data = [\n";
+        $dataSetterUsedSourceCode = '    protected $dataSetterUsed = ['."\n";
         $gettersSettersSourceCode = '';
 
         $sourceCode  = "<?php \n\n";
@@ -151,6 +152,9 @@ class EntityGenerator implements EntityGeneratorInterface
                 "        '$fieldName' => " . $propertyValueCode .
                 ",\n";
 
+            // dataSetterUsed
+            $dataSetterUsedSourceCode .= "        '$fieldName' => false,\n";
+
             // Setters
             $isDateType = $fieldType === 'date';
 
@@ -161,7 +165,7 @@ class EntityGenerator implements EntityGeneratorInterface
 
                 $gettersSettersSourceCode .= "    /**\n";
                 $gettersSettersSourceCode .= "     * @param \\DateTime".($nullable ? '|null' : '')." \$$propertyName\n";
-                $gettersSettersSourceCode .= "     * @return Users\n";
+                $gettersSettersSourceCode .= "     * @return $className\n";
                 $gettersSettersSourceCode .= "     */\n";
 
                 $gettersSettersSourceCode .= "    public function set" . ucfirst($propertyName) . '('.$typeHintingArg.'$'.$propertyName.'): '.$className."\n";
@@ -171,6 +175,7 @@ class EntityGenerator implements EntityGeneratorInterface
                     $gettersSettersSourceCode .= "        if(is_object(\$$propertyName) && get_class(\$$propertyName) === 'DateTime') {\n";
                 }
 
+                $gettersSettersSourceCode .= '            $this->dataSetterUsed[\''. $fieldName .'\'] = true;'."\n";
                 $gettersSettersSourceCode .= '            $this->data[\''. $fieldName .'\'] = $' . $propertyName. '->format(\'Y-m-d H:i:s\');'."\n";
                 $gettersSettersSourceCode .= '            $this->cachedReturnedObject[__METHOD__] = $'.$propertyName.';'."\n";
 
@@ -187,10 +192,11 @@ class EntityGenerator implements EntityGeneratorInterface
 
                 $gettersSettersSourceCode .= "    /**\n";
                 $gettersSettersSourceCode .= "     * @param $fieldType".($nullable ? '|null' : '')." \$$propertyName\n";
-                $gettersSettersSourceCode .= "     * @return Users\n";
+                $gettersSettersSourceCode .= "     * @return $className\n";
                 $gettersSettersSourceCode .= "     */\n";
                 $gettersSettersSourceCode .= "    public function set" . ucfirst($propertyName) . '('.$typeHintingArg.'$'.$propertyName.'): '.$className."\n";
                 $gettersSettersSourceCode .= "    {\n";
+                $gettersSettersSourceCode .= '        $this->dataSetterUsed[\''. $fieldName .'\'] = true;'."\n";
                 $gettersSettersSourceCode .= '        $this->data[\''. $fieldName .'\'] = $' . $propertyName. ';'."\n";
                 $gettersSettersSourceCode .= '        return $this;'."\n";
                 $gettersSettersSourceCode .= "    }\n\n";
@@ -221,11 +227,13 @@ class EntityGenerator implements EntityGeneratorInterface
         }
 
         $propertyDeclarationSourceCode .= "    ];\n";
+        $dataSetterUsedSourceCode .= '    ];'."\n";
 
         $primaryKeys = "    const PRIMARY_KEYS = ['" .$primaryKeys. "'];\n";
 
         $sourceCode .= $primaryKeys;
         $sourceCode .= "\n".$propertyDeclarationSourceCode;
+        $sourceCode .= "\n".$dataSetterUsedSourceCode;
         $sourceCode .= "\n".$gettersSettersSourceCode;
         $sourceCode .= "\n}\n";
 

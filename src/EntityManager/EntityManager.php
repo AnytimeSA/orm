@@ -77,6 +77,7 @@ abstract class EntityManager
                     $pkeyName = $entityClass::PRIMARY_KEYS[0];
                     $setter = 'set'.$this->snakeToCamelCaseStringConverter->convert($pkeyName);
                     $entity->$setter($insertId);
+                    $entity->resetDataSetterUsed($pkeyName);
                 }
             }
         }

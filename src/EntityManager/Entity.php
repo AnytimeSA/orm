@@ -22,6 +22,11 @@ abstract class Entity
     protected $data = [];
 
     /**
+     * @var array
+     */
+    protected $dataSetterUsed = [];
+
+    /**
      * Entity constructor.
      * @param array $data
      */
@@ -50,6 +55,36 @@ abstract class Entity
     public function extractData(): array
     {
         return $this->data;
+    }
+
+    /**
+     * @return array
+     */
+    public function extractSetterUsedData(): array
+    {
+        $returnData = [];
+        foreach($this->data as $fieldName => $value) {
+            if($this->dataSetterUsed[$fieldName]) {
+                $returnData[$fieldName] = $value;
+            }
+        }
+        return $returnData;
+    }
+
+    /**
+     * @param string|null $fieldName
+     */
+    public function resetDataSetterUsed(string $fieldName = null)
+    {
+        if($fieldName) {
+            if(array_key_exists($fieldName, $this->dataSetterUsed)) {
+                $this->dataSetterUsed[$fieldName] = false;
+            }
+        } else {
+            foreach($this->dataSetterUsed as $fieldName => $value) {
+                $this->dataSetterUsed[$fieldName] = false;
+            }
+        }
     }
 
     /**
