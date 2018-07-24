@@ -150,7 +150,7 @@ class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
             }
         }
 
-        if(preg_match('/^(date|datetime|year)$/i', $mysqlType)) {
+        if(preg_match('/^(date|datetime|year|timestamp)$/i', $mysqlType)) {
             return 'date';
         }
 
@@ -164,6 +164,7 @@ class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
     protected function getDateFormatByFieldType(string $fieldType): string
     {
         switch($fieldType) {
+            case 'timestamp':
             case 'datetime': return "Y-m-d H:i:s";
             case 'date': return "Y-m-d";
             case 'year': return "Y";
@@ -183,6 +184,7 @@ class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
         }
 
         switch($fieldType) {
+            case 'timestamp':
             case 'datetime': return $defaultValue;
             case 'date': return $defaultValue . ' 00:00:00';
             case 'year': return $defaultValue . '-01-01 00:00:00';
