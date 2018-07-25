@@ -19,6 +19,12 @@ As this ORM works with PDO you have to build a PDO object if you dont have creat
 $dsn = sprintf('mysql:host=%s;dbname=%s;charset=utf8', 'dbhost', 'dbname');
 $pdo = new \PDO($dsn, 'dbuser', 'dbpassword');
 ```
+We recommend to set the attribute "ATTR_EMULATE_PREPARES" and "ATTR_STRINGIFY_FETCHES" to false. It will prevent PDO to convert numeric values to strings.
+
+```
+$pdo->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
+$pdo->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
+```
 
 ### Instantiating the factory
 
