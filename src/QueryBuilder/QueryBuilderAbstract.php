@@ -154,7 +154,9 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
      */
     public function where(string $where): QueryBuilderInterface
     {
-        $this->where = [$where];
+        if($where != '') {
+            $this->where = [$where];
+        }
         return $this;
     }
 
@@ -163,7 +165,27 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
      */
     public function andWhere(string $where): QueryBuilderInterface
     {
-        $this->where[] = $where;
+        if($where != '') {
+            $this->where[] = $where;
+        }
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function orWhere(string $where): QueryBuilderInterface
+    {
+        if($where != '') {
+            $countWhere = count($this->where);
+
+            if ($countWhere < 1) {
+                $this->where[] = $where;
+            } else {
+                $this->where[$countWhere - 1] .= ') OR (' . $where;
+            }
+        }
+
         return $this;
     }
 

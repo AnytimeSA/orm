@@ -44,6 +44,12 @@ interface QueryBuilderInterface
     public function andWhere(string $where): QueryBuilderInterface;
 
     /**
+     * @param string $where
+     * @return QueryBuilderInterface
+     */
+    public function orWhere(string $where): QueryBuilderInterface;
+
+    /**
      * @param int $number
      * @param int $offset
      * @return QueryBuilderInterface
