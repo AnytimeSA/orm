@@ -72,6 +72,14 @@ abstract class Entity
     }
 
     /**
+     * @return bool
+     */
+    public function updateNeeded()
+    {
+        return in_array(true, $this->dataSetterUsed);
+    }
+
+    /**
      * @param string|null $fieldName
      */
     public function resetDataSetterUsed(string $fieldName = null)

@@ -98,6 +98,11 @@ abstract class EntityManager
                 throw new \InvalidArgumentException('Entities to update should be an instance of ' . Entity::class);
             }
 
+            // No update if no changes
+            if(!$entity->updateNeeded()) {
+                continue;
+            }
+
             $pkeyValues = $entity->extractPrimaryKeyValues();
             $entityClass = get_class($entity);
 
