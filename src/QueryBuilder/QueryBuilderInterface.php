@@ -19,6 +19,13 @@ interface QueryBuilderInterface
     public function setParameters(array $parameters): QueryBuilderInterface;
 
     /**
+     * @param string $paramName
+     * @param mixed $paramValue
+     * @return QueryBuilderInterface
+     */
+    public function setParameter(string $paramName, $paramValue): QueryBuilderInterface;
+
+    /**
      * @param string $select
      * @return QueryBuilderInterface
      */

@@ -131,6 +131,15 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function setParameter(string $paramName, $paramValue): QueryBuilderInterface
+    {
+        $this->parameters[$paramName] = $paramValue;
+        return $this;
+    }
+
+    /**
      * @param array $fieldsToUpdate
      * @return QueryBuilderAbstract
      */
