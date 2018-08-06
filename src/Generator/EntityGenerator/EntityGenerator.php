@@ -98,6 +98,8 @@ class EntityGenerator implements EntityGeneratorInterface
      */
     public function generateEntityClassString(string $tableName, array $tableStruct): string
     {
+        $alreadyGeneratedGetterSetter = []; // used to avoid setter/getter name conflict in canse of similar fields like : myfield and my_field, we add  "_2" ... "_3" ... o the end of the setter/getter
+
         $primaryKeys = '';
         $className = ucfirst($this->snakeToCamelCaseStringConverter->convert($tableName));
 
@@ -157,18 +159,23 @@ class EntityGenerator implements EntityGeneratorInterface
 
             // Setters
             $isDateType = $fieldType === 'date';
+            $setterName = "set" . ucfirst($propertyName);
+            $setterSuffix = '';
+
+            if(array_key_exists(strtolower($setterName), $alreadyGeneratedGetterSetter)) {
+                $setterSuffix = '_'.($alreadyGeneratedGetterSetter[strtolower($setterName)]+1);
+            }
+
 
             if($isDateType) {
                 $typeHintingArg = $nullable ? '' : '\DateTime ';
-
-
 
                 $gettersSettersSourceCode .= "    /**\n";
                 $gettersSettersSourceCode .= "     * @param \\DateTime".($nullable ? '|null' : '')." \$$propertyName\n";
                 $gettersSettersSourceCode .= "     * @return $className\n";
                 $gettersSettersSourceCode .= "     */\n";
 
-                $gettersSettersSourceCode .= "    public function set" . ucfirst($propertyName) . '('.$typeHintingArg.'$'.$propertyName.'): '.$className."\n";
+                $gettersSettersSourceCode .= "    public function " . $setterName . $setterSuffix . '('.$typeHintingArg.'$'.$propertyName.'): '.$className."\n";
                 $gettersSettersSourceCode .= "    {\n";
 
                 if($nullable) {
@@ -194,7 +201,7 @@ class EntityGenerator implements EntityGeneratorInterface
                 $gettersSettersSourceCode .= "     * @param $fieldType".($nullable ? '|null' : '')." \$$propertyName\n";
                 $gettersSettersSourceCode .= "     * @return $className\n";
                 $gettersSettersSourceCode .= "     */\n";
-                $gettersSettersSourceCode .= "    public function set" . ucfirst($propertyName) . '('.$typeHintingArg.'$'.$propertyName.'): '.$className."\n";
+                $gettersSettersSourceCode .= "    public function " . $setterName . $setterSuffix . '('.$typeHintingArg.'$'.$propertyName.'): '.$className."\n";
                 $gettersSettersSourceCode .= "    {\n";
                 $gettersSettersSourceCode .= '        $this->dataSetterUsed[\''. $fieldName .'\'] = true;'."\n";
                 $gettersSettersSourceCode .= '        $this->data[\''. $fieldName .'\'] = $' . $propertyName. ';'."\n";
@@ -204,27 +211,57 @@ class EntityGenerator implements EntityGeneratorInterface
 
             // Getters
             if($isDateType) {
+                $getterName = "get" . ucfirst($propertyName);
+                $getterSuffix = '';
+
+                if(array_key_exists(strtolower($getterName), $alreadyGeneratedGetterSetter)) {
+                    $getterSuffix = '_'.($alreadyGeneratedGetterSetter[strtolower($getterName)]+1);
+                }
+
+
                 $typeHintingReturn = $nullable ? '' : ': \DateTime';
                 $gettersSettersSourceCode .= "    /**\n";
                 $gettersSettersSourceCode .= "     * @return \\DateTime".($nullable ? '|null' : '')."\n";
                 $gettersSettersSourceCode .= "     */\n";
-                $gettersSettersSourceCode .= "    public function get" . ucfirst($propertyName) . "()$typeHintingReturn\n";
+                $gettersSettersSourceCode .= "    public function " . $getterName . $getterSuffix . "()$typeHintingReturn\n";
                 $gettersSettersSourceCode .= "    {\n";
                 $gettersSettersSourceCode .= '        if($this->data[\'' . $fieldName . '\']) {'."\n";
                 $gettersSettersSourceCode .= '            return $this->convertDateTimeStringToObject(__METHOD__, (string)$this->data[\'' . $fieldName . '\']);'."\n";
                 $gettersSettersSourceCode .= "        }\n";
                 $gettersSettersSourceCode .= "    }\n\n";
             } else {
+                $getterName = ($fieldType === 'bool' ? 'is' : 'get') . ucfirst($propertyName);
+                $getterSuffix = '';
+
+                if(array_key_exists(strtolower($getterName), $alreadyGeneratedGetterSetter)) {
+                    $getterSuffix = '_'.($alreadyGeneratedGetterSetter[strtolower($getterName)]+1);
+                }
+
+
                 $gettersSettersSourceCode .= "    /**\n";
                 $gettersSettersSourceCode .= "     * @return $fieldType".($nullable ? '|null' : '')."\n";
                 $gettersSettersSourceCode .= "     */\n";
                 $typeHintingReturn = $nullable ? '' : ': '.$fieldType;
-                $gettersSettersSourceCode .= "    public function " . ($fieldType === 'bool' ? 'is' : 'get') . ucfirst($propertyName) . "()$typeHintingReturn\n";
+                $gettersSettersSourceCode .= "    public function " . $getterName . $getterSuffix . "()$typeHintingReturn\n";
                 $gettersSettersSourceCode .= "    {\n";
                 $gettersSettersSourceCode .= '        return ('.$fieldType.')$this->data[\'' . $fieldName . '\'];'."\n";
                 $gettersSettersSourceCode .= "    }\n\n";
             }
+
+            if(array_key_exists(strtolower($getterName), $alreadyGeneratedGetterSetter)) {
+                $alreadyGeneratedGetterSetter[strtolower($getterName)]++;
+            } else {
+                $alreadyGeneratedGetterSetter[strtolower($getterName)] = 1;
+            }
+
+            if(array_key_exists(strtolower($setterName), $alreadyGeneratedGetterSetter)) {
+                $alreadyGeneratedGetterSetter[strtolower($setterName)]++;
+            } else {
+                $alreadyGeneratedGetterSetter[strtolower($setterName)] = 1;
+            }
         }
+
+
 
         $propertyDeclarationSourceCode .= "    ];\n";
         $dataSetterUsedSourceCode .= '    ];'."\n";
