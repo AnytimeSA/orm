@@ -181,7 +181,7 @@ abstract class EntityManager
      * @param array $parameters
      * @return DeleteQuery
      */
-    public function deleteRawSQL(string $sql, array $parameters = [])
+    public function deleteQuery(string $sql, array $parameters = [])
     {
         $statement = $this->pdo->prepare($sql);
         $query = new DeleteQuery($this->pdo, $statement, $parameters);
@@ -193,7 +193,7 @@ abstract class EntityManager
      * @param array $parameters
      * @return UpdateQuery
      */
-    public function updateRawSQL(string $sql, array $parameters = [])
+    public function updateQuery(string $sql, array $parameters = [])
     {
         $statement = $this->pdo->prepare($sql);
         $query = new UpdateQuery($this->pdo, $statement, $parameters);
@@ -205,7 +205,7 @@ abstract class EntityManager
      * @param array $parameters
      * @return InsertQuery
      */
-    public function insertRawSQL(string $sql, array $parameters = [])
+    public function insertQuery(string $sql, array $parameters = [])
     {
         $statement = $this->pdo->prepare($sql);
         $query = new InsertQuery($this->pdo, $statement, $parameters);
