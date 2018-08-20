@@ -2,8 +2,10 @@
 
 namespace Anytime\ORM\EntityManager;
 
+use Anytime\ORM\QueryBuilder\QueryAbstract;
 use Anytime\ORM\QueryBuilder\QueryBuilderAbstract;
 use Anytime\ORM\QueryBuilder\QueryBuilderInterface;
+use Anytime\ORM\QueryBuilder\SelectQuery;
 
 abstract class Manager
 {
@@ -81,5 +83,16 @@ abstract class Manager
         ;
 
         return $queryBuilder->getSelectQuery()->fetchOne();
+    }
+
+    /**
+     * @param string $sql
+     * @param array $parameters
+     * @return QueryAbstract|SelectQuery
+     */
+    public function selectQuery(string $sql, array $parameters = [])
+    {
+        $statement = $this->pdo->prepare($sql);
+        return (new SelectQuery($this->pdo, $statement, $parameters))->setEntityClass($this->getRepository()->getClassName());
     }
 }
