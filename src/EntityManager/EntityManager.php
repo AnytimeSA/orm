@@ -3,8 +3,12 @@
 namespace Anytime\ORM\EntityManager;
 
 use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
+use Anytime\ORM\QueryBuilder\DeleteQuery;
+use Anytime\ORM\QueryBuilder\InsertQuery;
 use Anytime\ORM\QueryBuilder\QueryBuilderAbstract;
 use Anytime\ORM\QueryBuilder\QueryBuilderFactory;
+use Anytime\ORM\QueryBuilder\SelectQuery;
+use Anytime\ORM\QueryBuilder\UpdateQuery;
 
 abstract class EntityManager
 {
@@ -152,5 +156,59 @@ abstract class EntityManager
 
             $query->execute();
         }
+    }
+
+    /**
+     * @param string $sql
+     * @param array $parameters
+     * @param string|null $entityClass
+     * @return SelectQuery
+     */
+    public function selectQuery(string $sql, array $parameters = [], string $entityClass = null)
+    {
+        $statement = $this->pdo->prepare($sql);
+        $query = new SelectQuery($this->pdo, $statement, $parameters);
+
+        if($entityClass && class_exists($entityClass) && is_subclass_of($entityClass, Entity::class)) {
+            $query->setEntityClass($entityClass);
+        }
+
+        return $query;
+    }
+
+    /**
+     * @param string $sql
+     * @param array $parameters
+     * @return DeleteQuery
+     */
+    public function deleteRawSQL(string $sql, array $parameters = [])
+    {
+        $statement = $this->pdo->prepare($sql);
+        $query = new DeleteQuery($this->pdo, $statement, $parameters);
+        return $query;
+    }
+
+    /**
+     * @param string $sql
+     * @param array $parameters
+     * @return UpdateQuery
+     */
+    public function updateRawSQL(string $sql, array $parameters = [])
+    {
+        $statement = $this->pdo->prepare($sql);
+        $query = new UpdateQuery($this->pdo, $statement, $parameters);
+        return $query;
+    }
+
+    /**
+     * @param string $sql
+     * @param array $parameters
+     * @return InsertQuery
+     */
+    public function insertRawSQL(string $sql, array $parameters = [])
+    {
+        $statement = $this->pdo->prepare($sql);
+        $query = new InsertQuery($this->pdo, $statement, $parameters);
+        return $query;
     }
 }
