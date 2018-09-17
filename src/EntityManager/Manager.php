@@ -20,22 +20,37 @@ abstract class Manager
     protected $entityRepository;
 
     /**
+     * @var EntityManager
+     */
+    protected $entityManager;
+
+    /**
      * EntityRepository constructor.
      * @param \PDO $pdo
      * @param EntityRepository $entityRepository
+     * @param EntityManager $entityManager
      */
-    public function __construct(\PDO $pdo, EntityRepository $entityRepository)
+    public function __construct(\PDO $pdo, EntityRepository $entityRepository, EntityManager $entityManager)
     {
         $this->pdo = $pdo;
         $this->entityRepository = $entityRepository;
+        $this->entityManager = $entityManager;
     }
 
     /**
      * @return EntityRepository
      */
-    public function getRepository()
+    public function getRepository(): EntityRepository
     {
         return $this->entityRepository;
+    }
+
+    /**
+     * @return EntityManager
+     */
+    public function getEntityManager(): EntityManager
+    {
+        return $this->entityManager;
     }
 
     /**
@@ -46,7 +61,6 @@ abstract class Manager
     public function createQueryBuilder($alias = null, string $queryType = QueryBuilderAbstract::QUERY_TYPE_SELECT): QueryBuilderInterface
     {
         return $this->entityRepository->createQueryBuilder($alias, $queryType);
-
     }
 
     /**

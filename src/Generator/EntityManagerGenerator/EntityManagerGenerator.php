@@ -359,6 +359,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         // Use block
         $sourceCode .= "use Anytime\ORM\EntityManager\Managers;\n";
         $sourceCode .= "use Anytime\ORM\EntityManager\Manager;\n";
+        $sourceCode .= "use Anytime\ORM\EntityManager\EntityManager;\n";
 
         foreach($tableStructList as $tableName => $tableStruct) {
             $entityName = $this->snakeToCamelCaseStringConverter->convert($tableName);
@@ -374,6 +375,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
 
         // Properties
         $sourceCode .= "    private \$dynamicRepositories;\n";
+        $sourceCode .= "    private \$entityManager;\n";
 
         // Constructor
         $sourceCode .= "    public function __construct(\\PDO \$pdo, DynamicRepositories \$dynamicRepositories) {\n";
@@ -389,6 +391,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
             $managerFullClassName = $this->userManagerNamespace . "\\" . $managerClassName;
 
             $entityRepositoryGetterCall = 'get'.$entityName.'EntityRepository';
+            $entityManagerGetterCall = 'get'.$entityName.'Manager';
 
             $defaultManagerFullClassName = $this->entityManagerNamespace . "\\DefaultManager\\" . $managerClassName;
 
@@ -397,11 +400,30 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
             $sourceCode .= "     */\n";
             $sourceCode .= "    public function $managerGetterName(): \\$defaultManagerFullClassName\n";
             $sourceCode .= "    {\n";
-            $sourceCode .= "        return \$this->loadAndGetManager('$managerFullClassName','$defaultManagerFullClassName',\$this->dynamicRepositories->$entityRepositoryGetterCall());\n";
+            $sourceCode .= "        return \$this->loadAndGetManager('$managerFullClassName','$defaultManagerFullClassName',\$this->dynamicRepositories->$entityRepositoryGetterCall(),\$this->entityManager);\n";
             $sourceCode .= "    }\n";
             $sourceCode .= "\n";
         }
 
+        //setDynamicEntityManager
+        $sourceCode .= "    /**\n";
+        $sourceCode .= "     * @param DynamicEntityManager \$dynamicEntityManager\n";
+        $sourceCode .= "     */\n";
+        $sourceCode .= "    public function setDynamicEntityManager(DynamicEntityManager \$dynamicEntityManager)\n";
+        $sourceCode .= "    {\n";
+        $sourceCode .= "        \$this->entityManager = \$dynamicEntityManager;\n";
+        $sourceCode .= "    }\n";
+
+        //setDynamicEntityManager
+        $sourceCode .= "    /**\n";
+        $sourceCode .= "     * @return DynamicEntityManager";
+        $sourceCode .= "     */\n";
+        $sourceCode .= "    public function getDynamicEntityManager(): DynamicEntityManager\n";
+        $sourceCode .= "    {\n";
+        $sourceCode .= "        return \$this->entityManager;\n";
+        $sourceCode .= "    }\n";
+
+        //END CLASS
         $sourceCode .= "}\n";
 
         return $sourceCode;
