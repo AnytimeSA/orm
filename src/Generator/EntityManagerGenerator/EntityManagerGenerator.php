@@ -487,6 +487,10 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
                 $phpDocParamList .= "     * @param " . ($columnType === 'date' ? '\DateTime' : $columnType) . " \$$paramVarName\n";
             }
 
+            $phpParamList .= ", bool \$useNamedParameters = false";
+            $phpDocParamList .= "     * @param bool \$useNamedParameters \n";
+            $phpParamListNoHintNoDefault .= ", \$useNamedParameters";
+
             if(in_array($methodName, $createdMethods)) {
                 continue;
             }
@@ -540,6 +544,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
             $phpDocParamList = '';
             $where = '';
             $qbParameters = '';
+            $qbNamedParameters = '';
 
             foreach($indexParts as $iP => $indexPart) {
                 $columnType = $tableStruct['structure'][$indexPart['columnName']]['type'];
@@ -549,9 +554,14 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
                 $paramVarName = lcfirst($columnNameCCase);
                 $phpParamList .= ($iP > 0 ? ', ' : '') . ($columnType === 'date' ? ($indexPart['allowNull'] ? '' : '\DateTime') : $columnType) .' $' . $paramVarName . ($indexPart['allowNull'] ? ' = NULL' : '');
                 $phpDocParamList .= "     * @param " . ($columnType === 'date' ? '\DateTime' : $columnType) . " \$$paramVarName\n";
-                $where .= ($iP > 0 ? ' AND ' : '') . $tableShortAlias . '.' . $indexPart['columnName'] . ' = ?';
+                $where .= ($iP > 0 ? ' AND ' : '') . $tableShortAlias . '.' . $indexPart['columnName'] . ' = \' . ' . "(\$useNamedParameters ? ':$paramVarName' : '?').'";
                 $qbParameters .= ($iP > 0 ? ', ' : '') . "\$$paramVarName".($columnType === 'date' && $dateFormat ? '->format("'.$dateFormat.'")' : '');
+                $qbNamedParameters .= "\n                ".($iP > 0 ? ', ' : '') . "'" . $paramVarName . "' => \$$paramVarName".($columnType === 'date' && $dateFormat ? '->format("'.$dateFormat.'")' : '');
             }
+
+            $phpParamList .= ", bool \$useNamedParameters = false";
+            $phpDocParamList .= "     * @param bool \$useNamedParameters \n";
+            $qbNamedParameters .= "\n";
 
             if(in_array($methodName, $createdMethods)) {
                 continue;
@@ -566,7 +576,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
             $sourceCode .= "    public function $methodName($phpParamList): QueryBuilderInterface\n";
             $sourceCode .= "    {\n";
             $sourceCode .= "        \$queryBuilder = \$this->createQueryBuilder('$tableShortAlias');\n";
-            $sourceCode .= "        \$queryBuilder->where('$where')->setParameters([$qbParameters]);\n";
+            $sourceCode .= "        \$queryBuilder->where('$where')->setParameters(\$useNamedParameters \n            ? [$qbNamedParameters] \n            : [$qbParameters]);\n";
             $sourceCode .= "        return \$queryBuilder;\n";
             $sourceCode .= "    }\n";
             $sourceCode .= "\n";
