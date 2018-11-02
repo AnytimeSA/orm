@@ -79,7 +79,7 @@ class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
                 'allowNull'         =>  $field['Null'] === 'YES' ? true : false,
                 'keyType'           =>  $field['Key'],
                 'defaultValue'      =>  $field['Default'],
-                'dateFormat'        =>  $phpType === 'date'
+                'dateFormat'        =>  $phpType === 'date' && $field['Default']
                     ? $this->getDateDefaultValue($field['Default'], $field['Type'])
                     : $this->getDateFormatByFieldType($field['Type'])
             ];
