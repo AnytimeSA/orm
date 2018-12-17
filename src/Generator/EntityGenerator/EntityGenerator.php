@@ -79,12 +79,16 @@ class EntityGenerator implements EntityGeneratorInterface
     /**
      * @inheritdoc
      */
-    public function generate(array $tableList = [])
+    public function generate(array $tableList = [], array $ignoredTables = [])
     {
         $fileSystem = new Filesystem();
         $fileSystem->mkdir($this->entityDirectory);
 
         foreach($this->tableStructureRetriever->retrieve($tableList) as $tableName => $tableStruct) {
+            if (in_array($tableName, $ignoredTables)) {
+                continue;
+            }
+
             $entityClassName = ucfirst($this->snakeToCamelCaseStringConverter->convert($tableName));
             $entityGeneratedSourceCode = $this->generateEntityClassString($tableName, $tableStruct);
 

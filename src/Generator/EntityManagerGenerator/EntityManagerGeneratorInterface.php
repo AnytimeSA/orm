@@ -4,5 +4,9 @@ namespace Anytime\ORM\Generator\EntityManagerGenerator;
 
 interface EntityManagerGeneratorInterface
 {
-    public function generate(array $tableList = []);
+    /**
+     * @param array $tableList
+     * @param array $ignoredTables
+     */
+    public function generate(array $tableList = [], array $ignoredTables = []);
 }

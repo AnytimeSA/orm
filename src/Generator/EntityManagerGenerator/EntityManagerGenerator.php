@@ -186,9 +186,9 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
     }
 
     /**
-     * @param array $tableList
+     * @inheritdoc
      */
-    public function generate(array $tableList = [])
+    public function generate(array $tableList = [], array $ignoredTables = [])
     {
         $fileSystem = new Filesystem();
         $fileSystem->mkdir($this->entityManagerDirectory);
@@ -219,6 +219,10 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
             mkdir($managersDir);
         }
         foreach($tableStructList as $tableName => $tableStruct) {
+            if (in_array($tableName, $ignoredTables)) {
+                continue;
+            }
+
             $className = $this->snakeToCamelCaseStringConverter->convert($tableName).'Manager';
             $sourceCode = $this->generateDynamicManager($tableStruct, $className, $tableName);
             file_put_contents($this->entityManagerDirectory . '/DefaultManager/'.$className.'.php', $sourceCode);
@@ -236,6 +240,10 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
             mkdir($repositoriesDir);
         }
         foreach($tableStructList as $tableName => $tableStruct) {
+            if (in_array($tableName, $ignoredTables)) {
+                continue;
+            }
+
             $className = $this->snakeToCamelCaseStringConverter->convert($tableName).'EntityRepository';
             $sourceCode = $this->generateDynamicRepository($tableStruct, $className);
             file_put_contents($this->entityManagerDirectory . '/DefaultRepository/'.$className.'.php', $sourceCode);
