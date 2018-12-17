@@ -10,9 +10,9 @@ interface EntityGeneratorInterface
 {
     /**
      * @param array $tableList
-     * @return mixed
+     * @param array $ignoredtables
      */
-    public function generate(array $tableList = []);
+    public function generate(array $tableList = [], array $ignoredtables = []);
 
     /**
      * @param string $tableName
