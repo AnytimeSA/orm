@@ -4,6 +4,7 @@ namespace Anytime\ORM\Generator\EntityManagerGenerator;
 
 use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
 use Anytime\ORM\Generator\EntityGenerator\TableStructureRetrieverInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 class EntityManagerGenerator implements EntityManagerGeneratorInterface
 {
@@ -94,11 +95,8 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
      */
     public function setEntityManagerDirectory(string $entityManagerDirectory): EntityManagerGenerator
     {
-        if(is_dir($entityManagerDirectory) && is_writable($entityManagerDirectory)) {
-            $this->entityManagerDirectory = $entityManagerDirectory;
-        } else {
-            throw new \RuntimeException('The entity manager directory should exists and be writable.');
-        }
+        $this->entityManagerDirectory = $entityManagerDirectory;
+
         return $this;
     }
 
@@ -127,11 +125,8 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
      */
     public function setUserEntityRepositoryDirectory(string $userEntityRepositoryDirectory): EntityManagerGenerator
     {
-        if(is_dir($userEntityRepositoryDirectory)) {
-            $this->userEntityRepositoryDirectory = $userEntityRepositoryDirectory;
-        } else {
-            throw new \RuntimeException('The user entity repository directory should exists.');
-        }
+        $this->userEntityRepositoryDirectory = $userEntityRepositoryDirectory;
+
         return $this;
     }
 
@@ -159,11 +154,8 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
      */
     public function setUserManagerDirectory(string $userManagerDirectory): EntityManagerGenerator
     {
-        if(is_dir($userManagerDirectory)) {
-            $this->userManagerDirectory = $userManagerDirectory;
-        } else {
-            throw new \RuntimeException('The user manager directory should exists.');
-        }
+        $this->userManagerDirectory = $userManagerDirectory;
+
         return $this;
     }
 
@@ -198,6 +190,9 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
      */
     public function generate(array $tableList = [])
     {
+        $fileSystem = new Filesystem();
+        $fileSystem->mkdir($this->entityManagerDirectory);
+
         $tableStructList = $this->tableStructureRetriever->retrieve($tableList);
 
         // Repositories class

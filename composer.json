@@ -12,7 +12,8 @@
         "phpunit/phpunit": "^6.0"
     },
     "require": {
-        "nayjest/str-case-converter": "^1.0"
+        "nayjest/str-case-converter": "^1.0",
+        "symfony/filesystem": "^3.4"
     },
     "autoload": {
         "psr-4": {
