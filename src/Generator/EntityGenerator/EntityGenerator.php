@@ -4,6 +4,7 @@ namespace Anytime\ORM\Generator\EntityGenerator;
 
 use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
 use Anytime\ORM\EntityManager\Entity;
+use Symfony\Component\Filesystem\Filesystem;
 
 class EntityGenerator implements EntityGeneratorInterface
 {
@@ -54,11 +55,8 @@ class EntityGenerator implements EntityGeneratorInterface
      */
     public function setEntityDirectory(string $entityDirectory): EntityGenerator
     {
-        if(is_dir($entityDirectory) && is_writable($entityDirectory)) {
-            $this->entityDirectory = $entityDirectory;
-        } else {
-            throw new \RuntimeException('The entity directory should exists and be writable.');
-        }
+        $this->entityDirectory = $entityDirectory;
+
         return $this;
     }
 
@@ -83,6 +81,9 @@ class EntityGenerator implements EntityGeneratorInterface
      */
     public function generate(array $tableList = [])
     {
+        $fileSystem = new Filesystem();
+        $fileSystem->mkdir($this->entityDirectory);
+
         foreach($this->tableStructureRetriever->retrieve($tableList) as $tableName => $tableStruct) {
             $entityClassName = ucfirst($this->snakeToCamelCaseStringConverter->convert($tableName));
             $entityGeneratedSourceCode = $this->generateEntityClassString($tableName, $tableStruct);
