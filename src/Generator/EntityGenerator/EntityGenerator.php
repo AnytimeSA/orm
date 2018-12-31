@@ -136,10 +136,6 @@ class EntityGenerator implements EntityGeneratorInterface
 
             $isString = $fieldType === 'string' || $fieldType === 'date';
 
-            if ($default === 'CURRENT_TIMESTAMP') {
-                $default = null;
-            }
-
             // Properties declaration
             $defaultPropertyValue = $this->getDefaultPhpValueByFieldType($fieldType);
             $propertyName = lcfirst($this->snakeToCamelCaseStringConverter->convert($fieldName));

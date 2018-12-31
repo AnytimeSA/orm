@@ -79,7 +79,7 @@ class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
                 'allowNull'         =>  $field['Null'] === 'YES' ? true : false,
                 'keyType'           =>  $field['Key'],
                 'defaultValue'      =>  $field['Default'],
-                'dateFormat'        =>  $phpType === 'date' && $field['Default']
+                'dateFormat'        =>  $phpType === 'date' && $field['Default'] && $this->isNotTimestampFunction($field['Default'])
                     ? $this->getDateDefaultValue($field['Default'], $field['Type'])
                     : $this->getDateFormatByFieldType($field['Type'])
             ];
@@ -190,5 +190,10 @@ class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
             case 'year': return $defaultValue . '-01-01 00:00:00';
         }
         return '';
+    }
+
+    private function isNotTimestampFunction($defaultValue) : bool
+    {
+        return !preg_match('/^current_timestamp *( *\(.*\) *)?$/i', $defaultValue);
     }
 }
