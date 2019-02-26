@@ -190,9 +190,7 @@ class EntityGenerator implements EntityGeneratorInterface
                 if($nullable) {
                     $gettersSettersSourceCode .= "        } else {\n";
                     $gettersSettersSourceCode .= '            $this->dataSetterUsed[\''. $fieldName .'\'] = true;'."\n";
-                    $gettersSettersSourceCode .= '            if(!is_null($this->data[\''. $fieldName .'\'])) {'."\n";
-                    $gettersSettersSourceCode .= '                $this->data[\''. $fieldName .'\'] = null;'."\n";
-                    $gettersSettersSourceCode .= '            }'."\n";
+                    $gettersSettersSourceCode .= '            $this->data[\''. $fieldName .'\'] = null;'."\n";
                     $gettersSettersSourceCode .= "        }\n";
                 }
 
