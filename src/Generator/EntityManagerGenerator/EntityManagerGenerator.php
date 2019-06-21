@@ -267,6 +267,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         $sourceCode .= "use Anytime\ORM\EntityManager\EntityManager;\n";
         $sourceCode .= "use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;\n";
         $sourceCode .= "use Anytime\ORM\QueryBuilder\QueryBuilderFactory;\n";
+        $sourceCode .= "use Anytime\ORM\EntityManager\Connection;\n";
         $sourceCode .= "\n";
 
         // Class block
@@ -282,11 +283,11 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         $sourceCode .= "     */\n";
         $sourceCode .= "    public \$managers;\n";
         $sourceCode .= "\n";
-        $sourceCode .= "    public function __construct(\\PDO \$pdo, SnakeToCamelCaseStringConverter \$snakeToCamelCaseStringConverter, DynamicRepositories \$dynamicRepositories, DynamicManagers \$dynamicManagers, QueryBuilderFactory \$queryBuilderFactory, string \$databaseType)\n";
+        $sourceCode .= "    public function __construct(\\Connection \$connection, SnakeToCamelCaseStringConverter \$snakeToCamelCaseStringConverter, DynamicRepositories \$dynamicRepositories, DynamicManagers \$dynamicManagers, QueryBuilderFactory \$queryBuilderFactory, string \$databaseType)\n";
         $sourceCode .= "    {\n";
         $sourceCode .= "        \$this->repositories = \$dynamicRepositories;\n";
         $sourceCode .= "        \$this->managers = \$dynamicManagers;\n";
-        $sourceCode .= "        parent::__construct(\$pdo, \$snakeToCamelCaseStringConverter, \$queryBuilderFactory, \$databaseType);\n";
+        $sourceCode .= "        parent::__construct(\$connection, \$snakeToCamelCaseStringConverter, \$queryBuilderFactory, \$databaseType);\n";
         $sourceCode .= "    }\n";
         $sourceCode .= "}\n\n";
 
@@ -363,6 +364,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         $sourceCode .= "use Anytime\ORM\EntityManager\Managers;\n";
         $sourceCode .= "use Anytime\ORM\EntityManager\Manager;\n";
         $sourceCode .= "use Anytime\ORM\EntityManager\EntityManager;\n";
+        $sourceCode .= "use Anytime\ORM\EntityManager\Connection;\n";
 
         foreach($tableStructList as $tableName => $tableStruct) {
             $entityName = $this->snakeToCamelCaseStringConverter->convert($tableName);
@@ -381,9 +383,9 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         $sourceCode .= "    private \$entityManager;\n";
 
         // Constructor
-        $sourceCode .= "    public function __construct(\\PDO \$pdo, DynamicRepositories \$dynamicRepositories) {\n";
+        $sourceCode .= "    public function __construct(\\Connection \$connection, DynamicRepositories \$dynamicRepositories) {\n";
         $sourceCode .= "        \$this->dynamicRepositories = \$dynamicRepositories;\n";
-        $sourceCode .= "        parent::__construct(\$pdo);\n";
+        $sourceCode .= "        parent::__construct(\$connection);\n";
         $sourceCode .= "    }\n";
 
         // Methods
