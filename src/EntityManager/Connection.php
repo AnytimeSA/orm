@@ -20,7 +20,7 @@ class Connection
      * Connection constructor.
      * @param \PDO $pdo
      */
-    public function __construct(\PDO $pdo)
+    public function __construct(\PDO $pdo = null)
     {
         $this->pdo = $pdo;
     }
