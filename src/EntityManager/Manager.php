@@ -10,9 +10,9 @@ use Anytime\ORM\QueryBuilder\SelectQuery;
 abstract class Manager
 {
     /**
-     * @var \PDO
+     * @var Connection
      */
-    protected $pdo;
+    protected $connection;
 
     /**
      * @var EntityRepository
@@ -26,13 +26,13 @@ abstract class Manager
 
     /**
      * EntityRepository constructor.
-     * @param \PDO $pdo
+     * @param Connection $connection
      * @param EntityRepository $entityRepository
      * @param EntityManager $entityManager
      */
-    public function __construct(\PDO $pdo, EntityRepository $entityRepository, EntityManager $entityManager)
+    public function __construct(Connection $connection, EntityRepository $entityRepository, EntityManager $entityManager)
     {
-        $this->pdo = $pdo;
+        $this->connection = $connection;
         $this->entityRepository = $entityRepository;
         $this->entityManager = $entityManager;
     }
@@ -106,7 +106,7 @@ abstract class Manager
      */
     public function selectQuery(string $sql, array $parameters = [])
     {
-        $statement = $this->pdo->prepare($sql);
-        return (new SelectQuery($this->pdo, $statement, $parameters))->setEntityClass($this->getRepository()->getClassName());
+        $statement = $this->connection->prepare($sql);
+        return (new SelectQuery($this->connection, $statement, $parameters))->setEntityClass($this->getRepository()->getClassName());
     }
 }

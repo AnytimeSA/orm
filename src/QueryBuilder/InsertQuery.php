@@ -11,6 +11,6 @@ class InsertQuery extends QueryAbstract implements InsertQueryInterface
     {
         $this->PDOStatement->execute($this->parameters);
         $this->throwPdoError($this->PDOStatement);
-        return $this->pdo->lastInsertId();
+        return $this->connection->lastInsertId();
     }
 }

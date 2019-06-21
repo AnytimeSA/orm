@@ -3,14 +3,15 @@
 namespace Anytime\ORM\QueryBuilder;
 
 use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
+use Anytime\ORM\EntityManager\Connection;
 use Anytime\ORM\EntityManager\Factory;
 
 class QueryBuilderFactory
 {
     /**
-     * @var \PDO
+     * @var Connection
      */
-    protected $pdo;
+    protected $connection;
 
     /**
      * @var SnakeToCamelCaseStringConverter
@@ -24,14 +25,14 @@ class QueryBuilderFactory
 
     /**
      * QueryBuilderAbstract constructor.
-     * @param \PDO $pdo
+     * @param Connection $connection
      * @param SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter
      * @param string $databaseType
      */
-    public function __construct(\PDO $pdo, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter, string $databaseType)
+    public function __construct(Connection $connection, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter, string $databaseType)
     {
         $this->snakeToCamelCaseStringConverter = $snakeToCamelCaseStringConverter;
-        $this->pdo = $pdo;
+        $this->connection = $connection;
         $this->databaseType = $databaseType;
     }
 
@@ -42,7 +43,7 @@ class QueryBuilderFactory
     {
         switch($this->databaseType) {
             case Factory::DATABASE_TYPE_MYSQL:
-                return new MySqlQueryBuilder($this->pdo, $this->snakeToCamelCaseStringConverter);
+                return new MySqlQueryBuilder($this->connection, $this->snakeToCamelCaseStringConverter);
             default:
                 throw new \InvalidArgumentException($this->databaseType . 'is not a supported database type');
         }

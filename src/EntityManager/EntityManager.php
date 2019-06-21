@@ -13,9 +13,9 @@ use Anytime\ORM\QueryBuilder\UpdateQuery;
 abstract class EntityManager
 {
     /**
-     * @var \PDO
+     * @var Connection
      */
-    protected $pdo;
+    protected $connection;
 
     /**
      * @var SnakeToCamelCaseStringConverter
@@ -29,14 +29,14 @@ abstract class EntityManager
 
     /**
      * EntityManager constructor.
-     * @param \PDO $pdo
+     * @param Connection $connection
      * @param SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter
      * @param QueryBuilderFactory $queryBuilderFactory
      * @param string $databaseType
      */
-    public function __construct(\PDO $pdo, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter, QueryBuilderFactory $queryBuilderFactory, string $databaseType)
+    public function __construct(Connection $connection, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter, QueryBuilderFactory $queryBuilderFactory, string $databaseType)
     {
-        $this->pdo = $pdo;
+        $this->connection = $connection;
         $this->snakeToCamelCaseStringConverter = $snakeToCamelCaseStringConverter;
         $this->databaseType = $databaseType;
         $this->queryBuilderFactory = $queryBuilderFactory;
@@ -166,8 +166,8 @@ abstract class EntityManager
      */
     public function selectQuery(string $sql, array $parameters = [], string $entityClass = null)
     {
-        $statement = $this->pdo->prepare($sql);
-        $query = new SelectQuery($this->pdo, $statement, $parameters);
+        $statement = $this->connection->prepare($sql);
+        $query = new SelectQuery($this->connection, $statement, $parameters);
 
         if($entityClass && class_exists($entityClass) && is_subclass_of($entityClass, Entity::class)) {
             $query->setEntityClass($entityClass);
@@ -183,8 +183,8 @@ abstract class EntityManager
      */
     public function deleteQuery(string $sql, array $parameters = [])
     {
-        $statement = $this->pdo->prepare($sql);
-        $query = new DeleteQuery($this->pdo, $statement, $parameters);
+        $statement = $this->connection->prepare($sql);
+        $query = new DeleteQuery($this->connection, $statement, $parameters);
         return $query;
     }
 
@@ -195,8 +195,8 @@ abstract class EntityManager
      */
     public function updateQuery(string $sql, array $parameters = [])
     {
-        $statement = $this->pdo->prepare($sql);
-        $query = new UpdateQuery($this->pdo, $statement, $parameters);
+        $statement = $this->connection->prepare($sql);
+        $query = new UpdateQuery($this->connection, $statement, $parameters);
         return $query;
     }
 
@@ -207,8 +207,8 @@ abstract class EntityManager
      */
     public function insertQuery(string $sql, array $parameters = [])
     {
-        $statement = $this->pdo->prepare($sql);
-        $query = new InsertQuery($this->pdo, $statement, $parameters);
+        $statement = $this->connection->prepare($sql);
+        $query = new InsertQuery($this->connection, $statement, $parameters);
         return $query;
     }
 }

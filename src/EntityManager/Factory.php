@@ -185,20 +185,22 @@ class Factory
      */
     public function createEntityManager(\PDO $pdo)
     {
+        $connection = new Connection($pdo);
+
         $this->checkSetting();
         $this->checkDynamicClasses();
 
         $dynamicRepositoriesClass = $this->entityManagerNamespace . '\\DynamicRepositories';
         $dynamicManagersClass = $this->entityManagerNamespace . '\\DynamicManagers';
 
-        $queryBuilderFactory = new QueryBuilderFactory($pdo, $this->snakeToCamelCaseStringConverter, $this->databaseType);
+        $queryBuilderFactory = new QueryBuilderFactory($connection, $this->snakeToCamelCaseStringConverter, $this->databaseType);
 
-        $dynamicRepositories = new $dynamicRepositoriesClass($pdo, $this->snakeToCamelCaseStringConverter, $queryBuilderFactory);
-        $dynamicManagers = new $dynamicManagersClass($pdo, $dynamicRepositories);
+        $dynamicRepositories = new $dynamicRepositoriesClass($connection, $this->snakeToCamelCaseStringConverter, $queryBuilderFactory);
+        $dynamicManagers = new $dynamicManagersClass($connection, $dynamicRepositories);
 
         $dynamicEntityManagerClass = $this->entityManagerNamespace . '\\DynamicEntityManager';
         $dynamicEntityManager = new $dynamicEntityManagerClass(
-            $pdo,
+            $connection,
             $this->snakeToCamelCaseStringConverter,
             $dynamicRepositories,
             $dynamicManagers,
