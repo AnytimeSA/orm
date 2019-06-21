@@ -3,6 +3,7 @@
 namespace Anytime\ORM\QueryBuilder;
 
 use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
+use Anytime\ORM\EntityManager\Connection;
 use Anytime\ORM\EntityManager\Entity;
 
 abstract class QueryBuilderAbstract implements QueryBuilderInterface
@@ -13,9 +14,9 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
     const QUERY_TYPE_DELETE = 'DELETE';
 
     /**
-     * @var \PDO
+     * @var Connection
      */
-    protected $pdo;
+    protected $connection;
 
     /**
      * @var SnakeToCamelCaseStringConverter
@@ -85,13 +86,13 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
 
     /**
      * QueryBuilderAbstract constructor.
-     * @param \PDO $pdo
+     * @param Connection $connection
      * @param SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter
      */
-    public function __construct(\PDO $pdo, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter)
+    public function __construct(Connection $connection, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter)
     {
         $this->snakeToCamelCaseStringConverter = $snakeToCamelCaseStringConverter;
-        $this->pdo = $pdo;
+        $this->connection = $connection;
     }
 
     /**
@@ -244,8 +245,8 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
             throw new \RuntimeException('Not in an ' . QueryBuilderAbstract::QUERY_TYPE_SELECT . ' context');
         }
 
-        $statement = $this->pdo->prepare($this->getSelectSQL());
-        return (new SelectQuery($this->pdo, $statement, $this->parameters))->setEntityClass($this->entityClass);
+        $statement = $this->connection->prepare($this->getSelectSQL());
+        return (new SelectQuery($this->connection, $statement, $this->parameters))->setEntityClass($this->entityClass);
     }
 
     /**
@@ -258,8 +259,8 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
         }
 
         $data = $entity->extractSetterUsedData();
-        $statement = $this->pdo->prepare($this->getInsertSQL($data));
-        return (new InsertQuery($this->pdo, $statement, $data))->setEntityClass($this->entityClass);
+        $statement = $this->connection->prepare($this->getInsertSQL($data));
+        return (new InsertQuery($this->connection, $statement, $data))->setEntityClass($this->entityClass);
     }
 
     /**
@@ -282,12 +283,12 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
                 $data[$pkeyName] = $primaryKeysData[$pkeyName];
             }
 
-            $statement = $this->pdo->prepare($this->getUpdateByPrimaryKeySQL($fieldsToUpdate));
-            return (new UpdateQuery($this->pdo, $statement, $data, $fieldsToUpdate))->setEntityClass($this->entityClass);
+            $statement = $this->connection->prepare($this->getUpdateByPrimaryKeySQL($fieldsToUpdate));
+            return (new UpdateQuery($this->connection, $statement, $data, $fieldsToUpdate))->setEntityClass($this->entityClass);
 
         } else {
-            $statement = $this->pdo->prepare($this->getUpdateByCriteriaSQL($this->fieldsToUpdate));
-            return (new UpdateQuery($this->pdo, $statement, $this->parameters, $this->fieldsToUpdate))->setEntityClass($this->entityClass);
+            $statement = $this->connection->prepare($this->getUpdateByCriteriaSQL($this->fieldsToUpdate));
+            return (new UpdateQuery($this->connection, $statement, $this->parameters, $this->fieldsToUpdate))->setEntityClass($this->entityClass);
         }
     }
 
@@ -306,12 +307,12 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
                 $getter = 'get' . $this->snakeToCamelCaseStringConverter->convert($pkeyName);
                 $parameters[$pkeyName] = $entity->$getter();
             }
-            $statement = $this->pdo->prepare($this->getDeleteByPrimaryKeySQL());
+            $statement = $this->connection->prepare($this->getDeleteByPrimaryKeySQL());
         } else {
-            $statement = $this->pdo->prepare($this->getDeleteByCriteriaSQL());
+            $statement = $this->connection->prepare($this->getDeleteByCriteriaSQL());
             $parameters = $this->parameters;
         }
 
-        return (new DeleteQuery($this->pdo, $statement, $parameters))->setEntityClass($this->entityClass);
+        return (new DeleteQuery($this->connection, $statement, $parameters))->setEntityClass($this->entityClass);
     }
 }

@@ -2,12 +2,14 @@
 
 namespace Anytime\ORM\QueryBuilder;
 
+use Anytime\ORM\EntityManager\Connection;
+
 class QueryAbstract
 {
     /**
-     * @var \PDO
+     * @var Connection
      */
-    protected $pdo;
+    protected $connection;
 
     /**
      * @var \PDOStatement
@@ -26,13 +28,13 @@ class QueryAbstract
 
     /**
      * Query constructor.
-     * @param \PDO $pdo
+     * @param Connection $connection
      * @param \PDOStatement $PDOStatement
      * @param $parameters
      */
-    public function __construct(\PDO $pdo, \PDOStatement $PDOStatement, $parameters)
+    public function __construct(Connection $connection, \PDOStatement $PDOStatement, $parameters)
     {
-        $this->pdo = $pdo;
+        $this->connection = $connection;
         $this->PDOStatement = $PDOStatement;
         $this->parameters = $parameters;
     }
