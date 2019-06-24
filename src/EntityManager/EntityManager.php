@@ -43,6 +43,22 @@ abstract class EntityManager
     }
 
     /**
+     * @return Connection|null
+     */
+    public function getConnection()
+    {
+        return $this->connection;
+    }
+
+    /**
+     * @return bool
+     */
+    public function closeConnection(): bool
+    {
+        return $this->connection->closeConnection();
+    }
+
+    /**
      * @param Entity|Entity[] $entities
      */
     public function insert($entities)
