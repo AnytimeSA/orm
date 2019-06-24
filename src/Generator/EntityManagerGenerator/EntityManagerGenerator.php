@@ -283,7 +283,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         $sourceCode .= "     */\n";
         $sourceCode .= "    public \$managers;\n";
         $sourceCode .= "\n";
-        $sourceCode .= "    public function __construct(\\Connection \$connection, SnakeToCamelCaseStringConverter \$snakeToCamelCaseStringConverter, DynamicRepositories \$dynamicRepositories, DynamicManagers \$dynamicManagers, QueryBuilderFactory \$queryBuilderFactory, string \$databaseType)\n";
+        $sourceCode .= "    public function __construct(Connection \$connection, SnakeToCamelCaseStringConverter \$snakeToCamelCaseStringConverter, DynamicRepositories \$dynamicRepositories, DynamicManagers \$dynamicManagers, QueryBuilderFactory \$queryBuilderFactory, string \$databaseType)\n";
         $sourceCode .= "    {\n";
         $sourceCode .= "        \$this->repositories = \$dynamicRepositories;\n";
         $sourceCode .= "        \$this->managers = \$dynamicManagers;\n";
@@ -383,7 +383,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         $sourceCode .= "    private \$entityManager;\n";
 
         // Constructor
-        $sourceCode .= "    public function __construct(\\Connection \$connection, DynamicRepositories \$dynamicRepositories) {\n";
+        $sourceCode .= "    public function __construct(Connection \$connection, DynamicRepositories \$dynamicRepositories) {\n";
         $sourceCode .= "        \$this->dynamicRepositories = \$dynamicRepositories;\n";
         $sourceCode .= "        parent::__construct(\$connection);\n";
         $sourceCode .= "    }\n";
