@@ -3,6 +3,7 @@
 namespace Anytime\ORM\Tests\EntityManager;
 
 use Anytime\ORM\EntityManager\Entity;
+use Anytime\ORM\Tests\Stub\Foo;
 use PHPUnit\Framework\TestCase;
 
 class EntityTest extends TestCase
@@ -37,6 +38,28 @@ class EntityTest extends TestCase
                 'some_field'    => 'Some string'
             ],
             $entity->extractData()
+        );
+    }
+
+    /**
+     * @group EntityManager
+     * @group Entity
+     */
+    public function testExtractSetterUsedDataWithExtraDbField()
+    {
+        $entity = new Foo([
+            'id' => 123,
+            'some_field' => 'abc',
+            'some_extra_unknown_field' => 'xyz'
+        ]);
+
+        $this->assertSame([], $entity->extractSetterUsedData());
+
+        $entity->setSomeField('new value');
+
+        $this->assertSame(
+            ['some_field' => 'new value'],
+            $entity->extractSetterUsedData()
         );
     }
 
