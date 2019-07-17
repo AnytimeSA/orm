@@ -64,7 +64,7 @@ abstract class Entity
     {
         $returnData = [];
         foreach($this->data as $fieldName => $value) {
-            if($this->dataSetterUsed[$fieldName]) {
+            if (isset($this->dataSetterUsed[$fieldName]) && $this->dataSetterUsed[$fieldName]) {
                 $returnData[$fieldName] = $value;
             }
         }
