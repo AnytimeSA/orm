@@ -5,6 +5,7 @@ namespace Anytime\ORM\QueryBuilder;
 use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
 use Anytime\ORM\EntityManager\Connection;
 use Anytime\ORM\EntityManager\Factory;
+use Anytime\ORM\EntityManager\FilterCollection;
 
 class QueryBuilderFactory
 {
@@ -19,6 +20,11 @@ class QueryBuilderFactory
     protected $snakeToCamelCaseStringConverter;
 
     /**
+     * @var FilterCollection
+     */
+    protected $filterCollection;
+
+    /**
      * @var string
      */
     protected $databaseType;
@@ -29,10 +35,11 @@ class QueryBuilderFactory
      * @param SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter
      * @param string $databaseType
      */
-    public function __construct(Connection $connection, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter, string $databaseType)
+    public function __construct(Connection $connection, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter, FilterCollection $filterCollection, string $databaseType)
     {
         $this->snakeToCamelCaseStringConverter = $snakeToCamelCaseStringConverter;
         $this->connection = $connection;
+        $this->filterCollection = $filterCollection;
         $this->databaseType = $databaseType;
     }
 
@@ -43,7 +50,11 @@ class QueryBuilderFactory
     {
         switch($this->databaseType) {
             case Factory::DATABASE_TYPE_MYSQL:
-                return new MySqlQueryBuilder($this->connection, $this->snakeToCamelCaseStringConverter);
+                return new MySqlQueryBuilder(
+                    $this->connection,
+                    $this->snakeToCamelCaseStringConverter,
+                    $this->filterCollection
+                );
             default:
                 throw new \InvalidArgumentException($this->databaseType . 'is not a supported database type');
         }

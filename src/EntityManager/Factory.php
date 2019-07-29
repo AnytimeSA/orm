@@ -20,6 +20,11 @@ class Factory
     private $snakeToCamelCaseStringConverter;
 
     /**
+     * @var FilterCollection
+     */
+    private $filterCollection;
+
+    /**
      * @var string
      */
     private $entityDirectory;
@@ -70,6 +75,7 @@ class Factory
     public function __construct()
     {
         $this->snakeToCamelCaseStringConverter = new SnakeToCamelCaseStringConverter();
+        $this->filterCollection = new FilterCollection();
     }
 
     /**
@@ -193,7 +199,7 @@ class Factory
         $dynamicRepositoriesClass = $this->entityManagerNamespace . '\\DynamicRepositories';
         $dynamicManagersClass = $this->entityManagerNamespace . '\\DynamicManagers';
 
-        $queryBuilderFactory = new QueryBuilderFactory($connection, $this->snakeToCamelCaseStringConverter, $this->databaseType);
+        $queryBuilderFactory = new QueryBuilderFactory($connection, $this->snakeToCamelCaseStringConverter, $this->filterCollection, $this->databaseType);
 
         $dynamicRepositories = new $dynamicRepositoriesClass($connection, $this->snakeToCamelCaseStringConverter, $queryBuilderFactory);
         $dynamicManagers = new $dynamicManagersClass($connection, $dynamicRepositories);
@@ -205,6 +211,7 @@ class Factory
             $dynamicRepositories,
             $dynamicManagers,
             $queryBuilderFactory,
+            $this->filterCollection,
             $this->databaseType
         );
 
@@ -225,6 +232,7 @@ class Factory
                 return new EntityGenerator(
                     $this->snakeToCamelCaseStringConverter,
                     new MySqlTableStructureRetriever($pdo),
+                    $this->filterCollection,
                     $this->entityDirectory,
                     $this->entityNamespace
                 );

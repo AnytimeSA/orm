@@ -268,6 +268,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         $sourceCode .= "use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;\n";
         $sourceCode .= "use Anytime\ORM\QueryBuilder\QueryBuilderFactory;\n";
         $sourceCode .= "use Anytime\ORM\EntityManager\Connection;\n";
+        $sourceCode .= "use Anytime\ORM\EntityManager\FilterCollection;\n";
         $sourceCode .= "\n";
 
         // Class block
@@ -283,11 +284,12 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         $sourceCode .= "     */\n";
         $sourceCode .= "    public \$managers;\n";
         $sourceCode .= "\n";
-        $sourceCode .= "    public function __construct(Connection \$connection, SnakeToCamelCaseStringConverter \$snakeToCamelCaseStringConverter, DynamicRepositories \$dynamicRepositories, DynamicManagers \$dynamicManagers, QueryBuilderFactory \$queryBuilderFactory, string \$databaseType)\n";
+        $sourceCode .= "    public function __construct(Connection \$connection, SnakeToCamelCaseStringConverter \$snakeToCamelCaseStringConverter, DynamicRepositories \$dynamicRepositories, DynamicManagers \$dynamicManagers, QueryBuilderFactory \$queryBuilderFactory, FilterCollection \$filterCollection, string \$databaseType)\n";
         $sourceCode .= "    {\n";
         $sourceCode .= "        \$this->repositories = \$dynamicRepositories;\n";
         $sourceCode .= "        \$this->managers = \$dynamicManagers;\n";
-        $sourceCode .= "        parent::__construct(\$connection, \$snakeToCamelCaseStringConverter, \$queryBuilderFactory, \$databaseType);\n";
+        $sourceCode .= "        \$this->managers = \$dynamicManagers;\n";
+        $sourceCode .= "        parent::__construct(\$connection, \$snakeToCamelCaseStringConverter, \$queryBuilderFactory, \$filterCollection, \$databaseType);\n";
         $sourceCode .= "    }\n";
         $sourceCode .= "}\n\n";
 

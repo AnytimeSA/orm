@@ -28,18 +28,25 @@ abstract class EntityManager
     protected $databaseType;
 
     /**
+     * @var FilterCollection
+     */
+    protected $filterCollection;
+
+    /**
      * EntityManager constructor.
      * @param Connection $connection
      * @param SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter
      * @param QueryBuilderFactory $queryBuilderFactory
+     * @param FilterCollection $filterCollection
      * @param string $databaseType
      */
-    public function __construct(Connection $connection, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter, QueryBuilderFactory $queryBuilderFactory, string $databaseType)
+    public function __construct(Connection $connection, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter, QueryBuilderFactory $queryBuilderFactory, FilterCollection $filterCollection, string $databaseType)
     {
         $this->connection = $connection;
         $this->snakeToCamelCaseStringConverter = $snakeToCamelCaseStringConverter;
-        $this->databaseType = $databaseType;
         $this->queryBuilderFactory = $queryBuilderFactory;
+        $this->filterCollection = $filterCollection;
+        $this->databaseType = $databaseType;
     }
 
     /**
@@ -183,7 +190,7 @@ abstract class EntityManager
     public function selectQuery(string $sql, array $parameters = [], string $entityClass = null)
     {
         $statement = $this->connection->prepare($sql);
-        $query = new SelectQuery($this->connection, $statement, $parameters);
+        $query = new SelectQuery($this->connection, $statement, $parameters, $this->filterCollection);
 
         if($entityClass && class_exists($entityClass) && is_subclass_of($entityClass, Entity::class)) {
             $query->setEntityClass($entityClass);
@@ -226,5 +233,26 @@ abstract class EntityManager
         $statement = $this->connection->prepare($sql);
         $query = new InsertQuery($this->connection, $statement, $parameters);
         return $query;
+    }
+
+    /**
+     * @return FilterCollection
+     */
+    public function getFilterCollection(): FilterCollection
+    {
+        return $this->filterCollection;
+    }
+
+    /**
+     * This method add a global filter used for each tables of the current database
+     *
+     * @param FilterInterface $filter
+     *
+     * @return EntityManager
+     */
+    public function addFilter(FilterInterface $filter)
+    {
+        $this->filterCollection->addFilter($filter);
+        return $this;
     }
 }

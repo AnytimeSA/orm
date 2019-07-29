@@ -25,16 +25,22 @@ abstract class Manager
     protected $entityManager;
 
     /**
+     * @var FilterCollection
+     */
+    protected $filterCollection;
+
+    /**
      * EntityRepository constructor.
      * @param Connection $connection
      * @param EntityRepository $entityRepository
      * @param EntityManager $entityManager
      */
-    public function __construct(Connection $connection, EntityRepository $entityRepository, EntityManager $entityManager)
+    public function __construct(Connection $connection, EntityRepository $entityRepository, EntityManager $entityManager, FilterCollection $filterCollection)
     {
         $this->connection = $connection;
         $this->entityRepository = $entityRepository;
         $this->entityManager = $entityManager;
+        $this->filterCollection = $filterCollection;
     }
 
     /**
@@ -107,6 +113,6 @@ abstract class Manager
     public function selectQuery(string $sql, array $parameters = [])
     {
         $statement = $this->connection->prepare($sql);
-        return (new SelectQuery($this->connection, $statement, $parameters))->setEntityClass($this->getRepository()->getClassName());
+        return (new SelectQuery($this->connection, $statement, $this->filterCollection, $parameters))->setEntityClass($this->getRepository()->getClassName());
     }
 }

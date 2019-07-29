@@ -307,6 +307,69 @@ $cars = $query->fetchAll();
 $query->setFetchDataFormat(SelectQuery::FETCH_DATA_FORMAT_ARRAY);
 ```
 
+### Using filters
+
+You can use filters to act on the results data retrieved before the ORM populates entities.
+
+#### Create filters
+
+* Create an object extending the class Anytime\ORM\EntityManager\Filter
+* Define the method **apply() (see below)**
+* In the apply method, you have to return the transformed value (or not transformed if not needed)
+
+Example: 
+
+```
+<?php
+
+namespace Dummy\Project\Filters;
+
+use Anytime\ORM\EntityManager\Filter;
+
+class FooFilter extends Filter
+{
+    /**
+     * @param $inputValue
+     * @param string $entityClass
+     * @param string $propertyName
+     * @param array $resultRow
+     * @return mixed|null
+     */
+    public function apply($inputValue, string $entityClass, string $propertyName, array &$resultRow)
+    {
+        if($entityClass::getEntityPropertyType($propertyName) === 'string') {
+            $inputValue = 'Foo ' . $inputValue;
+        }
+
+        return $inputValue;
+    }
+}
+
+```
+
+This filter will add the string "Foo " for each property of type "string".
+
+Now if you want the filter to be applied, you have to instantiate it and add it to the entity manager.
+
+When instantiating the Filter, you can specify the scope. If you do not, the scope will be global. It means that the filter will be applied to every properties of every entities.
+The scope param is a list of key/value rows where the key is the entity class, and the value a list of regular expression to match the properties you want to apply the filter.
+
+Note that the name of the filter must be unique.
+
+```
+$secureEntityManager->addFilter(new FooFilter(
+    'My Super Foo Filter',
+    [
+        DummyEntity::class => [
+            '^(foo|bar)$',                // Match "foo" and "bar" properties
+            'date'                        // Match all properties containing thestring "date" 
+        ]
+    ]
+));
+```
+
+You can add filters as many as you want, but beware! The performances of the orm can but substancially degraded, especially if you keep it in a global scope.
+
 ### Create custom repository and managers
 
 Let's take the "car" table and add a foreign key to the owner table for the example.

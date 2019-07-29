@@ -3,6 +3,7 @@
 namespace Anytime\ORM\QueryBuilder;
 
 use Anytime\ORM\EntityManager\Connection;
+use Anytime\ORM\EntityManager\FilterCollection;
 
 class QueryAbstract
 {
@@ -27,16 +28,22 @@ class QueryAbstract
     protected $entityClass;
 
     /**
+     * @var callable[][]
+     */
+    protected $filterCollection;
+
+    /**
      * Query constructor.
      * @param Connection $connection
      * @param \PDOStatement $PDOStatement
      * @param $parameters
      */
-    public function __construct(Connection $connection, \PDOStatement $PDOStatement, $parameters)
+    public function __construct(Connection $connection, \PDOStatement $PDOStatement, FilterCollection $filterCollection, $parameters)
     {
         $this->connection = $connection;
         $this->PDOStatement = $PDOStatement;
         $this->parameters = $parameters;
+        $this->filterCollection = $filterCollection;
     }
 
     /**

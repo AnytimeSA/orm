@@ -4,6 +4,7 @@ namespace Anytime\ORM\Generator\EntityGenerator;
 
 use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
 use Anytime\ORM\EntityManager\Entity;
+use Anytime\ORM\EntityManager\FilterCollection;
 use Symfony\Component\Filesystem\Filesystem;
 
 class EntityGenerator implements EntityGeneratorInterface
@@ -17,6 +18,11 @@ class EntityGenerator implements EntityGeneratorInterface
      * @var string
      */
     private $entityNamespace;
+
+    /**
+     * @var FilterCollection
+     */
+    private $filterCollection;
 
     /**
      * @var SnakeToCamelCaseStringConverter
@@ -38,11 +44,13 @@ class EntityGenerator implements EntityGeneratorInterface
     public function __construct(
         SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter,
         TableStructureRetrieverInterface $tableStructureRetriever,
+        FilterCollection $filterCollection,
         string $entityDirectory,
         string $entityNamespace = null)
     {
         $this->snakeToCamelCaseStringConverter = $snakeToCamelCaseStringConverter;
         $this->tableStructureRetriever = $tableStructureRetriever;
+        $this->filterCollection = $filterCollection;
         $this
             ->setEntityDirectory($entityDirectory)
             ->setEntityNamespace($entityNamespace)
@@ -110,6 +118,7 @@ class EntityGenerator implements EntityGeneratorInterface
 
         $propertyDeclarationSourceCode = "    protected \$data = [\n";
         $dataSetterUsedSourceCode = '    protected $dataSetterUsed = ['."\n";
+        $sqlFieldStructSourceCode = '    protected static $sqlFieldStruct = ['."\n";
         $gettersSettersSourceCode = '';
 
         $sourceCode  = "<?php \n\n";
@@ -157,6 +166,10 @@ class EntityGenerator implements EntityGeneratorInterface
 
             // dataSetterUsed
             $dataSetterUsedSourceCode .= "        '$fieldName' => false,\n";
+
+            // fields types
+            $sqlFieldStructSourceCode .= "        '$fieldName' => ".str_replace("\n", "", var_export($fieldStruct, true)).",\n";
+
 
             // Setters
             $isDateType = $fieldType === 'date';
@@ -267,12 +280,14 @@ class EntityGenerator implements EntityGeneratorInterface
 
         $propertyDeclarationSourceCode .= "    ];\n";
         $dataSetterUsedSourceCode .= '    ];'."\n";
+        $sqlFieldStructSourceCode .= '    ];'."\n";
 
         $primaryKeys = "    const PRIMARY_KEYS = ['" .$primaryKeys. "'];\n";
 
         $sourceCode .= $primaryKeys;
         $sourceCode .= "\n".$propertyDeclarationSourceCode;
         $sourceCode .= "\n".$dataSetterUsedSourceCode;
+        $sourceCode .= "\n".$sqlFieldStructSourceCode;
         $sourceCode .= "\n".$gettersSettersSourceCode;
         $sourceCode .= "\n}\n";
 

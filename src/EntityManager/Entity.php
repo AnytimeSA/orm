@@ -27,6 +27,11 @@ abstract class Entity
     protected $dataSetterUsed = [];
 
     /**
+     * @var array
+     */
+    protected static $sqlFieldStruct = [];
+
+    /**
      * Entity constructor.
      * @param array $data
      */
@@ -35,6 +40,54 @@ abstract class Entity
         $this->data = $data + $this->data;
     }
 
+    /**
+     * @param string $propName
+     * @return string
+     */
+    public static function getEntityPropertyType(string $propName): string
+    {
+        self::checkPropertyName($propName);
+        return (string)static::$sqlFieldStruct[$propName]['type'];
+    }
+
+    /**
+     * @param string $propName
+     * @return bool
+     */
+    public static function isPropertyNullable(string $propName)
+    {
+        self::checkPropertyName($propName);
+        return (bool)static::$sqlFieldStruct[$propName]['allowNull'];
+    }
+
+    /**
+     * @param string $propName
+     * @return mixed
+     */
+    public static function getPropertyDefaultValue(string $propName)
+    {
+        self::checkPropertyName($propName);
+        return static::$sqlFieldStruct[$propName]['defaultValue'];
+    }
+
+    /**
+     * @param string $propName
+     * @return bool
+     */
+    public static function isPropertyExists(string $propName)
+    {
+        return (array_key_exists($propName, static::$sqlFieldStruct));
+    }
+
+    /**
+     * @param string $propName
+     */
+    protected static function checkPropertyName(string $propName)
+    {
+        if(!self::isPropertyExists($propName)) {
+            throw new \InvalidArgumentException('Entity property "'.$propName.'" not found for entity ' . self::class);
+        }
+    }
     /**
      * @return array
      */

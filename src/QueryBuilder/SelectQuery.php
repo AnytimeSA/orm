@@ -2,6 +2,8 @@
 
 namespace Anytime\ORM\QueryBuilder;
 
+use Anytime\ORM\EntityManager\FilterCollection;
+
 class SelectQuery extends QueryAbstract implements SelectQueryInterface
 {
     const FETCH_DATA_FORMAT_ENTITY = 'entity';
@@ -51,6 +53,10 @@ class SelectQuery extends QueryAbstract implements SelectQueryInterface
 
         if($fetchedData = $this->PDOStatement->fetch(\PDO::FETCH_ASSOC)) {
             if($this->entityClass && $this->fetchDataFormat === self::FETCH_DATA_FORMAT_ENTITY) {
+                $fetchedData = $this->filterCollection->applyFilters(
+                    $fetchedData,
+                    $this->entityClass
+                );
                 return new $this->entityClass($fetchedData);
             } else {
                 return $fetchedData;
@@ -74,7 +80,9 @@ class SelectQuery extends QueryAbstract implements SelectQueryInterface
         $fetchedData = $this->PDOStatement->fetchAll(\PDO::FETCH_ASSOC);
 
         if($this->entityClass && $this->fetchDataFormat === self::FETCH_DATA_FORMAT_ENTITY) {
-            foreach($fetchedData as $result) {
+            foreach($fetchedData as $index => $result) {
+                $result = $this->filterCollection->applyFilters($result, $this->entityClass);
+
                 $entity = new $this->entityClass($result);
                 $results[] = $entity;
             }
@@ -97,9 +105,11 @@ class SelectQuery extends QueryAbstract implements SelectQueryInterface
         $this->PDOStatement->closeCursor();
 
         if($fetchedData && isset($fetchedData[0])) {
-            return $fetchedData[0];
+            $return = $fetchedData[0];
+        } else {
+            $return = null;
         }
 
-        return null;
+        return $return;
     }
 }

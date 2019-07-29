@@ -37,11 +37,11 @@ class Managers
         }
 
         if(class_exists($class)) {
-            return (new $class($this->connection, $entityRepository, $entityManager));
+            return (new $class($this->connection, $entityRepository, $entityManager, $entityManager->getFilterCollection()));
         } elseif(class_exists($defaultClass)) {
-            return (new $defaultClass($this->connection, $entityRepository, $entityManager));
+            return (new $defaultClass($this->connection, $entityRepository, $entityManager, $entityManager->getFilterCollection()));
         } else {
-            return (new DefaultManager($this->connection, $entityRepository, $entityManager));
+            return (new DefaultManager($this->connection, $entityRepository, $entityManager, $entityManager->getFilterCollection()));
         }
     }
 }

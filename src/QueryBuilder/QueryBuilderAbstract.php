@@ -5,6 +5,7 @@ namespace Anytime\ORM\QueryBuilder;
 use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
 use Anytime\ORM\EntityManager\Connection;
 use Anytime\ORM\EntityManager\Entity;
+use Anytime\ORM\EntityManager\FilterCollection;
 
 abstract class QueryBuilderAbstract implements QueryBuilderInterface
 {
@@ -22,6 +23,11 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
      * @var SnakeToCamelCaseStringConverter
      */
     protected $snakeToCamelCaseStringConverter;
+
+    /**
+     * @var FilterCollection
+     */
+    protected $filterCollection;
 
 
     /**
@@ -89,10 +95,11 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
      * @param Connection $connection
      * @param SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter
      */
-    public function __construct(Connection $connection, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter)
+    public function __construct(Connection $connection, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter, FilterCollection $filterCollection)
     {
         $this->snakeToCamelCaseStringConverter = $snakeToCamelCaseStringConverter;
         $this->connection = $connection;
+        $this->filterCollection = $filterCollection;
     }
 
     /**
@@ -246,7 +253,7 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
         }
 
         $statement = $this->connection->prepare($this->getSelectSQL());
-        return (new SelectQuery($this->connection, $statement, $this->parameters))->setEntityClass($this->entityClass);
+        return (new SelectQuery($this->connection, $statement, $this->filterCollection, $this->parameters))->setEntityClass($this->entityClass);
     }
 
     /**
