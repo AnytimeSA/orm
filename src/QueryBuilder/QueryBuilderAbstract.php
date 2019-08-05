@@ -267,7 +267,7 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
 
         $data = $entity->extractSetterUsedData();
         $statement = $this->connection->prepare($this->getInsertSQL($data));
-        return (new InsertQuery($this->connection, $statement, $data))->setEntityClass($this->entityClass);
+        return (new InsertQuery($this->connection, $statement, $this->filterCollection, $data))->setEntityClass($this->entityClass);
     }
 
     /**
@@ -291,11 +291,11 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
             }
 
             $statement = $this->connection->prepare($this->getUpdateByPrimaryKeySQL($fieldsToUpdate));
-            return (new UpdateQuery($this->connection, $statement, $data, $fieldsToUpdate))->setEntityClass($this->entityClass);
+            return (new UpdateQuery($this->connection, $statement, $this->filterCollection, $data, $fieldsToUpdate))->setEntityClass($this->entityClass);
 
         } else {
             $statement = $this->connection->prepare($this->getUpdateByCriteriaSQL($this->fieldsToUpdate));
-            return (new UpdateQuery($this->connection, $statement, $this->parameters, $this->fieldsToUpdate))->setEntityClass($this->entityClass);
+            return (new UpdateQuery($this->connection, $statement, $this->filterCollection, $this->parameters, $this->fieldsToUpdate))->setEntityClass($this->entityClass);
         }
     }
 
@@ -320,6 +320,6 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
             $parameters = $this->parameters;
         }
 
-        return (new DeleteQuery($this->connection, $statement, $parameters))->setEntityClass($this->entityClass);
+        return (new DeleteQuery($this->connection, $statement, $this->filterCollection, $parameters))->setEntityClass($this->entityClass);
     }
 }

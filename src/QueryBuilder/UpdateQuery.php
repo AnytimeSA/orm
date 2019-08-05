@@ -3,6 +3,7 @@
 namespace Anytime\ORM\QueryBuilder;
 
 use Anytime\ORM\EntityManager\Connection;
+use Anytime\ORM\EntityManager\FilterCollection;
 
 class UpdateQuery extends QueryAbstract implements UpdateQueryInterface
 {
@@ -10,10 +11,11 @@ class UpdateQuery extends QueryAbstract implements UpdateQueryInterface
      * UpdateQuery constructor.
      * @param Connection $connection
      * @param \PDOStatement $PDOStatement
+     * @param FilterCollection $filterCollection
      * @param $parameters
      * @param array $fieldsToUpdate
      */
-    public function __construct(Connection $connection, \PDOStatement $PDOStatement, $parameters, array $fieldsToUpdate = [])
+    public function __construct(Connection $connection, \PDOStatement $PDOStatement, FilterCollection $filterCollection, $parameters, array $fieldsToUpdate = [])
     {
         $newFieldsToUpdate = [];
 
@@ -24,7 +26,7 @@ class UpdateQuery extends QueryAbstract implements UpdateQueryInterface
 
         unset($fieldsToUpdate);
 
-        parent::__construct($connection, $PDOStatement, $parameters + $newFieldsToUpdate);
+        parent::__construct($connection, $PDOStatement, $filterCollection, $parameters + $newFieldsToUpdate);
     }
 
     /**
