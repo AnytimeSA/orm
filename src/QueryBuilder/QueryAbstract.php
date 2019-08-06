@@ -36,6 +36,7 @@ class QueryAbstract
      * Query constructor.
      * @param Connection $connection
      * @param \PDOStatement $PDOStatement
+     * @param FilterCollection $filterCollection
      * @param $parameters
      */
     public function __construct(Connection $connection, \PDOStatement $PDOStatement, FilterCollection $filterCollection, $parameters)
