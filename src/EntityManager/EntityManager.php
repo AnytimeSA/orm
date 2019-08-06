@@ -190,7 +190,7 @@ abstract class EntityManager
     public function selectQuery(string $sql, array $parameters = [], string $entityClass = null)
     {
         $statement = $this->connection->prepare($sql);
-        $query = new SelectQuery($this->connection, $statement, $parameters, $this->filterCollection);
+        $query = new SelectQuery($this->connection, $statement, $this->filterCollection, $parameters);
 
         if($entityClass && class_exists($entityClass) && is_subclass_of($entityClass, Entity::class)) {
             $query->setEntityClass($entityClass);
@@ -207,7 +207,7 @@ abstract class EntityManager
     public function deleteQuery(string $sql, array $parameters = [])
     {
         $statement = $this->connection->prepare($sql);
-        $query = new DeleteQuery($this->connection, $statement, $parameters);
+        $query = new DeleteQuery($this->connection, $statement, $this->filterCollection,  $parameters);
         return $query;
     }
 
@@ -219,7 +219,7 @@ abstract class EntityManager
     public function updateQuery(string $sql, array $parameters = [])
     {
         $statement = $this->connection->prepare($sql);
-        $query = new UpdateQuery($this->connection, $statement, $parameters);
+        $query = new UpdateQuery($this->connection, $statement, $this->filterCollection,  $parameters);
         return $query;
     }
 
@@ -231,7 +231,7 @@ abstract class EntityManager
     public function insertQuery(string $sql, array $parameters = [])
     {
         $statement = $this->connection->prepare($sql);
-        $query = new InsertQuery($this->connection, $statement, $parameters);
+        $query = new InsertQuery($this->connection, $statement, $this->filterCollection,  $parameters);
         return $query;
     }
 
