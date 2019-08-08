@@ -6,6 +6,7 @@ use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
 use Anytime\ORM\QueryBuilder\QueryBuilderAbstract;
 use Anytime\ORM\QueryBuilder\QueryBuilderFactory;
 use Anytime\ORM\QueryBuilder\QueryBuilderInterface;
+use Anytime\ORM\QueryBuilder\QueryBuilderProxyInterface;
 
 abstract class EntityRepository
 {
@@ -104,17 +105,25 @@ abstract class EntityRepository
      * @param string|null $alias
      * @return QueryBuilderInterface
      */
-    public function createDeleteQueryBuilder($alias = null)
+    public function createDeleteQueryBuilder()
     {
-        return $this->createQueryBuilder($alias, QueryBuilderAbstract::QUERY_TYPE_DELETE);
+        return $this->createQueryBuilder(null, QueryBuilderAbstract::QUERY_TYPE_DELETE);
     }
 
     /**
      * @param string|null $alias
      * @return QueryBuilderInterface
      */
-    public function createUpdateQueryBuilder($alias = null)
+    public function createUpdateQueryBuilder()
     {
-        return $this->createQueryBuilder($alias, QueryBuilderAbstract::QUERY_TYPE_UPDATE);
+        return $this->createQueryBuilder(null, QueryBuilderAbstract::QUERY_TYPE_UPDATE);
+    }
+
+    /**
+     * @return QueryBuilderProxyInterface
+     */
+    protected function createQueryBuilderUpdateProxy(): QueryBuilderProxyInterface
+    {
+        return $this->queryBuilderFactory->createProxy($this->createUpdateQueryBuilder(), $this->getTableName());
     }
 }

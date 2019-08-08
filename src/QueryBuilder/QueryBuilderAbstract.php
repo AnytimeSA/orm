@@ -158,6 +158,17 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
     }
 
     /**
+     * @param string $fieldName
+     * @param $newValue
+     * @return $this
+     */
+    public function addFieldToUpdate(string $fieldName, $newValue)
+    {
+        $this->fieldsToUpdate[$fieldName] = $newValue;
+        return $this;
+    }
+
+    /**
      * @inheritDoc
      */
     public function select(string $select): QueryBuilderInterface

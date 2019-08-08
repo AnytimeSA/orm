@@ -8,11 +8,18 @@ use Anytime\ORM\Generator\EntityGenerator\EntityGenerator;
 use Anytime\ORM\Generator\EntityGenerator\MySqlTableStructureRetriever;
 use Anytime\ORM\Generator\EntityManagerGenerator\EntityManagerGenerator;
 use Anytime\ORM\Generator\EntityManagerGenerator\EntityManagerGeneratorInterface;
+use Anytime\ORM\Generator\QueryBuilderGenerator\QueryBuilderGenerator;
+use Anytime\ORM\Generator\QueryBuilderProxyGenerator\QueryBuilderProxyGenerator;
 use Anytime\ORM\QueryBuilder\QueryBuilderFactory;
 
 class Factory
 {
     const DATABASE_TYPE_MYSQL = 'mysql';
+
+    /**
+     * @var string
+     */
+    private $databaseType = self::DATABASE_TYPE_MYSQL;
 
     /**
      * @var SnakeToCamelCaseStringConverter
@@ -62,12 +69,17 @@ class Factory
     /**
      * @var string
      */
-    private $databaseType = self::DATABASE_TYPE_MYSQL;
+    private $userManagerNamespace;
 
     /**
      * @var string
      */
-    private $userManagerNamespace;
+    private $queryBuilderProxyDirectory;
+
+    /**
+     * @var string
+     */
+    private $queryBuilderProxyNamespace;
 
     /**
      * Factory constructor.
@@ -185,6 +197,26 @@ class Factory
     }
 
     /**
+     * @param string $queryBuilderDirectory
+     * @return Factory
+     */
+    public function setQueryBuilderProxyDirectory(string $queryBuilderProxyDirectory): Factory
+    {
+        $this->queryBuilderProxyDirectory = $queryBuilderProxyDirectory;
+        return $this;
+    }
+
+    /**
+     * @param string $queryBuilderNamespace
+     * @return Factory
+     */
+    public function setQueryBuilderProxyNamespace(string $queryBuilderProxyNamespace): Factory
+    {
+        $this->queryBuilderProxyNamespace = $queryBuilderProxyNamespace;
+        return $this;
+    }
+
+    /**
      * Create a MySQL entity manager based on the settings
      * @param \PDO $pdo
      * @return EntityManager
@@ -199,7 +231,14 @@ class Factory
         $dynamicRepositoriesClass = $this->entityManagerNamespace . '\\DynamicRepositories';
         $dynamicManagersClass = $this->entityManagerNamespace . '\\DynamicManagers';
 
-        $queryBuilderFactory = new QueryBuilderFactory($connection, $this->snakeToCamelCaseStringConverter, $this->filterCollection, $this->databaseType);
+        $queryBuilderFactory = new QueryBuilderFactory(
+            $connection,
+            $this->snakeToCamelCaseStringConverter,
+            $this->filterCollection,
+            $this->databaseType,
+            $this->entityManagerNamespace,
+            $this->queryBuilderProxyNamespace
+        );
 
         $dynamicRepositories = new $dynamicRepositoriesClass($connection, $this->snakeToCamelCaseStringConverter, $queryBuilderFactory);
         $dynamicManagers = new $dynamicManagersClass($connection, $dynamicRepositories);
@@ -258,11 +297,29 @@ class Factory
                     $this->userEntityRepositoryNamespace,
                     $this->userManagerDirectory,
                     $this->userManagerNamespace,
-                    $this->entityNamespace
+                    $this->entityNamespace,
+                    $this->queryBuilderProxyDirectory,
+                    $this->queryBuilderProxyNamespace
                 );
         }
 
         throw new \InvalidArgumentException('Bad database type "'.$this->databaseType.'"');
+    }
+
+    /**
+     * @param \PDO $pdo
+     * @return QueryBuilderGenerator
+     */
+    public function createQueryBuilderProxyGenerator(\PDO $pdo)
+    {
+        $queryBuilderProxyGenerator = new QueryBuilderProxyGenerator(
+            $this->snakeToCamelCaseStringConverter,
+            new MySqlTableStructureRetriever($pdo),
+            $this->databaseType,
+            $this->queryBuilderProxyDirectory,
+            $this->queryBuilderProxyNamespace
+        );
+        return $queryBuilderProxyGenerator;
     }
 
     /**
