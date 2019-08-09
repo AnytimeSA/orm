@@ -44,6 +44,16 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
     private $entityNamespace;
 
     /**
+     * @var string
+     */
+    private $queryBuilderProxyDirectory;
+
+    /**
+     * @var string
+     */
+    private $queryBuilderProxyNamespace;
+
+    /**
      * @var SnakeToCamelCaseStringConverter
      */
     private $snakeToCamelCaseStringConverter;
@@ -74,7 +84,10 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         string $userEntityRepositoryNamespace,
         string $userManagerDirectory,
         string $userManagerNamespace,
-        string $entityNamespace)
+        string $entityNamespace,
+        string $queryBuilderProxyDirectory,
+        string $queryBuilderProxyNamespace
+    )
     {
         $this->snakeToCamelCaseStringConverter = $snakeToCamelCaseStringConverter;
         $this->tableStructureRetriever = $tableStructureRetriever;
@@ -86,6 +99,8 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
             ->setUserManagerDirectory($userManagerDirectory)
             ->setUserManagerNamespace($userManagerNamespace)
             ->setEntityNamespace($entityNamespace)
+            ->setQueryBuilderProxyDirectory($queryBuilderProxyDirectory)
+            ->setQueryBuilderProxyNamespace($queryBuilderProxyNamespace)
         ;
     }
 
@@ -182,6 +197,26 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
     public function setEntityNamespace(string $entityNamespace): EntityManagerGenerator
     {
         $this->entityNamespace = $entityNamespace;
+        return $this;
+    }
+
+    /**
+     * @param string $queryBuilderProxyDirectory
+     * @return EntityManagerGenerator
+     */
+    public function setQueryBuilderProxyDirectory(string $queryBuilderProxyDirectory): EntityManagerGenerator
+    {
+        $this->queryBuilderProxyDirectory = $queryBuilderProxyDirectory;
+        return $this;
+    }
+
+    /**
+     * @param string $queryBuilderProxyNamespace
+     * @return EntityManagerGenerator
+     */
+    public function setQueryBuilderProxyNamespace(string $queryBuilderProxyNamespace): EntityManagerGenerator
+    {
+        $this->queryBuilderProxyNamespace = $queryBuilderProxyNamespace;
         return $this;
     }
 
@@ -477,17 +512,22 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
                 continue;
             }
 
-            $methodName = 'findBy';
+            $findByMethodName = 'findBy';
+            $updateByMethodName = 'updateBy';
+            $deleteByMethodName = 'deleteBy';
+
             $phpParamList = '';
             $phpDocParamList = '';
             $phpParamListNoHintNoDefault = '';
 
             foreach ($indexParts as $iP => $indexPart) {
-
                 $columnType = $tableStruct['structure'][$indexPart['columnName']]['type'];
 
                 $columnNameCCase = $this->snakeToCamelCaseStringConverter->convert($indexPart['columnName']);
-                $methodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
+                $findByMethodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
+                $updateByMethodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
+                $deleteByMethodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
+
                 $paramVarName = lcfirst($columnNameCCase);
                 $phpParamList .= ($iP > 0 ? ', ' : '') . ($columnType === 'date' ? ($indexPart['allowNull'] ? '' : '\DateTime') : $columnType) .' $' . $paramVarName . ($indexPart['allowNull'] ? ' = NULL' : '');
                 $phpParamListNoHintNoDefault .= ($iP > 0 ? ', ' : '') . '$' . $paramVarName;
@@ -498,19 +538,39 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
             $phpDocParamList .= "     * @param bool \$useNamedParameters \n";
             $phpParamListNoHintNoDefault .= ", \$useNamedParameters";
 
-            if(in_array($methodName, $createdMethods)) {
+            if(in_array($findByMethodName, $createdMethods)) {
                 continue;
             }
 
-            $createdMethods[] = $methodName;
+            $createdMethods[] = $findByMethodName;
 
             $sourceCode .= "    /**\n";
             $sourceCode .= $phpDocParamList;
             $sourceCode .= "     * @return $entityName"."[]\n";
             $sourceCode .= "     */\n";
-            $sourceCode .= "     public function $methodName($phpParamList): array\n";
+            $sourceCode .= "     public function $findByMethodName($phpParamList): array\n";
             $sourceCode .= "     {\n";
-            $sourceCode .= "         return \$this->getRepository()->$methodName($phpParamListNoHintNoDefault)->getSelectQuery()->fetchAll();\n";
+            $sourceCode .= "         return \$this->getRepository()->$findByMethodName($phpParamListNoHintNoDefault)->getSelectQuery()->fetchAll();\n";
+            $sourceCode .= "     }\n";
+
+            $parentQueryBuilderProxyClass = "\\" . $this->queryBuilderProxyNamespace . "\\" . $this->snakeToCamelCaseStringConverter->convert($tableName) . 'QueryBuilderUpdateProxy';
+
+            $sourceCode .= "    /**\n";
+            $sourceCode .= $phpDocParamList;
+            $sourceCode .= "     * @return $parentQueryBuilderProxyClass\n";
+            $sourceCode .= "     */\n";
+            $sourceCode .= "     public function $updateByMethodName($phpParamList): $parentQueryBuilderProxyClass\n";
+            $sourceCode .= "     {\n";
+            $sourceCode .= "         return \$this->getRepository()->$updateByMethodName($phpParamListNoHintNoDefault);\n";
+            $sourceCode .= "     }\n";
+
+            $sourceCode .= "    /**\n";
+            $sourceCode .= $phpDocParamList;
+            $sourceCode .= "     * @return int\n";
+            $sourceCode .= "     */\n";
+            $sourceCode .= "     public function $deleteByMethodName($phpParamList): int\n";
+            $sourceCode .= "     {\n";
+            $sourceCode .= "         return (int)\$this->getRepository()->$deleteByMethodName($phpParamListNoHintNoDefault)->execute();\n";
             $sourceCode .= "     }\n";
         }
 
@@ -535,7 +595,9 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         $sourceCode .= "namespace $namespace;\n";
         $sourceCode .= "\n";
         $sourceCode .= "use Anytime\ORM\EntityManager\EntityRepository;\n";
+        $sourceCode .= "use Anytime\ORM\QueryBuilder\QueryBuilderAbstract;\n";
         $sourceCode .= "use Anytime\ORM\QueryBuilder\QueryBuilderInterface;\n";
+        $sourceCode .= "use Anytime\ORM\QueryBuilder\QueryBuilderProxyInterface;\n";
         $sourceCode .= "\n";
         $sourceCode .= "class $className extends EntityRepository\n";
         $sourceCode .= "{\n";
@@ -545,11 +607,15 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
                 continue;
             }
 
-            $tableShortAlias = $this->getTableShortAlias($indexParts[0]['tableName']);
-            $methodName = 'findBy';
+            $tableName = $indexParts[0]['tableName'];
+            $tableShortAlias = $this->getTableShortAlias($tableName);
+            $findByMethodName = 'findBy';
+            $updateByMethodName = 'updateBy';
+            $deleteByMethodName = 'deleteBy';
             $phpParamList = '';
             $phpDocParamList = '';
             $where = '';
+            $whereUpdate = '';
             $qbParameters = '';
             $qbNamedParameters = '';
 
@@ -557,36 +623,76 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
                 $columnType = $tableStruct['structure'][$indexPart['columnName']]['type'];
                 $dateFormat = $tableStruct['structure'][$indexPart['columnName']]['dateFormat'];
                 $columnNameCCase = $this->snakeToCamelCaseStringConverter->convert($indexPart['columnName']);
-                $methodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
+                $findByMethodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
+                $updateByMethodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
+                $deleteByMethodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
                 $paramVarName = lcfirst($columnNameCCase);
                 $phpParamList .= ($iP > 0 ? ', ' : '') . ($columnType === 'date' ? ($indexPart['allowNull'] ? '' : '\DateTime') : $columnType) .' $' . $paramVarName . ($indexPart['allowNull'] ? ' = NULL' : '');
                 $phpDocParamList .= "     * @param " . ($columnType === 'date' ? '\DateTime' : $columnType) . " \$$paramVarName\n";
                 $where .= ($iP > 0 ? ' AND ' : '') . $tableShortAlias . '.' . $indexPart['columnName'] . ' = \' . ' . "(\$useNamedParameters ? ':$paramVarName' : '?').'";
+                $whereUpdate .= ($iP > 0 ? ' AND ' : '') . $indexPart['columnName'] . ' = :' . $paramVarName;
                 $qbParameters .= ($iP > 0 ? ', ' : '') . "\$$paramVarName".($columnType === 'date' && $dateFormat ? '->format("'.$dateFormat.'")' : '');
                 $qbNamedParameters .= "\n                ".($iP > 0 ? ', ' : '') . "'" . $paramVarName . "' => \$$paramVarName".($columnType === 'date' && $dateFormat ? '->format("'.$dateFormat.'")' : '');
             }
 
+            $phpParamListUpdate = $phpParamList;
             $phpParamList .= ", bool \$useNamedParameters = false";
+
+            $phpDocParamListUpdate = $phpDocParamList;
             $phpDocParamList .= "     * @param bool \$useNamedParameters \n";
             $qbNamedParameters .= "\n";
 
-            if(in_array($methodName, $createdMethods)) {
-                continue;
+            if(!in_array($findByMethodName, $createdMethods)) {
+                $createdMethods[] = $findByMethodName;
+
+                $sourceCode .= "    /**\n";
+                $sourceCode .= $phpDocParamList;
+                $sourceCode .= "     * @return \Anytime\ORM\QueryBuilder\QueryBuilderInterface\n";
+                $sourceCode .= "     */\n";
+                $sourceCode .= "    public function $findByMethodName($phpParamList): QueryBuilderInterface\n";
+                $sourceCode .= "    {\n";
+                $sourceCode .= "        \$queryBuilder = \$this->createQueryBuilder('$tableShortAlias');\n";
+                $sourceCode .= "        \$queryBuilder->where('$where')->setParameters(\$useNamedParameters \n            ? [$qbNamedParameters] \n            : [$qbParameters        ]);\n";
+                $sourceCode .= "        return \$queryBuilder;\n";
+                $sourceCode .= "    }\n";
+                $sourceCode .= "\n";
             }
 
-            $createdMethods[] = $methodName;
+            if(!in_array($updateByMethodName, $createdMethods)) {
+                $createdMethods[] = $updateByMethodName;
 
-            $sourceCode .= "    /**\n";
-            $sourceCode .= $phpDocParamList;
-            $sourceCode .= "     * @return \Anytime\ORM\QueryBuilder\QueryBuilderInterface\n";
-            $sourceCode .= "     */\n";
-            $sourceCode .= "    public function $methodName($phpParamList): QueryBuilderInterface\n";
-            $sourceCode .= "    {\n";
-            $sourceCode .= "        \$queryBuilder = \$this->createQueryBuilder('$tableShortAlias');\n";
-            $sourceCode .= "        \$queryBuilder->where('$where')->setParameters(\$useNamedParameters \n            ? [$qbNamedParameters] \n            : [$qbParameters]);\n";
-            $sourceCode .= "        return \$queryBuilder;\n";
-            $sourceCode .= "    }\n";
-            $sourceCode .= "\n";
+                $parentQueryBuilderProxyClass = "\\" . $this->queryBuilderProxyNamespace . "\\" . $this->snakeToCamelCaseStringConverter->convert($tableName) . 'QueryBuilderUpdateProxy';
+
+                $sourceCode .= "\n    /**\n";
+                $sourceCode .= $phpDocParamListUpdate;
+                $sourceCode .= "     * @return $parentQueryBuilderProxyClass\n";
+                $sourceCode .= "     */\n";
+                $sourceCode .= "    public function $updateByMethodName($phpParamListUpdate): $parentQueryBuilderProxyClass\n";
+                $sourceCode .= "    {\n";
+                $sourceCode .= "        \$queryBuilderUpdateProxy = \$this->createQueryBuilderUpdateProxy();\n";
+                $sourceCode .= "        \$queryBuilderUpdateProxy->getQueryBuilder()->setQueryType(QueryBuilderAbstract::QUERY_TYPE_UPDATE)->where('$whereUpdate')->setParameters([$qbNamedParameters]        );\n";
+                $sourceCode .= "        return \$queryBuilderUpdateProxy;\n";
+                $sourceCode .= "    }\n";
+                $sourceCode .= "\n";
+            }
+
+            if(!in_array($deleteByMethodName, $createdMethods)) {
+                $whereDelete = $whereUpdate;
+
+                $createdMethods[] = $deleteByMethodName;
+
+                $sourceCode .= "\n    /**\n";
+                $sourceCode .= $phpDocParamListUpdate;
+                $sourceCode .= "     * @return QueryBuilderAbstract\n";
+                $sourceCode .= "     */\n";
+                $sourceCode .= "    public function $deleteByMethodName($phpParamListUpdate): QueryBuilderAbstract\n";
+                $sourceCode .= "    {\n";
+                $sourceCode .= "        \$queryBuilderDelete = \$this->createDeleteQueryBuilder();\n";
+                $sourceCode .= "        \$queryBuilderDelete->setQueryType(QueryBuilderAbstract::QUERY_TYPE_DELETE)->where('$whereDelete')->setParameters([$qbNamedParameters]);\n";
+                $sourceCode .= "        return \$queryBuilderDelete;\n";
+                $sourceCode .= "    }\n";
+                $sourceCode .= "\n";
+            }
         }
 
         $sourceCode .= "}\n";

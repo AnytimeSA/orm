@@ -30,17 +30,41 @@ class QueryBuilderFactory
     protected $databaseType;
 
     /**
+     * @var string
+     */
+    protected $entityManagerNamespace;
+
+    /**
+     * @var string
+     */
+    protected $queryBuilderProxyNamespace;
+
+    /**
      * QueryBuilderAbstract constructor.
      * @param Connection $connection
      * @param SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter
      * @param string $databaseType
      */
-    public function __construct(Connection $connection, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter, FilterCollection $filterCollection, string $databaseType)
+    public function __construct(Connection $connection, SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter, FilterCollection $filterCollection, string $databaseType, string $entityManagerNamespace, string $queryBuilderProxyNamespace)
     {
         $this->snakeToCamelCaseStringConverter = $snakeToCamelCaseStringConverter;
         $this->connection = $connection;
         $this->filterCollection = $filterCollection;
         $this->databaseType = $databaseType;
+        $this->entityManagerNamespace = $entityManagerNamespace;
+        $this->queryBuilderProxyNamespace = $queryBuilderProxyNamespace;
+    }
+
+    /**
+     * @param string $databaseType
+     * @return string
+     */
+    public static function getQueryBuilderClassByDatabaseType(string $databaseType)
+    {
+        switch($databaseType) {
+            case  Factory::DATABASE_TYPE_MYSQL:     return __NAMESPACE__ . '\\MySqlQueryBuilder';
+            default:                                throw new \InvalidArgumentException($databaseType . 'is not a supported database type');
+        }
     }
 
     /**
@@ -48,15 +72,39 @@ class QueryBuilderFactory
      */
     public function create(): QueryBuilderInterface
     {
-        switch($this->databaseType) {
-            case Factory::DATABASE_TYPE_MYSQL:
-                return new MySqlQueryBuilder(
-                    $this->connection,
-                    $this->snakeToCamelCaseStringConverter,
-                    $this->filterCollection
-                );
+        $qbClass = self::getQueryBuilderClassByDatabaseType($this->databaseType);
+        return new $qbClass($this->connection, $this->snakeToCamelCaseStringConverter, $this->filterCollection);
+    }
+
+    /**
+     * @param QueryBuilderAbstract $queryBuilder
+     * @param string $tableName
+     * @return QueryBuilderProxyInterface
+     */
+    public function createProxy(QueryBuilderAbstract $queryBuilder, string $tableName): QueryBuilderProxyInterface
+    {
+        $queryType = $queryBuilder->getQueryType();
+
+        switch($queryType) {
+            case QueryBuilderAbstract::QUERY_TYPE_UPDATE :
+                $suffix = 'QueryBuilderUpdateProxy';
+                break;
+            case QueryBuilderAbstract::QUERY_TYPE_INSERT :
+                $suffix = 'QueryBuilderInsertProxy';
+                break;
+            case QueryBuilderAbstract::QUERY_TYPE_DELETE :
+                $suffix = 'QueryBuilderDeleteProxy';
+                break;
             default:
-                throw new \InvalidArgumentException($this->databaseType . 'is not a supported database type');
+                throw new \InvalidArgumentException('Query type "'.$queryType.'" cannot be used to create query builders proxies');
+        }
+
+        $queryBuilderProxyClass = "\\" . $this->queryBuilderProxyNamespace . '\\' . $this->snakeToCamelCaseStringConverter->convert($tableName) . $suffix;
+
+        if(class_exists($queryBuilderProxyClass)) {
+            return new $queryBuilderProxyClass($queryBuilder);
+        } else {
+            throw new \RuntimeException("Class \"$queryBuilderProxyClass\" not found");
         }
     }
 }
