@@ -2,6 +2,8 @@
 
 namespace Anytime\ORM\QueryBuilder;
 
+use Anytime\ORM\QueryBuilder\Expression\Expr;
+
 class MySqlQueryBuilder extends QueryBuilderAbstract
 {
     /**
@@ -121,7 +123,11 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         $sqlSet = '';
 
         foreach($fields as $fieldName => $value) {
-            $sqlSet .= ($sqlSet ? ",\n" : '') . "`$fieldName` = :UPDATE_VALUE_$fieldName";
+            if($value instanceof Expr) {
+                $sqlSet .= ($sqlSet ? ",\n" : '') . "`$fieldName` = " . $value->getExpr($fieldName, '`');
+            } else {
+                $sqlSet .= ($sqlSet ? ",\n" : '') . "`$fieldName` = :UPDATE_VALUE_$fieldName";
+            }
         }
         $sqlSet = " SET \n" . $sqlSet . " ";
 

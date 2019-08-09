@@ -305,8 +305,17 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
             return (new UpdateQuery($this->connection, $statement, $this->filterCollection, $data, $fieldsToUpdate))->setEntityClass($this->entityClass);
 
         } else {
-            $statement = $this->connection->prepare($this->getUpdateByCriteriaSQL($this->fieldsToUpdate));
-            return (new UpdateQuery($this->connection, $statement, $this->filterCollection, $this->parameters, $this->fieldsToUpdate))->setEntityClass($this->entityClass);
+            $sql = $this->getUpdateByCriteriaSQL($this->fieldsToUpdate);
+            $newFieldsToUpdate = [];
+
+            foreach($this->fieldsToUpdate as $fieldToUpdate => $fieldToUpdateValue) {
+                if(!is_object($fieldToUpdateValue)) {
+                    $newFieldsToUpdate[$fieldToUpdate] = $fieldToUpdateValue;
+                }
+            }
+
+            $statement = $this->connection->prepare($sql);
+            return (new UpdateQuery($this->connection, $statement, $this->filterCollection, $this->parameters, $newFieldsToUpdate))->setEntityClass($this->entityClass);
         }
     }
 
@@ -332,5 +341,23 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
         }
 
         return (new DeleteQuery($this->connection, $statement, $this->filterCollection, $parameters))->setEntityClass($this->entityClass);
+    }
+
+    /**
+     * @return int
+     */
+    public function execute()
+    {
+        $allowedQueryType = [self::QUERY_TYPE_DELETE, self::QUERY_TYPE_INSERT, self::QUERY_TYPE_UPDATE];
+
+        if(in_array($this->queryType, $allowedQueryType)) {
+            switch($this->queryType) {
+                case self::QUERY_TYPE_UPDATE: return $this->getUpdateQuery()->execute();
+                case self::QUERY_TYPE_INSERT: return $this->getInsertQuery()->execute();
+                case self::QUERY_TYPE_DELETE: return $this->getDeleteQuery()->execute();
+            }
+        } else {
+            throw new \RuntimeException('The execute method is allowed for ' . implode('/', $allowedQueryType) . " query type only.");
+        }
     }
 }

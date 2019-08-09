@@ -513,16 +513,21 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
             }
 
             $findByMethodName = 'findBy';
+            $updateByMethodName = 'updateBy';
+            $deleteByMethodName = 'deleteBy';
+
             $phpParamList = '';
             $phpDocParamList = '';
             $phpParamListNoHintNoDefault = '';
 
             foreach ($indexParts as $iP => $indexPart) {
-
                 $columnType = $tableStruct['structure'][$indexPart['columnName']]['type'];
 
                 $columnNameCCase = $this->snakeToCamelCaseStringConverter->convert($indexPart['columnName']);
                 $findByMethodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
+                $updateByMethodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
+                $deleteByMethodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
+
                 $paramVarName = lcfirst($columnNameCCase);
                 $phpParamList .= ($iP > 0 ? ', ' : '') . ($columnType === 'date' ? ($indexPart['allowNull'] ? '' : '\DateTime') : $columnType) .' $' . $paramVarName . ($indexPart['allowNull'] ? ' = NULL' : '');
                 $phpParamListNoHintNoDefault .= ($iP > 0 ? ', ' : '') . '$' . $paramVarName;
@@ -546,6 +551,26 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
             $sourceCode .= "     public function $findByMethodName($phpParamList): array\n";
             $sourceCode .= "     {\n";
             $sourceCode .= "         return \$this->getRepository()->$findByMethodName($phpParamListNoHintNoDefault)->getSelectQuery()->fetchAll();\n";
+            $sourceCode .= "     }\n";
+
+            $parentQueryBuilderProxyClass = "\\" . $this->queryBuilderProxyNamespace . "\\" . $this->snakeToCamelCaseStringConverter->convert($tableName) . 'QueryBuilderUpdateProxy';
+
+            $sourceCode .= "    /**\n";
+            $sourceCode .= $phpDocParamList;
+            $sourceCode .= "     * @return $parentQueryBuilderProxyClass\n";
+            $sourceCode .= "     */\n";
+            $sourceCode .= "     public function $updateByMethodName($phpParamList): $parentQueryBuilderProxyClass\n";
+            $sourceCode .= "     {\n";
+            $sourceCode .= "         return \$this->getRepository()->$updateByMethodName($phpParamListNoHintNoDefault);\n";
+            $sourceCode .= "     }\n";
+
+            $sourceCode .= "    /**\n";
+            $sourceCode .= $phpDocParamList;
+            $sourceCode .= "     * @return int\n";
+            $sourceCode .= "     */\n";
+            $sourceCode .= "     public function $deleteByMethodName($phpParamList): int\n";
+            $sourceCode .= "     {\n";
+            $sourceCode .= "         return (int)\$this->getRepository()->$deleteByMethodName($phpParamListNoHintNoDefault)->execute();\n";
             $sourceCode .= "     }\n";
         }
 
@@ -586,6 +611,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
             $tableShortAlias = $this->getTableShortAlias($tableName);
             $findByMethodName = 'findBy';
             $updateByMethodName = 'updateBy';
+            $deleteByMethodName = 'deleteBy';
             $phpParamList = '';
             $phpDocParamList = '';
             $where = '';
@@ -599,6 +625,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
                 $columnNameCCase = $this->snakeToCamelCaseStringConverter->convert($indexPart['columnName']);
                 $findByMethodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
                 $updateByMethodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
+                $deleteByMethodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
                 $paramVarName = lcfirst($columnNameCCase);
                 $phpParamList .= ($iP > 0 ? ', ' : '') . ($columnType === 'date' ? ($indexPart['allowNull'] ? '' : '\DateTime') : $columnType) .' $' . $paramVarName . ($indexPart['allowNull'] ? ' = NULL' : '');
                 $phpDocParamList .= "     * @param " . ($columnType === 'date' ? '\DateTime' : $columnType) . " \$$paramVarName\n";
@@ -625,7 +652,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
                 $sourceCode .= "    public function $findByMethodName($phpParamList): QueryBuilderInterface\n";
                 $sourceCode .= "    {\n";
                 $sourceCode .= "        \$queryBuilder = \$this->createQueryBuilder('$tableShortAlias');\n";
-                $sourceCode .= "        \$queryBuilder->where('$where')->setParameters(\$useNamedParameters \n            ? [$qbNamedParameters] \n            : [$qbParameters]);\n";
+                $sourceCode .= "        \$queryBuilder->where('$where')->setParameters(\$useNamedParameters \n            ? [$qbNamedParameters] \n            : [$qbParameters        ]);\n";
                 $sourceCode .= "        return \$queryBuilder;\n";
                 $sourceCode .= "    }\n";
                 $sourceCode .= "\n";
@@ -643,8 +670,26 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
                 $sourceCode .= "    public function $updateByMethodName($phpParamListUpdate): $parentQueryBuilderProxyClass\n";
                 $sourceCode .= "    {\n";
                 $sourceCode .= "        \$queryBuilderUpdateProxy = \$this->createQueryBuilderUpdateProxy();\n";
-                $sourceCode .= "        \$queryBuilderUpdateProxy->getQueryBuilder()->setQueryType(QueryBuilderAbstract::QUERY_TYPE_UPDATE)->where('$whereUpdate')->setParameters([$qbNamedParameters]);\n";
+                $sourceCode .= "        \$queryBuilderUpdateProxy->getQueryBuilder()->setQueryType(QueryBuilderAbstract::QUERY_TYPE_UPDATE)->where('$whereUpdate')->setParameters([$qbNamedParameters]        );\n";
                 $sourceCode .= "        return \$queryBuilderUpdateProxy;\n";
+                $sourceCode .= "    }\n";
+                $sourceCode .= "\n";
+            }
+
+            if(!in_array($deleteByMethodName, $createdMethods)) {
+                $whereDelete = $whereUpdate;
+
+                $createdMethods[] = $deleteByMethodName;
+
+                $sourceCode .= "\n    /**\n";
+                $sourceCode .= $phpDocParamListUpdate;
+                $sourceCode .= "     * @return QueryBuilderAbstract\n";
+                $sourceCode .= "     */\n";
+                $sourceCode .= "    public function $deleteByMethodName($phpParamListUpdate): QueryBuilderAbstract\n";
+                $sourceCode .= "    {\n";
+                $sourceCode .= "        \$queryBuilderDelete = \$this->createDeleteQueryBuilder();\n";
+                $sourceCode .= "        \$queryBuilderDelete->setQueryType(QueryBuilderAbstract::QUERY_TYPE_DELETE)->where('$whereDelete')->setParameters([$qbNamedParameters]);\n";
+                $sourceCode .= "        return \$queryBuilderDelete;\n";
                 $sourceCode .= "    }\n";
                 $sourceCode .= "\n";
             }

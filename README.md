@@ -22,6 +22,7 @@ $pdo = new \PDO($dsn, 'dbuser', 'dbpassword');
 We recommend to set the attribute "ATTR_EMULATE_PREPARES" and "ATTR_STRINGIFY_FETCHES" to false. It will prevent PDO to convert numeric values to strings.
 
 ```
+```
 $pdo->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
 $pdo->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
 ```
@@ -59,6 +60,16 @@ $factory->setEntityManagerDirectory(__DIR__ . '/../generated/entity-manager');
 Define the name space of the generated entity manager.
 ```
 $factory->setEntityManagerNamespace('Dummy\\Project\\EntityManager');
+```
+
+Define the directory where the generated query builder update proxies classes are created. 
+```
+$factory->setQueryBuilderProxyDirectory(__DIR__ . '/../generated/query-builder);
+```
+
+Define the namespace of the generated query builder update proxies classes are created.
+```
+$factory->setQueryBuilderProxyNamespace('Dummy\\Project\\QueryBuilder');
 ```
 
 Define the directory of the custom entity repositories classes. The custom entity repositories are repositories the developers create by extending the default one because they need to add some methods related to this repository.
@@ -513,6 +524,17 @@ $affectedRows = $qb->getUpdateQuery()->execute();
 echo $affectedRows . ' rows updated';
 ```
 
+### Massive update using methods based on indexes
+
+We suppose that we have an multiple index on te field owner_id and brand and a field "field_a" and "field_b"
+
+```
+$affectedRows = $entityManager->managers->getCarManager()->updateByOwnerIdAndBrand($ownerId, $brand)
+    ->setFieldA('A')
+    ->setFieldB('B')
+    ->execute()
+;
+```
 ## Delete data
 
 ### Delete a single entity
@@ -534,4 +556,12 @@ $qb->where('car.owner_id = :ownerId');
 $affectedRows = $qb->getDeleteQuery()->execute();
 
 echo $affectedRows . ' rows deleted.';
+```
+
+### Massive delete using methods based on indexes
+
+We suppose that we have an multiple index on te field owner_id and brand
+
+```
+$affectedRows = $entityManager->managers->getCarManager()->deleteByOwnerIdAndBrand($ownerId, $brand);
 ```
