@@ -190,7 +190,7 @@ class QueryBuilderProxyGenerator implements QueryBuilderProxyGeneratorInterface
             }
 
             $phpType = ($fieldType === 'date' ? '\DateTime' : $fieldType);
-            $typeHintPhpDoc = ($nullable ? 'null|' : $phpType);
+            $typeHintPhpDoc = ($nullable ? 'null|' . $phpType : $phpType);
 
             $classString .= "    /**\n";
             $classString .= "     * @param $typeHintPhpDoc \$value\n";
