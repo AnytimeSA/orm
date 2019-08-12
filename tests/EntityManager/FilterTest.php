@@ -2,8 +2,6 @@
 
 namespace Anytime\ORM\Tests\EntityManager;
 
-use Anytime\ORM\EntityManager\Filter;
-
 class FilterTest extends FilterTestCase
 {
     /**

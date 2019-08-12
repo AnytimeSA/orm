@@ -3,9 +3,9 @@
 namespace Anytime\ORM\Tests\Converter;
 
 use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
-use PHPUnit\Framework\TestCase;
+use Anytime\ORM\Tests\ORMTestCase;
 
-class SnakeToCamelCaseStringConverterTest extends TestCase
+class SnakeToCamelCaseStringConverterTest extends ORMTestCase
 {
     /**
      * @group Converter

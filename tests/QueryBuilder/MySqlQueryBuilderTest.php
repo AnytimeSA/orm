@@ -6,9 +6,9 @@ use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
 use Anytime\ORM\EntityManager\Connection;
 use Anytime\ORM\EntityManager\FilterCollection;
 use Anytime\ORM\QueryBuilder\MySqlQueryBuilder;
-use PHPUnit\Framework\TestCase;
+use Anytime\ORM\Tests\ORMTestCase;
 
-class MySqlQueryBuilderTest extends TestCase
+class MySqlQueryBuilderTest extends ORMTestCase
 {
     /**
      * @group QueryBuilder

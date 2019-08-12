@@ -3,10 +3,10 @@
 namespace Anytime\ORM\Tests\EntityManager;
 
 use Anytime\ORM\EntityManager\Entity;
+use Anytime\ORM\Tests\ORMTestCase;
 use Anytime\ORM\Tests\Stub\Foo;
-use PHPUnit\Framework\TestCase;
 
-class EntityTest extends TestCase
+class EntityTest extends ORMTestCase
 {
     /**
      * @group EntityManager
