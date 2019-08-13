@@ -16,12 +16,12 @@ class DynamicManagers extends Managers
     /**
      * @return FooManager|\Anytime\ORM\Tests\Stub\Generated\EntityManager\DefaultManager\FooManager
      */
-    public function getAccountsManager(): \Anytime\ORM\Tests\Stub\Generated\EntityManager\DefaultManager\FooManager
+    public function getFooManager(): \Anytime\ORM\Tests\Stub\Generated\EntityManager\DefaultManager\FooManager
     {
         return $this->loadAndGetManager(
             'Anytime\ORM\Tests\Stub\User\EntityManager\DefaultManager\FooManager',
             'Anytime\ORM\Tests\Stub\Generated\EntityManager\DefaultManager\FooManager',
-            $this->dynamicRepositories->getAccountsEntityRepository(),
+            $this->dynamicRepositories->getFooEntityRepository(),
             $this->entityManager
         );
     }
