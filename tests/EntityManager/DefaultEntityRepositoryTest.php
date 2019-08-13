@@ -9,7 +9,7 @@ use Anytime\ORM\QueryBuilder\QueryBuilderAbstract;
 use Anytime\ORM\QueryBuilder\QueryBuilderFactory;
 use Anytime\ORM\QueryBuilder\QueryBuilderInterface;
 use Anytime\ORM\Tests\ORMTestCase;
-use Anytime\ORM\Tests\Stub\Foo;
+use Anytime\ORM\Tests\Stub\Generated\Entity\Foo;
 
 class DefaultEntityRepositoryTest extends ORMTestCase
 {

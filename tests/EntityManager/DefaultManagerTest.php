@@ -12,7 +12,7 @@ use Anytime\ORM\QueryBuilder\QueryBuilderAbstract;
 use Anytime\ORM\QueryBuilder\QueryBuilderInterface;
 use Anytime\ORM\QueryBuilder\SelectQuery;
 use Anytime\ORM\Tests\ORMTestCase;
-use Anytime\ORM\Tests\Stub\Foo;
+use Anytime\ORM\Tests\Stub\Generated\Entity\Foo;
 
 class DefaultManagerTest extends ORMTestCase
 {

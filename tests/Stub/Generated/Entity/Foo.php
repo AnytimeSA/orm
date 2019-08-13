@@ -1,6 +1,6 @@
 <?php
 
-namespace Anytime\ORM\Tests\Stub;
+namespace Anytime\ORM\Tests\Stub\Generated\Entity;
 
 use Anytime\ORM\EntityManager\Entity;
 

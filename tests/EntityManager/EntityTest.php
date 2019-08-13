@@ -4,7 +4,7 @@ namespace Anytime\ORM\Tests\EntityManager;
 
 use Anytime\ORM\EntityManager\Entity;
 use Anytime\ORM\Tests\ORMTestCase;
-use Anytime\ORM\Tests\Stub\Foo;
+use Anytime\ORM\Tests\Stub\Generated\Entity\Foo;
 
 class EntityTest extends ORMTestCase
 {
