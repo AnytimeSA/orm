@@ -2,8 +2,14 @@
 
 namespace Anytime\ORM\Tests;
 
+use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
 use Anytime\ORM\EntityManager\Connection;
 use Anytime\ORM\EntityManager\Factory;
+use Anytime\ORM\EntityManager\FilterCollection;
+use Anytime\ORM\QueryBuilder\QueryBuilderFactory;
+use Anytime\ORM\Tests\Stub\Generated\EntityManager\DynamicEntityManager;
+use Anytime\ORM\Tests\Stub\Generated\EntityManager\DynamicManagers;
+use Anytime\ORM\Tests\Stub\Generated\EntityManager\DynamicRepositories;
 use PHPUnit\Framework\TestCase;
 
 class ORMTestCase extends TestCase
@@ -41,14 +47,45 @@ class ORMTestCase extends TestCase
             ->setDatabaseType(Factory::DATABASE_TYPE_MYSQL)
             ->setEntityNamespace('Anytime\ORM\Tests\Stub\Generated\Entity')
             ->setEntityManagerNamespace('Anytime\ORM\Tests\Stub\Generated\EntityManager')
-            ->setUserEntityRepositoryNamespace('Anytime\ORM\Tests\Stub\User\EntityManager')
+            ->setUserEntityRepositoryNamespace('Anytime\ORM\Tests\Stub\User\EntityRepository')
             ->setQueryBuilderProxyNamespace('Anytime\ORM\Tests\Stub\Generated\QueryBuilderProxyAnytime')
-            ->setUserManagerNamespace('Anytime\ORM\Tests\Stub\Generated\EntityManager')
+            ->setUserManagerNamespace('Anytime\ORM\Tests\Stub\User\EntityManager')
             ->setEntityDirectory('../Stub/Generated/Entity')
             ->setEntityManagerDirectory('../Stub/Generated/EntityManager/')
-            ->setUserEntityRepositoryDirectory('../Stub/User/EntityManager/EntityRepository')
-            ->setUserManagerDirectory('../Stub/Generated/EntityManager/Manager')
+            ->setUserEntityRepositoryDirectory('../Stub/User/EntityRepository')
+            ->setUserManagerDirectory('../Stub/Generated/Manager')
             ->setQueryBuilderProxyDirectory('../Stub/Generated/EntityManager/QueryBuilderProxy')
             ;
+    }
+
+    /**
+     * @return DynamicEntityManager
+     */
+    protected function getDynamicEntityManager()
+    {
+        $connection = $this->getConnection(true);
+        $snakeToCamelCaseConverter = new SnakeToCamelCaseStringConverter();
+        $queryBuilderFactory = $this->prophesize(QueryBuilderFactory::class)->reveal();
+
+        $dynamicRepositories = new DynamicRepositories(
+            $connection,
+            $snakeToCamelCaseConverter,
+            $queryBuilderFactory
+        );
+
+        $em = new DynamicEntityManager(
+            $connection,
+            $snakeToCamelCaseConverter,
+            $dynamicRepositories,
+            new DynamicManagers(
+                $connection,
+                $dynamicRepositories
+            ),
+            $queryBuilderFactory,
+            new FilterCollection(),
+            Factory::DATABASE_TYPE_MYSQL
+        );
+
+        return $em;
     }
 }

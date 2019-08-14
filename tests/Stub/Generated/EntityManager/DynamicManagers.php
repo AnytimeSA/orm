@@ -9,6 +9,7 @@ class DynamicManagers extends Managers
 {
     private $dynamicRepositories;
     private $entityManager;
+
     public function __construct(Connection $connection, DynamicRepositories $dynamicRepositories) {
         $this->dynamicRepositories = $dynamicRepositories;
         parent::__construct($connection);
@@ -19,7 +20,7 @@ class DynamicManagers extends Managers
     public function getFooManager(): \Anytime\ORM\Tests\Stub\Generated\EntityManager\DefaultManager\FooManager
     {
         return $this->loadAndGetManager(
-            'Anytime\ORM\Tests\Stub\User\EntityManager\DefaultManager\FooManager',
+            'Anytime\ORM\Tests\Stub\User\Manager\FooManager',
             'Anytime\ORM\Tests\Stub\Generated\EntityManager\DefaultManager\FooManager',
             $this->dynamicRepositories->getFooEntityRepository(),
             $this->entityManager
@@ -28,13 +29,16 @@ class DynamicManagers extends Managers
 
     /**
      * @param DynamicEntityManager $dynamicEntityManager
+     * @return DynamicManagers
      */
     public function setDynamicEntityManager(DynamicEntityManager $dynamicEntityManager)
     {
         $this->entityManager = $dynamicEntityManager;
+        return $this;
     }
     /**
-     * @return DynamicEntityManager     */
+     * @return DynamicEntityManager
+     */
     public function getDynamicEntityManager(): DynamicEntityManager
     {
         return $this->entityManager;
