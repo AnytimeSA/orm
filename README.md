@@ -22,7 +22,6 @@ $pdo = new \PDO($dsn, 'dbuser', 'dbpassword');
 We recommend to set the attribute "ATTR_EMULATE_PREPARES" and "ATTR_STRINGIFY_FETCHES" to false. It will prevent PDO to convert numeric values to strings.
 
 ```
-```
 $pdo->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
 $pdo->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
 ```
