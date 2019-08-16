@@ -6,11 +6,16 @@ use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
 use Anytime\ORM\EntityManager\Connection;
 use Anytime\ORM\EntityManager\Factory;
 use Anytime\ORM\EntityManager\FilterCollection;
+use Anytime\ORM\QueryBuilder\DeleteQuery;
+use Anytime\ORM\QueryBuilder\InsertQuery;
+use Anytime\ORM\QueryBuilder\QueryBuilderAbstract;
 use Anytime\ORM\QueryBuilder\QueryBuilderFactory;
+use Anytime\ORM\QueryBuilder\UpdateQuery;
 use Anytime\ORM\Tests\Stub\Generated\EntityManager\DynamicEntityManager;
 use Anytime\ORM\Tests\Stub\Generated\EntityManager\DynamicManagers;
 use Anytime\ORM\Tests\Stub\Generated\EntityManager\DynamicRepositories;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
 
 class ORMTestCase extends TestCase
 {
@@ -35,6 +40,12 @@ class ORMTestCase extends TestCase
     protected function getPdoMockBuilder()
     {
         $pdoMock = $this->prophesize(\PDO::class);
+        $pdoMock
+            ->prepare(Argument::any(), Argument::any())
+            ->willReturn(
+                $this->prophesize(\PDOStatement::class)->reveal()
+            )
+        ;
         return $pdoMock;
     }
 
@@ -63,16 +74,48 @@ class ORMTestCase extends TestCase
      */
     protected function getDynamicEntityManager()
     {
+        //Connection
         $connection = $this->getConnection(true);
-        $snakeToCamelCaseConverter = new SnakeToCamelCaseStringConverter();
-        $queryBuilderFactory = $this->prophesize(QueryBuilderFactory::class)->reveal();
 
+        // SnakeToCamelCaseConverter
+        $snakeToCamelCaseConverter = new SnakeToCamelCaseStringConverter();
+
+        // InsertQuery
+        $insertQueryMockBuilder = $this->prophesize(InsertQuery::class);
+        $insertQueryMockBuilder->execute(Argument::any())->willReturn(1);
+        $insertQuery = $insertQueryMockBuilder->reveal();
+
+        // UpdateQuery
+        $updateQueryMockBuilder = $this->prophesize(UpdateQuery::class);
+        $updateQueryMockBuilder->execute(Argument::any())->willReturn(1);
+        $updateQuery = $updateQueryMockBuilder->reveal();
+
+        // DeleteQuery
+        $deleteQueryMockBuilder = $this->prophesize(DeleteQuery::class);
+        $deleteQueryMockBuilder->execute(Argument::any())->willReturn(1);
+        $deleteQuery = $deleteQueryMockBuilder->reveal();
+
+        // QueryBuilder
+        $queryBuilderMockBuilder = $this->prophesize(QueryBuilderAbstract::class);
+        $queryBuilderMockBuilder->setQueryType(Argument::any())->willReturn($queryBuilderMockBuilder->reveal());
+        $queryBuilderMockBuilder->getInsertQuery(Argument::any())->willReturn($insertQuery);
+        $queryBuilderMockBuilder->getUpdateQuery(Argument::any())->willReturn($updateQuery);
+        $queryBuilderMockBuilder->getDeleteQuery(Argument::any())->willReturn($deleteQuery);
+        $queryBuilderMockBuilder->setEntityClass(Argument::any())->willReturn($queryBuilderMockBuilder->reveal());
+
+        // QueryBuilderFactory
+        $queryBuilderFactoryMockBuilder = $this->prophesize(QueryBuilderFactory::class);
+        $queryBuilderFactoryMockBuilder->create(Argument::any())->willReturn($queryBuilderMockBuilder->reveal());
+        $queryBuilderFactory = $queryBuilderFactoryMockBuilder->reveal();
+
+        // DynamicRepositories
         $dynamicRepositories = new DynamicRepositories(
             $connection,
             $snakeToCamelCaseConverter,
             $queryBuilderFactory
         );
 
+        // EntityManager
         $em = new DynamicEntityManager(
             $connection,
             $snakeToCamelCaseConverter,
