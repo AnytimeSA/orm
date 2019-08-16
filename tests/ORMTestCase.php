@@ -131,4 +131,27 @@ class ORMTestCase extends TestCase
 
         return $em;
     }
+
+    /**
+     * @param $errorCode
+     * @param $driverErrorCode
+     * @param null $driverErrorString
+     * @return \PDOStatement
+     */
+    protected function getPDOStatementMockWithKnownError($errorCode, $driverErrorCode, $driverErrorString = null)
+    {
+        $errorArray = [
+            $errorCode,
+            $driverErrorCode
+        ];
+
+        if($driverErrorString) {
+            $errorArray[] = $driverErrorString;
+        }
+
+        $pdoStatementMockBuilder = $this->prophesize(\PDOStatement::class);
+        $pdoStatementMockBuilder->execute(Argument::any())->willReturn(true);
+        $pdoStatementMockBuilder->errorInfo(Argument::any())->willReturn($errorArray);
+        return $pdoStatementMockBuilder->reveal();
+    }
 }
