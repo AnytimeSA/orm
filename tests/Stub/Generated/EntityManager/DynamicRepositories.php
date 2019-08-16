@@ -18,4 +18,17 @@ class DynamicRepositories extends Repositories
             'Anytime\ORM\Tests\Stub\Generated\Entity\Foo'
         );
     }
+
+    /**
+     * @return FooCompositeEntityRepository|\Anytime\ORM\Tests\Stub\Generated\EntityManager\DefaultRepository\FooCompositeEntityRepository
+     */
+    public function getFooCompositeEntityRepository(): \Anytime\ORM\Tests\Stub\Generated\EntityManager\DefaultRepository\FooCompositeEntityRepository
+    {
+        return $this->loadAndGetRepository(
+            'Anytime\ORM\Tests\Stub\User\EntityRepository\FooCompositeEntityRepository',
+            'Anytime\ORM\Tests\Stub\Generated\EntityManager\DefaultRepository\FooCompositeEntityRepository',
+            'foo',
+            'Anytime\ORM\Tests\Stub\Generated\Entity\FooComposite'
+        );
+    }
 }

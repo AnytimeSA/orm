@@ -9,7 +9,7 @@ use Anytime\ORM\QueryBuilder\QueryBuilderAbstract;
 use Anytime\ORM\QueryBuilder\QueryBuilderFactory;
 use Anytime\ORM\QueryBuilder\QueryBuilderInterface;
 use Anytime\ORM\Tests\ORMTestCase;
-use Anytime\ORM\Tests\Stub\Generated\Entity\Foo;
+use Anytime\ORM\Tests\Stub\Generated\Entity\FooComposite;
 
 class DefaultEntityRepositoryTest extends ORMTestCase
 {
@@ -21,10 +21,10 @@ class DefaultEntityRepositoryTest extends ORMTestCase
         $entityRepository = $this->getDefaultEntityRepository(QueryBuilderAbstract::QUERY_TYPE_SELECT);
         $this->assertNull($entityRepository->getTableName());
         $this->assertNull($entityRepository->getClassName());
-        $this->assertSame($entityRepository, $entityRepository->setTableName(Foo::TABLENAME));
-        $this->assertSame($entityRepository, $entityRepository->setClassName(Foo::class));
-        $this->assertSame(Foo::TABLENAME, $entityRepository->getTableName());
-        $this->assertSame(Foo::class, $entityRepository->getClassName());
+        $this->assertSame($entityRepository, $entityRepository->setTableName(FooComposite::TABLENAME));
+        $this->assertSame($entityRepository, $entityRepository->setClassName(FooComposite::class));
+        $this->assertSame(FooComposite::TABLENAME, $entityRepository->getTableName());
+        $this->assertSame(FooComposite::class, $entityRepository->getClassName());
     }
 
     /**
@@ -34,19 +34,19 @@ class DefaultEntityRepositoryTest extends ORMTestCase
     {
         // SELECT
         $entityRepository = $this->getDefaultEntityRepository(QueryBuilderAbstract::QUERY_TYPE_SELECT);
-        $entityRepository->setTableName(Foo::TABLENAME)->setClassName(Foo::class);
+        $entityRepository->setTableName(FooComposite::TABLENAME)->setClassName(FooComposite::class);
         $queryBuilder = $entityRepository->createQueryBuilder('f', QueryBuilderAbstract::QUERY_TYPE_SELECT);
         $this->assertInstanceOf(QueryBuilderInterface::class, $queryBuilder);
 
         // DELETE
         $entityRepository = $this->getDefaultEntityRepository(QueryBuilderAbstract::QUERY_TYPE_DELETE);
-        $entityRepository->setTableName(Foo::TABLENAME)->setClassName(Foo::class);
+        $entityRepository->setTableName(FooComposite::TABLENAME)->setClassName(FooComposite::class);
         $queryBuilder = $entityRepository->createDeleteQueryBuilder('f', QueryBuilderAbstract::QUERY_TYPE_DELETE);
         $this->assertInstanceOf(QueryBuilderInterface::class, $queryBuilder);
 
         // UPDATE
         $entityRepository = $this->getDefaultEntityRepository(QueryBuilderAbstract::QUERY_TYPE_UPDATE);
-        $entityRepository->setTableName(Foo::TABLENAME)->setClassName(Foo::class);
+        $entityRepository->setTableName(FooComposite::TABLENAME)->setClassName(FooComposite::class);
         $queryBuilder = $entityRepository->createUpdateQueryBuilder('f', QueryBuilderAbstract::QUERY_TYPE_UPDATE);
         $this->assertInstanceOf(QueryBuilderInterface::class, $queryBuilder);
     }
@@ -66,11 +66,11 @@ class DefaultEntityRepositoryTest extends ORMTestCase
         $queryBuilderMock4 = $queryBuilderMock4Builder->reveal();
 
         $queryBuilderMock3Builder = $this->prophesize(MySqlQueryBuilder::class);
-        $queryBuilderMock3Builder->from(Foo::TABLENAME, ($queryType == QueryBuilderAbstract::QUERY_TYPE_SELECT ? 'f' : null))->willReturn($queryBuilderMock4);
+        $queryBuilderMock3Builder->from(FooComposite::TABLENAME, ($queryType == QueryBuilderAbstract::QUERY_TYPE_SELECT ? 'f' : null))->willReturn($queryBuilderMock4);
         $queryBuilderMock3 = $queryBuilderMock3Builder->reveal();
 
         $queryBuilderMock2Builder = $this->prophesize(MySqlQueryBuilder::class);
-        $queryBuilderMock2Builder->setEntityClass(Foo::class)->willReturn($queryBuilderMock3);
+        $queryBuilderMock2Builder->setEntityClass(FooComposite::class)->willReturn($queryBuilderMock3);
         $queryBuilderMock2 = $queryBuilderMock2Builder->reveal();
 
         $queryBuilderMockBuilder = $this->prophesize(MySqlQueryBuilder::class);

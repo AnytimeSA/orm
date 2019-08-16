@@ -12,7 +12,7 @@ use Anytime\ORM\QueryBuilder\QueryBuilderAbstract;
 use Anytime\ORM\QueryBuilder\QueryBuilderInterface;
 use Anytime\ORM\QueryBuilder\SelectQuery;
 use Anytime\ORM\Tests\ORMTestCase;
-use Anytime\ORM\Tests\Stub\Generated\Entity\Foo;
+use Anytime\ORM\Tests\Stub\Generated\Entity\FooComposite;
 
 class DefaultManagerTest extends ORMTestCase
 {
@@ -104,7 +104,7 @@ class DefaultManagerTest extends ORMTestCase
 
         // EntityRepository Mock
         $entityRepositoryMockBuilder = $this->prophesize(DefaultEntityRepository::class);
-        $entityRepositoryMockBuilder->getClassName()->willReturn(Foo::class);
+        $entityRepositoryMockBuilder->getClassName()->willReturn(FooComposite::class);
 
         if($queryType == QueryBuilderAbstract::QUERY_TYPE_SELECT) {
             $entityRepositoryMockBuilder->createQueryBuilder('f', QueryBuilderAbstract::QUERY_TYPE_SELECT)->willReturn($queryBuilderAbstractMock);

@@ -4,7 +4,7 @@ namespace Anytime\ORM\Tests\EntityManager;
 
 use Anytime\ORM\EntityManager\Entity;
 use Anytime\ORM\Tests\ORMTestCase;
-use Anytime\ORM\Tests\Stub\Generated\Entity\Foo;
+use Anytime\ORM\Tests\Stub\Generated\Entity\FooComposite;
 
 class EntityTest extends ORMTestCase
 {
@@ -47,7 +47,7 @@ class EntityTest extends ORMTestCase
      */
     public function testExtractSetterUsedDataWithExtraDbField()
     {
-        $entity = new Foo([
+        $entity = new FooComposite([
             'id' => 123,
             'some_field' => 'abc',
             'some_extra_unknown_field' => 'xyz'
@@ -101,9 +101,9 @@ class EntityTest extends ORMTestCase
      */
     public function testGetEntityPropertyTypeOnExistingField()
     {
-        $this->assertSame('string', Foo::getEntityPropertyType('some_field'));
-        $this->assertSame('int', Foo::getEntityPropertyType('id'));
-        $this->assertSame('int', Foo::getEntityPropertyType('id2'));
+        $this->assertSame('string', FooComposite::getEntityPropertyType('some_field'));
+        $this->assertSame('int', FooComposite::getEntityPropertyType('id'));
+        $this->assertSame('int', FooComposite::getEntityPropertyType('id2'));
     }
 
     /**
@@ -113,8 +113,8 @@ class EntityTest extends ORMTestCase
     public function testGetEntityPropertyTypeOnNonExistingField()
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Entity property "non_existing_field" not found for entity ' . Foo::class);
-        Foo::getEntityPropertyType('non_existing_field');
+        $this->expectExceptionMessage('Entity property "non_existing_field" not found for entity ' . FooComposite::class);
+        FooComposite::getEntityPropertyType('non_existing_field');
     }
 
     /**
@@ -123,9 +123,9 @@ class EntityTest extends ORMTestCase
      */
     public function testIsPropertyNullableOnExistingField()
     {
-        $this->assertTrue(Foo::isPropertyNullable('some_field'));
-        $this->assertFalse(Foo::isPropertyNullable('id'));
-        $this->assertFalse(Foo::isPropertyNullable('id2'));
+        $this->assertTrue(FooComposite::isPropertyNullable('some_field'));
+        $this->assertFalse(FooComposite::isPropertyNullable('id'));
+        $this->assertFalse(FooComposite::isPropertyNullable('id2'));
     }
 
     /**
@@ -135,8 +135,8 @@ class EntityTest extends ORMTestCase
     public function testIsPropertyNullableOnNonExistingField()
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Entity property "non_existing_field" not found for entity ' . Foo::class);
-        Foo::isPropertyNullable('non_existing_field');
+        $this->expectExceptionMessage('Entity property "non_existing_field" not found for entity ' . FooComposite::class);
+        FooComposite::isPropertyNullable('non_existing_field');
     }
 
     /**
@@ -145,7 +145,7 @@ class EntityTest extends ORMTestCase
      */
     public function getPropertyDefaultValueOnExistingField()
     {
-        $this->assertSame('default value', Foo::getPropertyDefaultValue('some_field'));
+        $this->assertSame('default value', FooComposite::getPropertyDefaultValue('some_field'));
     }
 
     /**
@@ -155,8 +155,8 @@ class EntityTest extends ORMTestCase
     public function getPropertyDefaultValueOnNonExistingField()
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Entity property "non_existing_field" not found for entity ' . Foo::class);
-        Foo::getPropertyDefaultValue('non_existing_field');
+        $this->expectExceptionMessage('Entity property "non_existing_field" not found for entity ' . FooComposite::class);
+        FooComposite::getPropertyDefaultValue('non_existing_field');
     }
 
     /**
@@ -165,16 +165,16 @@ class EntityTest extends ORMTestCase
      */
     public function testIsPropertyExists()
     {
-        $this->assertTrue(Foo::isPropertyExists('some_field'));
-        $this->assertFalse(Foo::isPropertyExists('non_existing_field'));
+        $this->assertTrue(FooComposite::isPropertyExists('some_field'));
+        $this->assertFalse(FooComposite::isPropertyExists('non_existing_field'));
     }
 
     /**
      * @return Entity
      */
-    private function getEntity(): Foo
+    private function getEntity(): FooComposite
     {
-        return new Foo([
+        return new FooComposite([
             'id' => 1,
             'id2' => 2,
             'some_field' => 'Some string'
