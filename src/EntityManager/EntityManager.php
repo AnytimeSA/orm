@@ -33,6 +33,11 @@ abstract class EntityManager
     protected $filterCollection;
 
     /**
+     * @var QueryBuilderFactory
+     */
+    protected $queryBuilderFactory;
+
+    /**
      * EntityManager constructor.
      * @param Connection $connection
      * @param SnakeToCamelCaseStringConverter $snakeToCamelCaseStringConverter
