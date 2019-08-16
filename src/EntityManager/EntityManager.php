@@ -74,6 +74,11 @@ abstract class EntityManager
             $entities = [$entities];
         }
 
+        $queryBuilder = $this->queryBuilderFactory
+            ->create($this->databaseType)
+            ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_INSERT)
+        ;
+
         foreach($entities as $entity) {
 
             if(!is_object($entity) || !is_subclass_of($entity, Entity::class)) {
@@ -89,14 +94,7 @@ abstract class EntityManager
                 throw new \RuntimeException('Composite primary key values should\'nt be null.');
             }
 
-            $queryBuilder = $this->queryBuilderFactory->create($this->databaseType);
-            $query = $queryBuilder
-                ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_INSERT)
-                ->setEntityClass($entityClass)
-                ->getInsertQuery($entity)
-            ;
-
-            $insertId = $query->execute();
+            $insertId = $queryBuilder->setEntityClass($entityClass)->getInsertQuery($entity)->execute();
 
             // If not a composite pkey we update the pkey value with the last insert ID
             if(!$isComposite) {
