@@ -58,6 +58,14 @@ class QueryAbstract
     }
 
     /**
+     * @return string|null
+     */
+    public function getEntityClass()
+    {
+        return $this->entityClass;
+    }
+
+    /**
      * @param \PDOStatement $PDOStatement
      */
     protected function throwPdoError(\PDOStatement $PDOStatement)
