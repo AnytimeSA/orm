@@ -174,6 +174,34 @@ class MySqlQueryBuilderTest extends ORMTestCase
     }
 
     /**
+     * @group QueryBuilder
+     * @group MySqlQueryBuilder
+     */
+    public function testGetDeleteByCriteriaSQL()
+    {
+        $queryBuilder = $this->getQueryBuilder();
+        $queryBuilder
+            ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_DELETE)
+            ->setEntityClass(Foo::class)
+        ;
+
+        $this->assertSameSQL(
+            "DELETE FROM `foo_entity`",
+            $queryBuilder->getDeleteByCriteriaSQL()
+        );
+
+        $queryBuilder
+            ->setParameter('baz', 2)
+            ->where('foo.bar = 1 AND foo.baz = :baz')
+        ;
+
+        $this->assertSameSQL(
+            "DELETE FROM `foo_entity` WHERE (foo.bar = 1 AND foo.baz = :baz)",
+            $queryBuilder->getDeleteByCriteriaSQL()
+        );
+    }
+
+    /**
      * @return MySqlQueryBuilder
      */
     private function getQueryBuilder(): MySqlQueryBuilder
