@@ -142,6 +142,43 @@ class MySqlQueryBuilderTest extends ORMTestCase
      * @group QueryBuilder
      * @group MySqlQueryBuilder
      */
+    public function testGetInsertSQLWithEmptyArrayKeyValuesThrowsException()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Update and insert methods require an non-empty array containing the list of fields to update as first argument.');
+
+        $queryBuilder = $this->getQueryBuilder();
+        $queryBuilder
+            ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_INSERT)
+            ->setEntityClass(Foo::class)
+        ;
+        $queryBuilder->getInsertSQL([]);
+    }
+
+    /**
+     * @group QueryBuilder
+     * @group MySqlQueryBuilder
+     */
+    public function testGetInsertSQLWithInvalidFieldsKeyThrowsException()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid field name "0".');
+
+        $queryBuilder = $this->getQueryBuilder();
+        $queryBuilder
+            ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_INSERT)
+            ->setEntityClass(Foo::class)
+        ;
+        $queryBuilder->getInsertSQL([
+            'invalid',
+            'keys'
+        ]);
+    }
+
+    /**
+     * @group QueryBuilder
+     * @group MySqlQueryBuilder
+     */
     public function testGetSelectSQLWithJoinClause()
     {
         $queryBuilder = $this->getQueryBuilder();
@@ -180,7 +217,7 @@ class MySqlQueryBuilderTest extends ORMTestCase
     public function testGetUpdateByCriteriaSQLThrowsExceptionWithEmptyArray()
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Update methods require an non-empty array containing the list of fields to update as first argument.');
+        $this->expectExceptionMessage('Update and insert methods require an non-empty array containing the list of fields to update as first argument.');
         $queryBuilder = $this->getQueryBuilder();
         $queryBuilder
             ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_UPDATE)
@@ -243,7 +280,7 @@ class MySqlQueryBuilderTest extends ORMTestCase
     public function testGetUpdateByPrimaryKeySQLThrowsExceptionWithEmptyArray()
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Update methods require an non-empty array containing the list of fields to update as first argument.');
+        $this->expectExceptionMessage('Update and insert methods require an non-empty array containing the list of fields to update as first argument.');
         $queryBuilder = $this->getQueryBuilder();
         $queryBuilder
             ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_UPDATE)

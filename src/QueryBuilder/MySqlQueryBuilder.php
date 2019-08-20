@@ -69,6 +69,8 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
      */
     public function getInsertSQL(array $fields): string
     {
+        $this->checkUpdateFieldsArray($fields);
+
         $tableName = $this->entityClass::TABLENAME;
 
         $sql = "INSERT INTO `$tableName`\n";
@@ -76,11 +78,16 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         $sqlValues = '';
 
         foreach($fields as $fieldName => $value) {
+
+            $this->checkUpdateFieldName($fieldName);
+
             $sqlFields .= ($sqlFields ? ",\n" : '') . "`$fieldName`";
             $sqlValues .= ($sqlValues ? ",\n" : '') . ":$fieldName";
         }
 
-        $sql .= "($sqlFields) VALUES ($sqlValues);";
+        if(count($fields) > 0) {
+            $sql .= "($sqlFields) VALUES ($sqlValues);";
+        }
 
         return $sql;
     }
@@ -208,7 +215,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
     private function checkUpdateFieldsArray(array $fields)
     {
         if(count($fields) < 1) {
-            throw new \InvalidArgumentException('Update methods require an non-empty array containing the list of fields to update as first argument.');
+            throw new \InvalidArgumentException('Update and insert methods require an non-empty array containing the list of fields to update as first argument.');
         }
     }
 
