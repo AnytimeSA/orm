@@ -171,7 +171,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
 
         // --- WHERE
         if(count($this->where) > 0) {
-            $sql .= "WHERE \n";
+            $sql .= " WHERE \n";
             foreach($this->where as $iw => $where) {
                 $sql .= ($iw > 0 ? ' AND ' : '') . "($where)\n";
             }
