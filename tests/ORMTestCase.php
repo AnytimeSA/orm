@@ -39,14 +39,15 @@ class ORMTestCase extends TestCase
      */
     protected function getPdoMockBuilder()
     {
-        $pdoMock = $this->prophesize(\PDO::class);
-        $pdoMock
+        $pdoMockBuilder = $this->prophesize(\PDO::class);
+        $pdoMockBuilder->lastInsertId(Argument::any())->willReturn(10);
+        $pdoMockBuilder
             ->prepare(Argument::any(), Argument::any())
             ->willReturn(
                 $this->prophesize(\PDOStatement::class)->reveal()
             )
         ;
-        return $pdoMock;
+        return $pdoMockBuilder;
     }
 
     /**
