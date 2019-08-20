@@ -91,6 +91,8 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
      */
     public function getUpdateByPrimaryKeySQL(array $fields): string
     {
+        $this->checkUpdateFieldsArray($fields);
+
         $tableName = $this->entityClass::TABLENAME;
         $primaryKeys = $this->entityClass::PRIMARY_KEYS;
 
@@ -98,6 +100,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         $sqlSet = '';
 
         foreach($fields as $fieldName => $value) {
+            $this->checkUpdateFieldName($fieldName);
             $sqlSet .= ($sqlSet ? ",\n" : '') . "`$fieldName` = :UPDATE_VALUE_$fieldName";
         }
         $sqlSet = " SET \n" . $sqlSet . " ";
@@ -116,9 +119,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
      */
     public function getUpdateByCriteriaSQL(array $fields): string
     {
-        if(count($fields) < 1) {
-            throw new \InvalidArgumentException(__METHOD__ . ' method require an non-empty array containing the list of fields to update as first argument.');
-        }
+        $this->checkUpdateFieldsArray($fields);
 
         $tableName = $this->entityClass::TABLENAME;
 
@@ -127,9 +128,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         $sqlSet = '';
 
         foreach($fields as $fieldName => $value) {
-            if(is_numeric($fieldName)) {
-                throw new \InvalidArgumentException('Invalid field name "'.$fieldName.'".');
-            }
+            $this->checkUpdateFieldName($fieldName);
 
             if($value instanceof Expr) {
                 $sqlSet .= ($sqlSet ? ",\n" : '') . "`$fieldName` = " . $value->getExpr($fieldName, '`');
@@ -201,5 +200,25 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         }
 
         return $where;
+    }
+
+    /**
+     * @param array $fields
+     */
+    private function checkUpdateFieldsArray(array $fields)
+    {
+        if(count($fields) < 1) {
+            throw new \InvalidArgumentException('Update methods require an non-empty array containing the list of fields to update as first argument.');
+        }
+    }
+
+    /**
+     * @param string $fieldName
+     */
+    private function checkUpdateFieldName($fieldName)
+    {
+        if(is_numeric($fieldName)) {
+            throw new \InvalidArgumentException('Invalid field name "'.$fieldName.'".');
+        }
     }
 }

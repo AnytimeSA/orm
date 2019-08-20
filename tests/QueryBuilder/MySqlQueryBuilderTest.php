@@ -180,7 +180,7 @@ class MySqlQueryBuilderTest extends ORMTestCase
     public function testGetUpdateByCriteriaSQLThrowsExceptionWithEmptyArray()
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage(MySqlQueryBuilder::class . '::getUpdateByCriteriaSQL method require an non-empty array containing the list of fields to update as first argument.');
+        $this->expectExceptionMessage('Update methods require an non-empty array containing the list of fields to update as first argument.');
         $queryBuilder = $this->getQueryBuilder();
         $queryBuilder
             ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_UPDATE)
@@ -234,6 +234,74 @@ class MySqlQueryBuilderTest extends ORMTestCase
             $queryBuilder->getUpdateByCriteriaSQL($fields)
         );
 
+    }
+
+    /**
+     * @group QueryBuilder
+     * @group MySqlQueryBuilder
+     */
+    public function testGetUpdateByPrimaryKeySQLThrowsExceptionWithEmptyArray()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Update methods require an non-empty array containing the list of fields to update as first argument.');
+        $queryBuilder = $this->getQueryBuilder();
+        $queryBuilder
+            ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_UPDATE)
+            ->setEntityClass(Foo::class)
+        ;
+        $queryBuilder->getUpdateByPrimaryKeySQL([]);
+    }
+
+    /**
+     * @group QueryBuilder
+     * @group MySqlQueryBuilder
+     */
+    public function testGetUpdateByPrimaryKeySQLThrowsExceptionWithNumericKeys()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid field name "0".');
+        $queryBuilder = $this->getQueryBuilder();
+        $queryBuilder
+            ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_UPDATE)
+            ->setEntityClass(Foo::class)
+        ;
+        $queryBuilder->getUpdateByPrimaryKeySQL([
+            'val1'
+        ]);
+    }
+
+    /**
+     * @group QueryBuilder
+     * @group MySqlQueryBuilder
+     */
+    public function testGetUpdateByPrimaryKeySQLSucceedWithValidKeyValueArray()
+    {
+        $queryBuilder = $this->getQueryBuilder();
+        $queryBuilder
+            ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_UPDATE)
+            ->setEntityClass(Foo::class)
+        ;
+        $this->assertSameSQL(
+            'UPDATE `foo_entity` SET `field1` = :UPDATE_VALUE_field1,`field2` = :UPDATE_VALUE_field2 WHERE `id` = :id;',
+            $queryBuilder->getUpdateByPrimaryKeySQL([
+                'field1' => 'val1',
+                'field2' => 'val2',
+            ])
+        );
+    }
+
+    /**
+     * @group QueryBuilder
+     * @group MySqlQueryBuilder
+     */
+    public function testGetDeleteByPrimaryKeySQL()
+    {
+        $queryBuilder = $this->getQueryBuilder();
+        $queryBuilder
+            ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_UPDATE)
+            ->setEntityClass(Foo::class)
+        ;
+        $this->assertSameSQL('DELETE FROM `foo_entity`WHERE `id` = :id;', $queryBuilder->getDeleteByPrimaryKeySQL());
     }
 
     /**
