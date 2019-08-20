@@ -155,4 +155,19 @@ class ORMTestCase extends TestCase
         $pdoStatementMockBuilder->errorInfo(Argument::any())->willReturn($errorArray);
         return $pdoStatementMockBuilder->reveal();
     }
+
+    /**
+     * @param string $expectedSQL
+     * @param string $actualSQL
+     * @param bool $ignoreNewLineChars
+     */
+    protected function assertSameSQL(string $expectedSQL, string $actualSQL, bool $ignoreNewLineChars = true)
+    {
+        if($ignoreNewLineChars) {
+            $actualSQL = str_replace(["\r\n", "\n"], '', $actualSQL);
+            $expectedSQL = str_replace(["\r\n", "\n"], '', $expectedSQL);
+        }
+
+        $this->assertSame($expectedSQL, $actualSQL, 'Expected SQL is not the same as the actual SQL');
+    }
 }
