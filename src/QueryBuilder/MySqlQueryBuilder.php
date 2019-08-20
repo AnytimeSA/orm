@@ -116,6 +116,10 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
      */
     public function getUpdateByCriteriaSQL(array $fields): string
     {
+        if(count($fields) < 1) {
+            throw new \InvalidArgumentException(__METHOD__ . ' method require an non-empty array containing the list of fields to update as first argument.');
+        }
+
         $tableName = $this->entityClass::TABLENAME;
 
         $sql = "UPDATE `$tableName`";
@@ -123,17 +127,21 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         $sqlSet = '';
 
         foreach($fields as $fieldName => $value) {
+            if(is_numeric($fieldName)) {
+                throw new \InvalidArgumentException('Invalid field name "'.$fieldName.'".');
+            }
+
             if($value instanceof Expr) {
                 $sqlSet .= ($sqlSet ? ",\n" : '') . "`$fieldName` = " . $value->getExpr($fieldName, '`');
             } else {
                 $sqlSet .= ($sqlSet ? ",\n" : '') . "`$fieldName` = :UPDATE_VALUE_$fieldName";
             }
         }
-        $sqlSet = " SET \n" . $sqlSet . " ";
+        $sqlSet = " SET \n" . $sqlSet;
 
         // --- WHERE
         if(count($this->where) > 0) {
-            $sqlWhere .= "WHERE \n";
+            $sqlWhere .= " WHERE \n";
             foreach($this->where as $iw => $where) {
                 $sqlWhere .= ($iw > 0 ? ' AND ' : '') . "($where)\n";
             }
