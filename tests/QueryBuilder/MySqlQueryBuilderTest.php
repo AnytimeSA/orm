@@ -177,6 +177,69 @@ class MySqlQueryBuilderTest extends ORMTestCase
      * @group QueryBuilder
      * @group MySqlQueryBuilder
      */
+    public function testGetUpdateByCriteriaSQLThrowsExceptionWithEmptyArray()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage(MySqlQueryBuilder::class . '::getUpdateByCriteriaSQL method require an non-empty array containing the list of fields to update as first argument.');
+        $queryBuilder = $this->getQueryBuilder();
+        $queryBuilder
+            ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_UPDATE)
+            ->setEntityClass(Foo::class)
+        ;
+        $queryBuilder->getUpdateByCriteriaSQL([]);
+    }
+
+    /**
+     * @group QueryBuilder
+     * @group MySqlQueryBuilder
+     */
+    public function testGetUpdateByCriteriaSQLThrowsExceptionWithNumericKeys()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid field name "0".');
+        $queryBuilder = $this->getQueryBuilder();
+        $queryBuilder
+            ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_UPDATE)
+            ->setEntityClass(Foo::class)
+        ;
+        $queryBuilder->getUpdateByCriteriaSQL(['aaa', 'field' => 'val']);
+    }
+
+    /**
+     * @group QueryBuilder
+     * @group MySqlQueryBuilder
+     */
+    public function testGetUpdateByCriteriaSQLSucceedWithValidKeyValueArray()
+    {
+        $fields = [
+            'field1' => 'val1',
+            'field2' => 'val2'
+        ];
+
+        $queryBuilder = $this->getQueryBuilder();
+        $queryBuilder
+            ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_UPDATE)
+            ->setEntityClass(Foo::class)
+        ;
+
+        $this->assertSameSQL(
+            'UPDATE `foo_entity` SET `field1` = :UPDATE_VALUE_field1,`field2` = :UPDATE_VALUE_field2;',
+            $queryBuilder->getUpdateByCriteriaSQL($fields)
+        );
+
+        $queryBuilder->where('field3 = :val3')->setParameter('val3', '3')->andWhere('field4 = field5');
+
+        $this->assertSameSQL(
+            'UPDATE `foo_entity` SET `field1` = :UPDATE_VALUE_field1,`field2` = :UPDATE_VALUE_field2 WHERE (field3 = :val3) AND (field4 = field5);',
+            $queryBuilder->getUpdateByCriteriaSQL($fields)
+        );
+
+    }
+
+    /**
+     * @group QueryBuilder
+     * @group MySqlQueryBuilder
+     */
     public function testGetDeleteByCriteriaSQL()
     {
         $queryBuilder = $this->getQueryBuilder();
