@@ -6,7 +6,10 @@ use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
 use Anytime\ORM\EntityManager\Connection;
 use Anytime\ORM\EntityManager\FilterCollection;
 use Anytime\ORM\QueryBuilder\MySqlQueryBuilder;
+use Anytime\ORM\QueryBuilder\QueryAbstract;
+use Anytime\ORM\QueryBuilder\QueryBuilderAbstract;
 use Anytime\ORM\Tests\ORMTestCase;
+use Anytime\ORM\Tests\Stub\Generated\Entity\Foo;
 
 class MySqlQueryBuilderTest extends ORMTestCase
 {
@@ -26,12 +29,12 @@ class MySqlQueryBuilderTest extends ORMTestCase
      */
     public function testGetSelectSQLWithFromClause()
     {
-        $this->assertSame(
+        $this->assertSameSQL(
             'SELECT * FROM `test_table`',
             $this->getQueryBuilder()->from('test_table')->getSelectSQL()
         );
 
-        $this->assertSame(
+        $this->assertSameSQL(
             'SELECT * FROM `test_table` AS `tt`',
             $this->getQueryBuilder()->from('test_table', 'tt')->getSelectSQL()
         );
@@ -43,7 +46,7 @@ class MySqlQueryBuilderTest extends ORMTestCase
      */
     public function testGetSelectSQLWithOrderClause()
     {
-        $this->assertSame(
+        $this->assertSameSQL(
             'SELECT * FROM `test_table` ORDER BY myfield DESC',
             $this->getQueryBuilder()->from('test_table')->orderBy('myfield DESC')->getSelectSQL()
         );
@@ -55,7 +58,7 @@ class MySqlQueryBuilderTest extends ORMTestCase
      */
     public function testGetSelectSQLWithGroupByClause()
     {
-        $this->assertSame(
+        $this->assertSameSQL(
             'SELECT * FROM `test_table` GROUP BY groupfield, groupfield2',
             $this->getQueryBuilder()->from('test_table')->groupBy('groupfield, groupfield2')->getSelectSQL()
         );
@@ -68,11 +71,11 @@ class MySqlQueryBuilderTest extends ORMTestCase
     public function testGetSelectSQLWithLimitClause()
     {
         $queryBuilder = $this->getQueryBuilder()->from('test_table');
-        $this->assertSame('SELECT * FROM `test_table` LIMIT 10 OFFSET 0', $queryBuilder->limit(10, 0)->getSelectSQL());
-        $this->assertSame('SELECT * FROM `test_table` LIMIT 10 OFFSET 50', $queryBuilder->limit(10, 50)->getSelectSQL());
-        $this->assertSame('SELECT * FROM `test_table` LIMIT 1 OFFSET 0', $queryBuilder->limit(0, 0)->getSelectSQL());
-        $this->assertSame('SELECT * FROM `test_table` LIMIT 1 OFFSET 0', $queryBuilder->limit(-1, 0)->getSelectSQL());
-        $this->assertSame('SELECT * FROM `test_table` LIMIT 1 OFFSET 0', $queryBuilder->limit(-1, -1)->getSelectSQL());
+        $this->assertSameSQL('SELECT * FROM `test_table` LIMIT 10 OFFSET 0', $queryBuilder->limit(10, 0)->getSelectSQL());
+        $this->assertSameSQL('SELECT * FROM `test_table` LIMIT 10 OFFSET 50', $queryBuilder->limit(10, 50)->getSelectSQL());
+        $this->assertSameSQL('SELECT * FROM `test_table` LIMIT 1 OFFSET 0', $queryBuilder->limit(0, 0)->getSelectSQL());
+        $this->assertSameSQL('SELECT * FROM `test_table` LIMIT 1 OFFSET 0', $queryBuilder->limit(-1, 0)->getSelectSQL());
+        $this->assertSameSQL('SELECT * FROM `test_table` LIMIT 1 OFFSET 0', $queryBuilder->limit(-1, -1)->getSelectSQL());
     }
 
     /**
@@ -82,7 +85,7 @@ class MySqlQueryBuilderTest extends ORMTestCase
     public function testGetSelectSQLWithOrderGroupByClause()
     {
         $queryBuilder = $this->getQueryBuilder();
-        $this->assertSame(
+        $this->assertSameSQL(
             'SELECT * FROM `test_table` GROUP BY groupfield, groupfield2',
             $queryBuilder->from('test_table')->groupBy('groupfield, groupfield2')->getSelectSQL()
         );
@@ -95,7 +98,7 @@ class MySqlQueryBuilderTest extends ORMTestCase
     public function testGetSelectSQLWithOrderGroupByAndLimitClause()
     {
         $queryBuilder = $this->getQueryBuilder();
-        $this->assertSame(
+        $this->assertSameSQL(
             'SELECT * FROM `test_table` GROUP BY groupfield, groupfield2 ORDER BY myfield DESC',
             $queryBuilder
                 ->from('test_table')
@@ -104,7 +107,7 @@ class MySqlQueryBuilderTest extends ORMTestCase
                 ->getSelectSQL()
         );
 
-        $this->assertSame(
+        $this->assertSameSQL(
             'SELECT * FROM `test_table` GROUP BY groupfield, groupfield2 ORDER BY myfield DESC LIMIT 10 OFFSET 0',
             $queryBuilder->limit(10, 0)->getSelectSQL()
         );
@@ -118,17 +121,17 @@ class MySqlQueryBuilderTest extends ORMTestCase
     {
         $queryBuilder = $this->getQueryBuilder();
 
-        $this->assertSame(
+        $this->assertSameSQL(
             'SELECT * FROM `test_table` AS `tt` WHERE (tt.myfield = ?)',
             $queryBuilder->from('test_table', 'tt')->where('tt.myfield = ?')->getSelectSQL()
         );
 
-        $this->assertSame(
+        $this->assertSameSQL(
             'SELECT * FROM `test_table` AS `tt` WHERE (tt.myfield = ?) AND (tt.myotherfield = 2000)',
             $queryBuilder->andWhere('tt.myotherfield = 2000')->getSelectSQL()
         );
 
-        $this->assertSame(
+        $this->assertSameSQL(
             'SELECT * FROM `test_table` AS `tt` WHERE (tt.myfield = ?) AND (tt.myotherfield = 2000) ' .
             'AND (tt.againotherfield = ? OR tt.againotherfield = ?)',
             $queryBuilder->andWhere('tt.againotherfield = ? OR tt.againotherfield = ?')->getSelectSQL()
@@ -142,7 +145,7 @@ class MySqlQueryBuilderTest extends ORMTestCase
     public function testGetSelectSQLWithJoinClause()
     {
         $queryBuilder = $this->getQueryBuilder();
-        $this->assertSame(
+        $this->assertSameSQL(
             'SELECT * FROM `test_table` AS `tt`' .
             ' LEFT JOIN table2 t2 ON tt.idt2 = t2.id' .
             ' LEFT JOIN table3 t3 ON tt.idt3 = t3.id',
@@ -161,7 +164,7 @@ class MySqlQueryBuilderTest extends ORMTestCase
     public function testGetSelectSQLWHenChangingSelectClause()
     {
         $queryBuilder = $this->getQueryBuilder();
-        $this->assertSame(
+        $this->assertSameSQL(
             'SELECT COUNT(id) AS `qty` FROM `test_table` AS `tt`',
             $queryBuilder
                 ->select('COUNT(id) AS `qty`')
