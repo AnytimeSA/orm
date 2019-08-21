@@ -1,18 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: davidvanderelst
- * Date: 12/08/2019
- * Time: 11:04
- */
 
 namespace Anytime\ORM\Tests\EntityManager;
 
-
 use Anytime\ORM\EntityManager\Connection;
-use PHPUnit\Framework\TestCase;
+use Anytime\ORM\Tests\ORMTestCase;
 
-class ConnectionTest extends TestCase
+class ConnectionTest extends ORMTestCase
 {
     /**
      * @group Connection
@@ -89,29 +82,5 @@ class ConnectionTest extends TestCase
         $connection->setAttribute('attr_name', 1);
 
         $this->assertSame(\PDO::getAvailableDrivers(), Connection::getAvailableDrivers());
-    }
-
-    /**
-     * @param bool $getPdo
-     * @param \PDO|null $pdo
-     * @return Connection
-     */
-    private function getConnection(bool $getPdo, \PDO $pdo = null)
-    {
-        if($getPdo) {
-            $connection = new Connection($pdo ? $pdo : $this->getPdoMockBuilder()->reveal());
-        } else {
-            $connection = new Connection();
-        }
-        return $connection;
-    }
-
-    /**
-     * @return \Prophecy\Prophecy\ObjectProphecy
-     */
-    private function getPdoMockBuilder()
-    {
-        $pdoMock = $this->prophesize(\PDO::class);
-        return $pdoMock;
     }
 }

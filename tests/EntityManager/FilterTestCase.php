@@ -3,9 +3,9 @@
 namespace Anytime\ORM\Tests\EntityManager;
 
 use Anytime\ORM\EntityManager\Filter;
-use PHPUnit\Framework\TestCase;
+use Anytime\ORM\Tests\ORMTestCase;
 
-class FilterTestCase extends TestCase
+class FilterTestCase extends ORMTestCase
 {
     /**
      * @param string $name

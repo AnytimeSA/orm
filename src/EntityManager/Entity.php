@@ -85,7 +85,7 @@ abstract class Entity
     protected static function checkPropertyName(string $propName)
     {
         if(!self::isPropertyExists($propName)) {
-            throw new \InvalidArgumentException('Entity property "'.$propName.'" not found for entity ' . self::class);
+            throw new \InvalidArgumentException('Entity property "'.$propName.'" not found for entity ' . static::class);
         }
     }
     /**
@@ -134,6 +134,7 @@ abstract class Entity
 
     /**
      * @param string|null $fieldName
+     * @return Entity
      */
     public function resetDataSetterUsed(string $fieldName = null)
     {
@@ -146,6 +147,8 @@ abstract class Entity
                 $this->dataSetterUsed[$fieldName] = false;
             }
         }
+
+        return $this;
     }
 
     /**

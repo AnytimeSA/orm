@@ -49,9 +49,9 @@ abstract class EntityRepository
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getTableName(): string
+    public function getTableName()
     {
         return $this->tableName;
     }
@@ -67,9 +67,9 @@ abstract class EntityRepository
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getClassName(): string
+    public function getClassName()
     {
         return $this->className;
     }

@@ -2,8 +2,6 @@
 
 namespace Anytime\ORM\QueryBuilder;
 
-use Anytime\ORM\EntityManager\FilterCollection;
-
 class SelectQuery extends QueryAbstract implements SelectQueryInterface
 {
     const FETCH_DATA_FORMAT_ENTITY = 'entity';
