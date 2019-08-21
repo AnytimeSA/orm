@@ -534,6 +534,25 @@ $affectedRows = $entityManager->managers->getCarManager()->updateByOwnerIdAndBra
     ->execute()
 ;
 ```
+
+You can also use an expression instead of a specific value. 
+
+To do that you have to instantiate the **\Anytime\ORM\QueryBuilder\Expression** class, and define the expression string to use. You can use the **%FIELD%** string in the expression, it will be replaced by the table field name matching the current setter.
+
+```
+$affectedRows = $entityManager->managers->getCarManager()->updateByOwnerIdAndBrand($ownerId, $brand)
+    ->setFieldA('A')
+    ->setFieldB(new Expr('LOWER(%FIELD%)'))
+    ->execute()
+;
+```
+
+In this example the final SQL UPDATE will be something like : 
+
+```
+UPDATE car SET field_A = 'A' AND field_b = LOWER(field_b);
+```
+
 ## Delete data
 
 ### Delete a single entity
