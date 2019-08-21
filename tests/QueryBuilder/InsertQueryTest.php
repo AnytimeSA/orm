@@ -11,7 +11,7 @@ class InsertQueryTest extends ORMTestCase
 {
     /**
      * @group QueryBuilder
-     * @group DeleteQuery
+     * @group InsertQuery
      */
     public function testThatASuccessfulQueryReturnThePDORowCountValue()
     {
@@ -22,7 +22,7 @@ class InsertQueryTest extends ORMTestCase
 
     /**
      * @group QueryBuilder
-     * @group DeleteQuery
+     * @group InsertQuery
      */
     private function getInsertQuery($stmt = null)
     {
