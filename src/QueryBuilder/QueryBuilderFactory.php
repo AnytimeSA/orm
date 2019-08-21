@@ -63,7 +63,7 @@ class QueryBuilderFactory
     {
         switch($databaseType) {
             case  Factory::DATABASE_TYPE_MYSQL:     return __NAMESPACE__ . '\\MySqlQueryBuilder';
-            default:                                throw new \InvalidArgumentException($databaseType . 'is not a supported database type');
+            default:                                throw new \InvalidArgumentException($databaseType . ' is not a supported database type');
         }
     }
 
@@ -88,12 +88,6 @@ class QueryBuilderFactory
         switch($queryType) {
             case QueryBuilderAbstract::QUERY_TYPE_UPDATE :
                 $suffix = 'QueryBuilderUpdateProxy';
-                break;
-            case QueryBuilderAbstract::QUERY_TYPE_INSERT :
-                $suffix = 'QueryBuilderInsertProxy';
-                break;
-            case QueryBuilderAbstract::QUERY_TYPE_DELETE :
-                $suffix = 'QueryBuilderDeleteProxy';
                 break;
             default:
                 throw new \InvalidArgumentException('Query type "'.$queryType.'" cannot be used to create query builders proxies');

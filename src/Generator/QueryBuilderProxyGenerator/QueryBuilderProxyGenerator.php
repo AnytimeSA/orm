@@ -215,11 +215,4 @@ class QueryBuilderProxyGenerator implements QueryBuilderProxyGeneratorInterface
 
         return $classString;
     }
-
-    public function generateQueryBuilderDeleteProxyClassString(string $tableName, array $tableStruct): string
-    {
-        // TODO: Implement generateQueryBuilderDeleteProxyClassString() method.
-        return '';
-    }
-
 }
