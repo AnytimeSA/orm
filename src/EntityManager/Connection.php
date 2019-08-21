@@ -26,19 +26,21 @@ class Connection
     }
 
     /**
-     * @return \PDO
+     * @return \PDO|null
      */
-    public function getPDO(): \PDO
+    public function getPDO()
     {
         return $this->pdo;
     }
 
     /**
      * @param \PDO $pdo
+     * @return Connection
      */
     public function setPDO(\PDO $pdo)
     {
         $this->pdo = $pdo;
+        return $this;
     }
 
     /**
@@ -68,7 +70,7 @@ class Connection
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function errorCode()
     {
@@ -104,9 +106,9 @@ class Connection
     /**
      * @return array
      */
-    public function getAvailableDrivers(): array
+    public static function getAvailableDrivers(): array
     {
-        return $this->pdo->getAvailableDrivers();
+        return \PDO::getAvailableDrivers();
     }
 
     /**
