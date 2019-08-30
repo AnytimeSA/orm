@@ -490,6 +490,13 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         $defaultRepositoryFullClassName = $this->entityManagerNamespace . '\\DefaultRepository\\' . $repositoryClassName;
         $userRepositoryFullClassName = $this->userEntityRepositoryNamespace . '\\' . $repositoryClassName;
 
+        // Get primary keys and create args for findByPrimaryKey method
+        $findByPrimaryKeyArgs = '';
+
+        foreach($this->getPrimaryKeys($tableStruct) as $iPK => $pkey) {
+            $findByPrimaryKeyArgs .= ($iPK === 0 ? '' : ', ') . $pkey['type'] . ' $' . lcfirst($this->snakeToCamelCaseStringConverter->convert($pkey['fieldName']));
+        }
+
         $sourceCode = "<?php\n";
         $sourceCode .= "\n";
         $sourceCode .= "namespace $namespace;\n";
@@ -501,6 +508,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
 
         $sourceCode .= "/**\n";
         $sourceCode .= " * @method $repositoryClassName|\\$userRepositoryFullClassName getRepository()\n";
+        $sourceCode .= " * @method $entityName|null findByPrimaryKey($findByPrimaryKeyArgs)\n";
         $sourceCode .= " */\n";
         $sourceCode .= "class $className extends Manager\n";
         $sourceCode .= "{\n";
@@ -698,6 +706,23 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
         $sourceCode .= "}\n";
 
         return $sourceCode;
+    }
+
+    /**
+     * @param array $tableStruct
+     * @return array
+     */
+    private function getPrimaryKeys(array $tableStruct): array
+    {
+        $primaryKeys = [];
+
+        foreach($tableStruct['structure'] as $fieldStruct) {
+            if($fieldStruct['keyType'] === 'PRI') {
+                $primaryKeys[] = $fieldStruct;
+            }
+        }
+
+        return $primaryKeys;
     }
 
     /**
