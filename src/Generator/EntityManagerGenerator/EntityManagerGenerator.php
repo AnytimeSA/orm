@@ -521,6 +521,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
             }
 
             $findByMethodName = 'findBy';
+            $findOneByMethodName = 'findOneBy';
             $updateByMethodName = 'updateBy';
             $deleteByMethodName = 'deleteBy';
 
@@ -533,6 +534,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
 
                 $columnNameCCase = $this->snakeToCamelCaseStringConverter->convert($indexPart['columnName']);
                 $findByMethodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
+                $findOneByMethodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
                 $updateByMethodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
                 $deleteByMethodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
 
@@ -552,6 +554,7 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
 
             $createdMethods[] = $findByMethodName;
 
+            // findBy...
             $sourceCode .= "    /**\n";
             $sourceCode .= $phpDocParamList;
             $sourceCode .= "     * @return $entityName"."[]\n";
@@ -559,6 +562,17 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
             $sourceCode .= "     public function $findByMethodName($phpParamList): array\n";
             $sourceCode .= "     {\n";
             $sourceCode .= "         return \$this->getRepository()->$findByMethodName($phpParamListNoHintNoDefault)->getSelectQuery()->fetchAll();\n";
+            $sourceCode .= "     }\n";
+
+
+            //findOneBy...
+            $sourceCode .= "    /**\n";
+            $sourceCode .= $phpDocParamList;
+            $sourceCode .= "     * @return $entityName"."|null\n";
+            $sourceCode .= "     */\n";
+            $sourceCode .= "     public function $findOneByMethodName($phpParamList)\n";
+            $sourceCode .= "     {\n";
+            $sourceCode .= "         return \$this->getRepository()->$findByMethodName($phpParamListNoHintNoDefault)->getSelectQuery()->fetchOne();\n";
             $sourceCode .= "     }\n";
 
             $parentQueryBuilderProxyClass = "\\" . $this->queryBuilderProxyNamespace . "\\" . $this->snakeToCamelCaseStringConverter->convert($tableName) . 'QueryBuilderUpdateProxy';
