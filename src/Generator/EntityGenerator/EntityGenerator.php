@@ -259,7 +259,16 @@ class EntityGenerator implements EntityGeneratorInterface
                 $typeHintingReturn = $nullable ? '' : ': '.$fieldType;
                 $gettersSettersSourceCode .= "    public function " . $getterName . $getterSuffix . "()$typeHintingReturn\n";
                 $gettersSettersSourceCode .= "    {\n";
-                $gettersSettersSourceCode .= '        return ('.$fieldType.')$this->data[\'' . $fieldName . '\'];'."\n";
+
+                if(!$nullable) {
+                    $gettersSettersSourceCode .= '        return ('.$fieldType.')$this->data[\'' . $fieldName . '\'];'."\n";
+                } else {
+                    $gettersSettersSourceCode .= '        if(!is_null($this->data[\'' . $fieldName . '\'])) {' ."\n";
+                    $gettersSettersSourceCode .= '            return ('.$fieldType.')$this->data[\'' . $fieldName . '\'];'."\n";
+                    $gettersSettersSourceCode .= '        }' ."\n";
+                    $gettersSettersSourceCode .= '        return null;'."\n";
+                }
+
                 $gettersSettersSourceCode .= "    }\n\n";
             }
 
