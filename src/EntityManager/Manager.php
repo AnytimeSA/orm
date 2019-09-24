@@ -106,6 +106,14 @@ abstract class Manager
     }
 
     /**
+     * @return Entity[]
+     */
+    public function findAll(): array
+    {
+        return $this->createQueryBuilder()->getSelectQuery()->fetchAll();
+    }
+
+    /**
      * @param string $sql
      * @param array $parameters
      * @return QueryAbstract|SelectQuery

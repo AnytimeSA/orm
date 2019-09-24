@@ -12,6 +12,7 @@ use Anytime\ORM\QueryBuilder\QueryBuilderAbstract;
 use Anytime\ORM\QueryBuilder\QueryBuilderInterface;
 use Anytime\ORM\QueryBuilder\SelectQuery;
 use Anytime\ORM\Tests\ORMTestCase;
+use Anytime\ORM\Tests\Stub\Generated\Entity\Foo;
 use Anytime\ORM\Tests\Stub\Generated\Entity\FooComposite;
 
 class DefaultManagerTest extends ORMTestCase
@@ -77,6 +78,21 @@ class DefaultManagerTest extends ORMTestCase
     }
 
     /**
+     * @group Manager
+     */
+    public function testFindAll()
+    {
+        $manager = $this->getManager(QueryBuilderAbstract::QUERY_TYPE_SELECT);
+        $results = $manager->findAll();
+        $this->assertCount(2, $results);
+        foreach($results as $foo) {
+            $this->assertInstanceOf(Foo::class, $foo);
+            $this->assertSame(1, $foo->getId());
+            $this->assertSame('abc', $foo->getSomeField());
+        }
+    }
+
+    /**
      * @param $queryType
      * @return DefaultManager
      */
@@ -90,6 +106,10 @@ class DefaultManagerTest extends ORMTestCase
         // SelectQuery mock
         $selectQueryMockBuilder = $this->prophesize(SelectQuery::class);
         $selectQueryMockBuilder->fetchOne()->willReturn(['bar' => 'baz']);
+        $selectQueryMockBuilder->fetchAll()->willReturn([
+            (new Foo())->setSomeField('abc')->setId(1),
+            (new Foo())->setSomeField('abc')->setId(1)
+        ]);
         $selectQueryMock = $selectQueryMockBuilder->reveal();
 
         // QueryBuilder mock
