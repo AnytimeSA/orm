@@ -222,7 +222,7 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
      */
     public function limit(int $number, int $offset): QueryBuilderInterface
     {
-        $this->limitNumber = $number < 1 ? 1 : $number;
+        $this->limitNumber = $number < 0 ? 0 : $number;
         $this->limitOffset = $offset < 0 ? 0 : $offset;
         return $this;
     }

@@ -67,15 +67,17 @@ class MySqlQueryBuilderTest extends ORMTestCase
     /**
      * @group QueryBuilder
      * @group MySqlQueryBuilder
+     * @group testGetSelectSQLWithLimitClause
      */
     public function testGetSelectSQLWithLimitClause()
     {
         $queryBuilder = $this->getQueryBuilder()->from('test_table');
         $this->assertSameSQL('SELECT * FROM `test_table` LIMIT 10 OFFSET 0', $queryBuilder->limit(10, 0)->getSelectSQL());
         $this->assertSameSQL('SELECT * FROM `test_table` LIMIT 10 OFFSET 50', $queryBuilder->limit(10, 50)->getSelectSQL());
-        $this->assertSameSQL('SELECT * FROM `test_table` LIMIT 1 OFFSET 0', $queryBuilder->limit(0, 0)->getSelectSQL());
-        $this->assertSameSQL('SELECT * FROM `test_table` LIMIT 1 OFFSET 0', $queryBuilder->limit(-1, 0)->getSelectSQL());
-        $this->assertSameSQL('SELECT * FROM `test_table` LIMIT 1 OFFSET 0', $queryBuilder->limit(-1, -1)->getSelectSQL());
+        $this->assertSameSQL('SELECT * FROM `test_table`', $queryBuilder->limit(0, 0)->getSelectSQL());
+        $this->assertSameSQL('SELECT * FROM `test_table`', $queryBuilder->limit(-1, 0)->getSelectSQL());
+        $this->assertSameSQL('SELECT * FROM `test_table`', $queryBuilder->limit(-1, -1)->getSelectSQL());
+        $this->assertSameSQL('SELECT * FROM `test_table` LIMIT ' . MySqlQueryBuilder::MAX_BIG_INT_VALUE . ' OFFSET 10', $queryBuilder->limit(0, 10)->getSelectSQL());
     }
 
     /**

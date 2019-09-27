@@ -6,6 +6,8 @@ use Anytime\ORM\QueryBuilder\Expression\Expr;
 
 class MySqlQueryBuilder extends QueryBuilderAbstract
 {
+    const MAX_BIG_INT_VALUE = 18446744073709551615;
+
     /**
      * @inheritDoc
      */
@@ -58,6 +60,8 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         // --- LIMIT
         if ($this->limitNumber) {
             $sql .= ' LIMIT ' . $this->limitNumber . ' OFFSET ' . $this->limitOffset;
+        } elseif($this->limitOffset > 0) {
+            $sql .= ' LIMIT ' . self::MAX_BIG_INT_VALUE . ' OFFSET ' . $this->limitOffset;
         }
 
         return $sql;
