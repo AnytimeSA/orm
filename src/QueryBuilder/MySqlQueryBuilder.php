@@ -6,7 +6,7 @@ use Anytime\ORM\QueryBuilder\Expression\Expr;
 
 class MySqlQueryBuilder extends QueryBuilderAbstract
 {
-    const MAX_BIG_INT_VALUE = 18446744073709551615;
+    const MAX_BIG_INT_VALUE = 9223372036854775807;
 
     /**
      * @inheritDoc
