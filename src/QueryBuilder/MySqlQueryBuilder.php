@@ -16,9 +16,9 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
     /**
      * @inheritDoc
      */
-    public function from(string $tableName, $alias = null): QueryBuilderInterface
+    public function from(string $tableName, $alias = null, string $delimiter = '`'): QueryBuilderInterface
     {
-        $this->from = "`$tableName`".($alias ? " AS `$alias`": '');
+        $this->from = $delimiter."$tableName".$delimiter.($alias ? " AS `$alias`": '');
         return $this;
     }
 

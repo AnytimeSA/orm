@@ -34,9 +34,10 @@ interface QueryBuilderInterface
     /**
      * @param string $tableName
      * @param string|null $alias
+     * @param string $delimiter
      * @return QueryBuilderInterface
      */
-    public function from(string $tableName, $alias = null): QueryBuilderInterface;
+    public function from(string $tableName, $alias = null, string $delimiter = '`'): QueryBuilderInterface;
 
     /**
      * @param string $where
