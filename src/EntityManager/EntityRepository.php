@@ -102,7 +102,6 @@ abstract class EntityRepository
     }
 
     /**
-     * @param string|null $alias
      * @return QueryBuilderInterface
      */
     public function createDeleteQueryBuilder()
@@ -111,12 +110,19 @@ abstract class EntityRepository
     }
 
     /**
-     * @param string|null $alias
      * @return QueryBuilderInterface
      */
     public function createUpdateQueryBuilder()
     {
         return $this->createQueryBuilder(null, QueryBuilderAbstract::QUERY_TYPE_UPDATE);
+    }
+
+    /**
+     * @return QueryBuilderInterface
+     */
+    public function findAll(): QueryBuilderInterface
+    {
+        return $this->createQueryBuilder();
     }
 
     /**
