@@ -258,4 +258,28 @@ abstract class EntityManager
         $this->filterCollection->addFilter($filter);
         return $this;
     }
+
+    /**
+     * @return bool
+     */
+    public function beginTransaction(): bool
+    {
+        return $this->connection->beginTransaction();
+    }
+
+    /**
+     * @return bool
+     */
+    public function commit(): bool
+    {
+        return $this->connection->commit();
+    }
+
+    /**
+     * @return bool
+     */
+    public function rollback(): bool
+    {
+        return $this->connection->rollBack();
+    }
 }
