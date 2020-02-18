@@ -6,6 +6,7 @@ use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
 use Anytime\ORM\Generator\EntityGenerator\EntityGeneratorInterface;
 use Anytime\ORM\Generator\EntityGenerator\EntityGenerator;
 use Anytime\ORM\Generator\EntityGenerator\MySqlTableStructureRetriever;
+use Anytime\ORM\Generator\EntityGenerator\PostgreSqlTableStructureRetriever;
 use Anytime\ORM\Generator\EntityManagerGenerator\EntityManagerGenerator;
 use Anytime\ORM\Generator\EntityManagerGenerator\EntityManagerGeneratorInterface;
 use Anytime\ORM\Generator\QueryBuilderGenerator\QueryBuilderGenerator;
@@ -15,6 +16,7 @@ use Anytime\ORM\QueryBuilder\QueryBuilderFactory;
 class Factory
 {
     const DATABASE_TYPE_MYSQL = 'mysql';
+    const DATABASE_TYPE_POSTGRESQL = 'postgresql';
 
     /**
      * @var string
@@ -266,18 +268,15 @@ class Factory
      */
     public function createEntityGenerator(\PDO $pdo): EntityGeneratorInterface
     {
-        switch($this->databaseType) {
-            case self::DATABASE_TYPE_MYSQL :
-                return new EntityGenerator(
-                    $this->snakeToCamelCaseStringConverter,
-                    new MySqlTableStructureRetriever($pdo),
-                    $this->filterCollection,
-                    $this->entityDirectory,
-                    $this->entityNamespace
-                );
-        }
+        return new EntityGenerator(
+            $this->snakeToCamelCaseStringConverter,
+            $this->getTableStructureRetriever($pdo),
+            $this->filterCollection,
+            $this->entityDirectory,
+            $this->entityNamespace
+        );
 
-        throw new \InvalidArgumentException('Bad database type "'.$this->databaseType.'"');
+
     }
 
     /**
@@ -286,40 +285,36 @@ class Factory
      */
     public function createEntityManagerGenerator(\PDO $pdo): EntityManagerGeneratorInterface
     {
-        switch($this->databaseType) {
-            case self::DATABASE_TYPE_MYSQL :
-                return new EntityManagerGenerator(
-                    $this->snakeToCamelCaseStringConverter,
-                    new MySqlTableStructureRetriever($pdo),
-                    $this->entityManagerDirectory,
-                    $this->entityManagerNamespace,
-                    $this->userEntityRepositoryDirectory,
-                    $this->userEntityRepositoryNamespace,
-                    $this->userManagerDirectory,
-                    $this->userManagerNamespace,
-                    $this->entityNamespace,
-                    $this->queryBuilderProxyDirectory,
-                    $this->queryBuilderProxyNamespace
-                );
-        }
+        return new EntityManagerGenerator(
+            $this->snakeToCamelCaseStringConverter,
+            $this->getTableStructureRetriever($pdo),
+            $this->entityManagerDirectory,
+            $this->entityManagerNamespace,
+            $this->userEntityRepositoryDirectory,
+            $this->userEntityRepositoryNamespace,
+            $this->userManagerDirectory,
+            $this->userManagerNamespace,
+            $this->entityNamespace,
+            $this->queryBuilderProxyDirectory,
+            $this->queryBuilderProxyNamespace
+        );
 
-        throw new \InvalidArgumentException('Bad database type "'.$this->databaseType.'"');
+
     }
 
     /**
      * @param \PDO $pdo
-     * @return QueryBuilderGenerator
+     * @return QueryBuilderProxyGenerator
      */
     public function createQueryBuilderProxyGenerator(\PDO $pdo)
     {
-        $queryBuilderProxyGenerator = new QueryBuilderProxyGenerator(
+        return new QueryBuilderProxyGenerator(
             $this->snakeToCamelCaseStringConverter,
-            new MySqlTableStructureRetriever($pdo),
+            $this->getTableStructureRetriever($pdo),
             $this->databaseType,
             $this->queryBuilderProxyDirectory,
             $this->queryBuilderProxyNamespace
         );
-        return $queryBuilderProxyGenerator;
     }
 
     /**
@@ -377,6 +372,22 @@ class Factory
             if(!class_exists($fullClass)) {
                 throw new \RuntimeException("The dynamic class \"$fullClass\" does not exists. Please generate the dynamic classes by using the generators. You can instantiate with it Factory::createEntityManagerGenerator() and Factory::createEntityGenerator() to generate entities.");
             }
+        }
+    }
+
+    /**
+     * @param \PDO $pdo
+     * @return MySqlTableStructureRetriever|PostgreSqlTableStructureRetriever
+     */
+    private function getTableStructureRetriever(\PDO $pdo)
+    {
+        switch($this->databaseType) {
+            case self::DATABASE_TYPE_MYSQL :
+                return new MySqlTableStructureRetriever($pdo);
+            case self::DATABASE_TYPE_POSTGRESQL :
+                return new PostgreSqlTableStructureRetriever($pdo);
+            default:
+                throw new \InvalidArgumentException('Bad database type "'.$this->databaseType.'"');
         }
     }
 }

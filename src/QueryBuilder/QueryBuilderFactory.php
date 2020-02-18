@@ -62,7 +62,8 @@ class QueryBuilderFactory
     public static function getQueryBuilderClassByDatabaseType(string $databaseType)
     {
         switch($databaseType) {
-            case  Factory::DATABASE_TYPE_MYSQL:     return __NAMESPACE__ . '\\MySqlQueryBuilder';
+            case  Factory::DATABASE_TYPE_MYSQL:          return __NAMESPACE__ . '\\MySqlQueryBuilder';
+            case  Factory::DATABASE_TYPE_POSTGRESQL:     return __NAMESPACE__ . '\\PostgreSqlQueryBuilder';
             default:                                throw new \InvalidArgumentException($databaseType . ' is not a supported database type');
         }
     }
