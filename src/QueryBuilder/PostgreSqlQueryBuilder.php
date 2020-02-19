@@ -59,7 +59,7 @@ class PostgreSqlQueryBuilder extends QueryBuilderAbstract
         if ($this->limitNumber) {
             $sql .= ' LIMIT ' . $this->limitNumber . ' OFFSET ' . $this->limitOffset;
         } elseif($this->limitOffset > 0) {
-            $sql .= ' LIMIT ' . self::MAX_BIG_INT_VALUE . ' OFFSET ' . $this->limitOffset;
+            $sql .= ' LIMIT ALL OFFSET ' . $this->limitOffset;
         }
 
         return $sql;
