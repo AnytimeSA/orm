@@ -207,27 +207,13 @@ class PostgreSqlTableStructureRetriever implements TableStructureRetrieverInterf
     protected function getDateFormatByFieldType(string $fieldType): string
     {
         switch($fieldType) {
-            case 'time':
-            case 'timetz': return "H:i:s";
-            case 'timestamp':
-            case 'timestamptz':
-            case 'date': return "Y-m-d H:i:s";
+            case 'time': return "H:i:s.u";
+            case 'timetz': return "H:i:s.u P";
+            case 'timestamp': return 'Y-m-d H:i:s.u';
+            case 'timestamptz': return 'Y-m-d H:i:s.u P';
+            case 'date': return 'Y-m-d';
         }
         return '';
-    }
-
-    /**
-     * @param string $defaultValue
-     * @param string $fieldType
-     * @return string
-     */
-    protected function getDateDefaultValue($defaultValue, string $fieldType): string
-    {
-        if(!$defaultValue) {
-            return '';
-        }
-
-        return '1970-01-01 00:00:00';
     }
 
     /**
@@ -240,7 +226,7 @@ class PostgreSqlTableStructureRetriever implements TableStructureRetrieverInterf
             case 'int': return 0;
             case 'float': return 0.0;
             case 'bool': return false;
-            case 'date': return '1970-01-01 00:00:00';
+            case 'date': return '1970-01-01 00:00:00.000000 +00:00';
             case 'string': return '';
             default: return null;
         }
