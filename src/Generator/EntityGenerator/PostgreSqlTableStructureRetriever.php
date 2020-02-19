@@ -47,22 +47,20 @@ class PostgreSqlTableStructureRetriever implements TableStructureRetrieverInterf
 
     protected function getStructure(string $tableName): array
     {
-        $requiredKeys = ['column_name', 'data_type', 'is_nullable', 'column_default'];
         $returnStruct = [];
 
-        $sql = "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '$tableName'";
+        $sql = "
+          SELECT column_name, data_type, is_nullable, column_default 
+          FROM INFORMATION_SCHEMA.COLUMNS 
+          WHERE table_name = '$tableName'
+        ";
+
         $stmt = $this->pdo->prepare($sql);
         $stmt->setFetchMode(\PDO::FETCH_ASSOC);
         $stmt->execute();
         $result = $stmt->fetchAll();
 
         foreach($result as $field) {
-            foreach($requiredKeys as $requiredKey) {
-                if(!array_key_exists($requiredKey, $field)) {
-                    throw new \RuntimeException('Missing field structure key "'.$requiredKey.'"');
-                }
-            }
-
             $fieldName = $field['column_name'];
 
             if(!array_key_exists($fieldName, $returnStruct)) {
