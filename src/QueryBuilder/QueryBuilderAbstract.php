@@ -9,6 +9,8 @@ use Anytime\ORM\EntityManager\FilterCollection;
 
 abstract class QueryBuilderAbstract implements QueryBuilderInterface
 {
+    const MAX_BIG_INT_VALUE = 9223372036854775807;
+
     const QUERY_TYPE_SELECT = 'SELECT';
     const QUERY_TYPE_INSERT = 'INSERT';
     const QUERY_TYPE_UPDATE = 'UPDATE';
@@ -358,6 +360,26 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
             }
         } else {
             throw new \RuntimeException('The execute method is allowed for ' . implode('/', $allowedQueryType) . " query type only.");
+        }
+    }
+
+    /**
+     * @param array $fields
+     */
+    protected function checkUpdateFieldsArray(array $fields)
+    {
+        if(count($fields) < 1) {
+            throw new \InvalidArgumentException('Update and insert methods require an non-empty array containing the list of fields to update as first argument.');
+        }
+    }
+
+    /**
+     * @param string $fieldName
+     */
+    protected function checkUpdateFieldName($fieldName)
+    {
+        if(is_numeric($fieldName)) {
+            throw new \InvalidArgumentException('Invalid field name "'.$fieldName.'".');
         }
     }
 }

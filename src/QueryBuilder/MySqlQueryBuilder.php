@@ -6,8 +6,6 @@ use Anytime\ORM\QueryBuilder\Expression\Expr;
 
 class MySqlQueryBuilder extends QueryBuilderAbstract
 {
-    const MAX_BIG_INT_VALUE = 9223372036854775807;
-
     /**
      * @inheritDoc
      */
@@ -213,23 +211,4 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         return $where;
     }
 
-    /**
-     * @param array $fields
-     */
-    private function checkUpdateFieldsArray(array $fields)
-    {
-        if(count($fields) < 1) {
-            throw new \InvalidArgumentException('Update and insert methods require an non-empty array containing the list of fields to update as first argument.');
-        }
-    }
-
-    /**
-     * @param string $fieldName
-     */
-    private function checkUpdateFieldName($fieldName)
-    {
-        if(is_numeric($fieldName)) {
-            throw new \InvalidArgumentException('Invalid field name "'.$fieldName.'".');
-        }
-    }
 }

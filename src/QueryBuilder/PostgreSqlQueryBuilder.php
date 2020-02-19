@@ -2,6 +2,8 @@
 
 namespace Anytime\ORM\QueryBuilder;
 
+use Anytime\ORM\QueryBuilder\Expression\Expr;
+
 class PostgreSqlQueryBuilder extends QueryBuilderAbstract
 {
     /**
@@ -14,7 +16,7 @@ class PostgreSqlQueryBuilder extends QueryBuilderAbstract
      */
     public function from(string $tableName, $alias = null, string $delimiter = ''): QueryBuilderInterface
     {
-        $this->from = $delimiter.$tableName.$delimiter.($alias ? " AS $alias": '');
+        $this->from = $delimiter."$tableName".$delimiter.($alias ? " AS $alias": '');
         return $this;
     }
 
@@ -56,6 +58,8 @@ class PostgreSqlQueryBuilder extends QueryBuilderAbstract
         // --- LIMIT
         if ($this->limitNumber) {
             $sql .= ' LIMIT ' . $this->limitNumber . ' OFFSET ' . $this->limitOffset;
+        } elseif($this->limitOffset > 0) {
+            $sql .= ' LIMIT ' . self::MAX_BIG_INT_VALUE . ' OFFSET ' . $this->limitOffset;
         }
 
         return $sql;
@@ -67,6 +71,8 @@ class PostgreSqlQueryBuilder extends QueryBuilderAbstract
      */
     public function getInsertSQL(array $fields): string
     {
+        $this->checkUpdateFieldsArray($fields);
+
         $tableName = $this->entityClass::TABLENAME;
 
         $sql = "INSERT INTO $tableName\n";
@@ -74,11 +80,16 @@ class PostgreSqlQueryBuilder extends QueryBuilderAbstract
         $sqlValues = '';
 
         foreach($fields as $fieldName => $value) {
+
+            $this->checkUpdateFieldName($fieldName);
+
             $sqlFields .= ($sqlFields ? ",\n" : '') . "$fieldName";
             $sqlValues .= ($sqlValues ? ",\n" : '') . ":$fieldName";
         }
 
-        $sql .= "($sqlFields) VALUES ($sqlValues);";
+        if(count($fields) > 0) {
+            $sql .= "($sqlFields) VALUES ($sqlValues);";
+        }
 
         return $sql;
     }
@@ -89,6 +100,8 @@ class PostgreSqlQueryBuilder extends QueryBuilderAbstract
      */
     public function getUpdateByPrimaryKeySQL(array $fields): string
     {
+        $this->checkUpdateFieldsArray($fields);
+
         $tableName = $this->entityClass::TABLENAME;
         $primaryKeys = $this->entityClass::PRIMARY_KEYS;
 
@@ -96,6 +109,7 @@ class PostgreSqlQueryBuilder extends QueryBuilderAbstract
         $sqlSet = '';
 
         foreach($fields as $fieldName => $value) {
+            $this->checkUpdateFieldName($fieldName);
             $sqlSet .= ($sqlSet ? ",\n" : '') . "$fieldName = :UPDATE_VALUE_$fieldName";
         }
         $sqlSet = " SET \n" . $sqlSet . " ";
@@ -114,6 +128,8 @@ class PostgreSqlQueryBuilder extends QueryBuilderAbstract
      */
     public function getUpdateByCriteriaSQL(array $fields): string
     {
+        $this->checkUpdateFieldsArray($fields);
+
         $tableName = $this->entityClass::TABLENAME;
 
         $sql = "UPDATE $tableName";
@@ -121,13 +137,19 @@ class PostgreSqlQueryBuilder extends QueryBuilderAbstract
         $sqlSet = '';
 
         foreach($fields as $fieldName => $value) {
-            $sqlSet .= ($sqlSet ? ",\n" : '') . "$fieldName = :UPDATE_VALUE_$fieldName";
+            $this->checkUpdateFieldName($fieldName);
+
+            if($value instanceof Expr) {
+                $sqlSet .= ($sqlSet ? ",\n" : '') . "$fieldName = " . $value->getExpr($fieldName, '');
+            } else {
+                $sqlSet .= ($sqlSet ? ",\n" : '') . "$fieldName = :UPDATE_VALUE_$fieldName";
+            }
         }
-        $sqlSet = " SET \n" . $sqlSet . " ";
+        $sqlSet = " SET \n" . $sqlSet;
 
         // --- WHERE
         if(count($this->where) > 0) {
-            $sqlWhere .= "WHERE \n";
+            $sqlWhere .= " WHERE \n";
             foreach($this->where as $iw => $where) {
                 $sqlWhere .= ($iw > 0 ? ' AND ' : '') . "($where)\n";
             }
@@ -144,7 +166,7 @@ class PostgreSqlQueryBuilder extends QueryBuilderAbstract
         $tableName = $this->entityClass::TABLENAME;
         $primaryKeys = $this->entityClass::PRIMARY_KEYS;
 
-        $sql = "DELETE FROM $tableName\n";
+        $sql = "DELETE FROM $tableName \n";
         $sqlWhere = '';
 
         foreach($primaryKeys as $pkeyName) {
@@ -165,7 +187,7 @@ class PostgreSqlQueryBuilder extends QueryBuilderAbstract
 
         // --- WHERE
         if(count($this->where) > 0) {
-            $sql .= "WHERE \n";
+            $sql .= " WHERE \n";
             foreach($this->where as $iw => $where) {
                 $sql .= ($iw > 0 ? ' AND ' : '') . "($where)\n";
             }
@@ -188,4 +210,5 @@ class PostgreSqlQueryBuilder extends QueryBuilderAbstract
 
         return $where;
     }
+
 }
