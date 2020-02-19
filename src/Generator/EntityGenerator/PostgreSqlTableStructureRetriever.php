@@ -27,7 +27,7 @@ class PostgreSqlTableStructureRetriever implements TableStructureRetrieverInterf
         $result = [];
 
         if(count($tableList) < 1) {
-            $sql = "SELECT * FROM pg_catalog.pg_tables WHERE schemaname = current_schema();";
+            $sql = "SELECT * FROM pg_tables WHERE schemaname = current_schema();";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute();
 
