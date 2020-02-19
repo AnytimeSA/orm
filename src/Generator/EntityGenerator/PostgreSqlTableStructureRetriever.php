@@ -27,7 +27,7 @@ class PostgreSqlTableStructureRetriever implements TableStructureRetrieverInterf
         $result = [];
 
         if(count($tableList) < 1) {
-            $sql = "SELECT * FROM pg_tables WHERE schemaname = current_schema();";
+            $sql = "SELECT * FROM pg_tables WHERE schemaname = 'public';";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute();
 
@@ -52,7 +52,7 @@ class PostgreSqlTableStructureRetriever implements TableStructureRetrieverInterf
         $sql = "
           SELECT column_name, data_type, is_nullable, column_default 
           FROM INFORMATION_SCHEMA.COLUMNS 
-          WHERE table_name = '$tableName'
+          WHERE table_name = '$tableName' AND table_schema = 'public'
         ";
 
         $stmt = $this->pdo->prepare($sql);
@@ -148,7 +148,7 @@ class PostgreSqlTableStructureRetriever implements TableStructureRetrieverInterf
             JOIN   pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey)
             JOIN   pg_class c ON c.oid = i.indexrelid
             JOIN   INFORMATION_SCHEMA.COLUMNS isc ON isc.column_name = a.attname
-            WHERE  i.indrelid = '$tableName'::regclass AND NOT i.indisprimary;
+            WHERE  i.indrelid = '$tableName'::regclass AND NOT i.indisprimary AND isc.table_schema = 'public';
         ";
 
         $stmt = $this->pdo->prepare($sql);

@@ -26,12 +26,6 @@ $pdo->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
 $pdo->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
 ```
 
-For postgreSQL you need to specify the default search_path :
-
-```
-$pdo->exec('SET search_path TO anytime');
-```
-
 ### Instantiating the factory
 
 The factory is used to get main classes as EntityManager, and the classes generators.
