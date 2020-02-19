@@ -26,6 +26,12 @@ $pdo->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
 $pdo->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
 ```
 
+For postgreSQL you need to specify the default search_path :
+
+```
+$pdo->exec('SET search_path TO anytime');
+```
+
 ### Instantiating the factory
 
 The factory is used to get main classes as EntityManager, and the classes generators.
@@ -36,9 +42,13 @@ This factory should be put in a service container.
 $factory = new Factory();
 ```
 
-Define the database type. Currently only mysql is supported.
+Define the database type. Currently only mysql and postgresql are supported.
 ```
 $factory->setDatabaseType(Factory::DATABASE_TYPE_MYSQL);
+```
+
+```
+$factory->setDatabaseType(Factory::DATABASE_TYPE_POSTGRESQL);
 ```
 
 Define the directory where the auto-generated entities are written.
