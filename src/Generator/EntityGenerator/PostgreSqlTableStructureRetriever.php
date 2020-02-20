@@ -76,13 +76,13 @@ class PostgreSqlTableStructureRetriever implements TableStructureRetrieverInterf
                 'allowNull'         =>  $field['is_nullable'] === 'YES' ? true : false,
                 'keyType'           =>  $this->getKeyType($tableName, $fieldName),
                 'defaultValue'      =>  (
-                    substr(explode('::', $field['column_default'])[0], 0, 1) === "'" && substr(explode('::', $field['column_default'])[0], strlen(explode('::', $field['column_default'])[0])-1, 1) === "'"
-                        ? trim(explode('::', $field['column_default'])[0], "'")
-                        : (
-                            $field['is_nullable'] === 'YES'
-                                ? null
-                                : $this->getDefaultValueByPhpType($phpType)
-                        )
+                substr(explode('::', $field['column_default'])[0], 0, 1) === "'" && substr(explode('::', $field['column_default'])[0], strlen(explode('::', $field['column_default'])[0])-1, 1) === "'"
+                    ? trim(explode('::', $field['column_default'])[0], "'")
+                    : (
+                $field['is_nullable'] === 'YES'
+                    ? null
+                    : $this->getDefaultValueByPhpType($phpType)
+                )
                 ),
 
                 'dateFormat'        =>  $phpType === 'date' ? $this->getDateFormatByFieldType($field['data_type']) : ''
@@ -179,22 +179,19 @@ class PostgreSqlTableStructureRetriever implements TableStructureRetrieverInterf
      * @param string $pgsqlType
      * @return int|string
      */
-    protected function pgsqlToPhpType(string $pgsqlType): string
+    public function pgsqlToPhpType(string $pgsqlType): string
     {
         $patterns = [
             'float'     =>  '(numeric|float8|double precision|real|float4)',
             'bool'      =>  '(bit|boolean|bool)',
-            'int'       =>  '(varbit|bit varying|smallint|int2|int|integer|int4|bigint|int8|smallserial|serial2|serial|serial4|bigserial|serial8)'
+            'int'       =>  '(varbit|bit varying|smallint|int2|int|integer|int4|bigint|int8|smallserial|serial2|serial|serial4|bigserial|serial8)',
+            'date'      =>  '(date|timestamptz|timetz|time|timestamp|time with time zone|time without time zone|timestamp with time zone|timestamp without time zone)'
         ];
 
         foreach($patterns as $phpType => $pattern) {
             if(preg_match('/^'.$pattern.'$/i', $pgsqlType)) {
                 return $phpType;
             }
-        }
-
-        if(preg_match('/^(date|timestamptz|timetz|time|timestamp)$/i', $pgsqlType)) {
-            return 'date';
         }
 
         return 'string';
@@ -204,23 +201,38 @@ class PostgreSqlTableStructureRetriever implements TableStructureRetrieverInterf
      * @param string $fieldType
      * @return string
      */
-    protected function getDateFormatByFieldType(string $fieldType): string
+    public function getDateFormatByFieldType(string $fieldType): string
     {
+        $format = '';
+
         switch($fieldType) {
-            case 'time': return "H:i:s.u";
-            case 'timetz': return "H:i:s.u P";
-            case 'timestamp': return 'Y-m-d H:i:s.u';
-            case 'timestamptz': return 'Y-m-d H:i:s.u P';
-            case 'date': return 'Y-m-d';
+            case 'time':
+            case 'time without time zone':
+                $format = 'H:i:s.u';
+                break;
+            case 'timetz':
+            case 'time with time zone':
+                $format = 'H:i:s.u P';
+                break;
+            case 'timestamp':
+            case 'timestamp without time zone':
+                $format = 'Y-m-d H:i:s.u';
+                break;
+            case 'timestamptz':
+            case 'timestamp with time zone':
+                $format = 'Y-m-d H:i:s.u P';
+                break;
+            case 'date': $format = 'Y-m-d'; break;
         }
-        return '';
+
+        return $format;
     }
 
     /**
      * @param string $phpType
      * @return bool|float|int|null|string
      */
-    protected function getDefaultValueByPhpType(string $phpType)
+    public function getDefaultValueByPhpType(string $phpType)
     {
         switch($phpType) {
             case 'int': return 0;
