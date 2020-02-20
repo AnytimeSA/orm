@@ -543,7 +543,12 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
                     $deleteByMethodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
 
                     $paramVarName = lcfirst($columnNameCCase);
-                    $phpParamList .= ($iP > 0 ? ', ' : '') . ($columnType === 'date' ? ($indexPart['allowNull'] ? '' : '\DateTime') : $columnType) . ' $' . $paramVarName . ($indexPart['allowNull'] ? ' = NULL' : '');
+                    $phpParamList .=
+                        ($iP > 0 ? ', ' : '')
+                        . ($columnType === 'date' ? ($indexPart['allowNull'] ? '' : '\DateTime') : $columnType)
+                        . ' $' . $paramVarName
+                        . ($indexPart['allowNull'] ? ' = NULL' : '')
+                    ;
                     $phpParamListNoHintNoDefault .= ($iP > 0 ? ', ' : '') . '$' . $paramVarName;
                     $phpDocParamList .= "     * @param " . ($columnType === 'date' ? '\DateTime' : $columnType) . " \$$paramVarName\n";
                 }
@@ -661,8 +666,15 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
                     $phpDocParamList .= "     * @param " . ($columnType === 'date' ? '\DateTime' : $columnType) . " \$$paramVarName\n";
                     $where .= ($iP > 0 ? ' AND ' : '') . $tableShortAlias . '.' . $indexPart['columnName'] . ' = \' . ' . "(\$useNamedParameters ? ':$paramVarName' : '?').'";
                     $whereUpdate .= ($iP > 0 ? ' AND ' : '') . $indexPart['columnName'] . ' = :' . $paramVarName;
-                    $qbParameters .= ($iP > 0 ? ', ' : '') . "\$$paramVarName" . ($columnType === 'date' && $dateFormat ? '->format("' . $dateFormat . '")' : '');
-                    $qbNamedParameters .= "\n                " . ($iP > 0 ? ', ' : '') . "'" . $paramVarName . "' => \$$paramVarName" . ($columnType === 'date' && $dateFormat ? '->format("' . $dateFormat . '")' : '');
+
+                    if($columnType === 'date') {
+                        $qbParameters .= ($iP > 0 ? ', ' : '') . "(!is_null(\$$paramVarName) ? \$$paramVarName" . '->format("' . $dateFormat . '") : NULL)';
+                        $qbNamedParameters .= "\n                " . ($iP > 0 ? ', ' : '') . "'" . $paramVarName . "' => (!is_null(\$$paramVarName) ? \$$paramVarName" . '->format("' . $dateFormat . '") : NULL)';
+                    } else {
+                        $qbParameters .= ($iP > 0 ? ', ' : '') . "\$$paramVarName";
+                        $qbNamedParameters .= "\n                " . ($iP > 0 ? ', ' : '') . "'" . $paramVarName . "' => \$$paramVarName";
+                    }
+
                 }
 
                 $phpParamListUpdate = $phpParamList;
