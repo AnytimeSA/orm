@@ -76,7 +76,7 @@ class PostgreSqlQueryBuilderTest extends ORMTestCase
         $this->assertSameSQL('SELECT * FROM test_table', $queryBuilder->limit(0, 0)->getSelectSQL());
         $this->assertSameSQL('SELECT * FROM test_table', $queryBuilder->limit(-1, 0)->getSelectSQL());
         $this->assertSameSQL('SELECT * FROM test_table', $queryBuilder->limit(-1, -1)->getSelectSQL());
-        $this->assertSameSQL('SELECT * FROM test_table LIMIT ' . PostgreSqlQueryBuilder::MAX_BIG_INT_VALUE . ' OFFSET 10', $queryBuilder->limit(0, 10)->getSelectSQL());
+        $this->assertSameSQL('SELECT * FROM test_table LIMIT ALL OFFSET 10', $queryBuilder->limit(0, 10)->getSelectSQL());
     }
 
     /**
