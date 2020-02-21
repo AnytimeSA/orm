@@ -27,7 +27,7 @@ class PostgreSqlTableStructureRetriever implements TableStructureRetrieverInterf
         $result = [];
 
         if(count($tableList) < 1) {
-            $sql = "SELECT * FROM pg_tables WHERE schemaname = 'public';";
+            $sql = "SELECT tablename FROM pg_tables WHERE schemaname = 'public';";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute();
 
