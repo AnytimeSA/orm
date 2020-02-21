@@ -45,7 +45,7 @@ class PostgreSqlTableStructureRetriever implements TableStructureRetrieverInterf
         return $result;
     }
 
-    protected function getStructure(string $tableName): array
+    public function getStructure(string $tableName): array
     {
         $returnStruct = [];
 
@@ -99,7 +99,7 @@ class PostgreSqlTableStructureRetriever implements TableStructureRetrieverInterf
      * @param string $fieldName
      * @return null|string
      */
-    protected function getKeyType(string $tableName, string $fieldName)
+    public function getKeyType(string $tableName, string $fieldName)
     {
         $stmt = $this->pdo->prepare("
             SELECT i.indisunique is_uni, i.indisprimary is_pri
@@ -138,7 +138,7 @@ class PostgreSqlTableStructureRetriever implements TableStructureRetrieverInterf
      * @param string $tableName
      * @return array
      */
-    protected function getIndexes(string $tableName): array
+    public function getIndexes(string $tableName): array
     {
         $returnIndexes = [];
 
@@ -203,7 +203,7 @@ class PostgreSqlTableStructureRetriever implements TableStructureRetrieverInterf
      */
     public function getDateFormatByFieldType(string $fieldType): string
     {
-        $format = '';
+        $format = 'Y-m-d';
 
         switch($fieldType) {
             case 'time':

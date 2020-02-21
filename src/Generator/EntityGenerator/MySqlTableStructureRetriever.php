@@ -46,7 +46,7 @@ class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
         return $result;
     }
 
-    protected function getStructure(string $tableName): array
+    public function getStructure(string $tableName): array
     {
         $requiredKeys = ['Field', 'Type', 'Null', 'Key', 'Default'];
         $returnStruct = [];
@@ -98,7 +98,7 @@ class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
      * @param string $tableName
      * @return array
      */
-    protected function getIndexes(string $tableName): array
+    public function getIndexes(string $tableName): array
     {
         $requiredKeys = ['Key_name', 'Column_name', 'Null', 'Index_type'];
         $returnIndexes = [];
@@ -142,7 +142,7 @@ class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
      * @param string $mysqlType
      * @return int|string
      */
-    protected function mysqlToPhpType(string $mysqlType): string
+    public function mysqlToPhpType(string $mysqlType): string
     {
         $patterns = [
             'float'     =>  '(decimal|float|double|real)(.*)',
@@ -167,7 +167,7 @@ class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
      * @param string $fieldType
      * @return string
      */
-    protected function getDateFormatByFieldType(string $fieldType): string
+    public function getDateFormatByFieldType(string $fieldType): string
     {
         switch($fieldType) {
             case 'timestamp':
@@ -183,7 +183,7 @@ class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
      * @param string $fieldType
      * @return string
      */
-    protected function getDateDefaultValue($defaultValue, string $fieldType): string
+    public function getDateDefaultValue($defaultValue, string $fieldType): string
     {
         if(!$defaultValue) {
             return '';
