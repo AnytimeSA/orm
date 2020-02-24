@@ -71,8 +71,6 @@ class PostgreSqlQueryBuilder extends QueryBuilderAbstract
      */
     public function getInsertSQL(array $fields): string
     {
-        $this->checkUpdateFieldsArray($fields);
-
         $tableName = $this->entityClass::TABLENAME;
 
         $sql = "INSERT INTO $tableName\n";
