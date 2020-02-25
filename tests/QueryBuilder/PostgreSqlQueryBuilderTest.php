@@ -146,15 +146,12 @@ class PostgreSqlQueryBuilderTest extends ORMTestCase
      */
     public function testGetInsertSQLWithEmptyArrayKeyValuesThrowsException()
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Update and insert methods require an non-empty array containing the list of fields to update as first argument.');
-
         $queryBuilder = $this->getQueryBuilder();
         $queryBuilder
             ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_INSERT)
             ->setEntityClass(Foo::class)
         ;
-        $queryBuilder->getInsertSQL([]);
+        $this->assertSame("INSERT INTO foo_entity\nVALUES ();", $queryBuilder->getInsertSQL([]));
     }
 
     /**

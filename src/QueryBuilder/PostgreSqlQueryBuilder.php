@@ -87,6 +87,8 @@ class PostgreSqlQueryBuilder extends QueryBuilderAbstract
 
         if(count($fields) > 0) {
             $sql .= "($sqlFields) VALUES ($sqlValues);";
+        } else {
+            $sql .= "VALUES ();";
         }
 
         return $sql;

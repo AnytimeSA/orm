@@ -6,7 +6,6 @@ use Anytime\ORM\Converter\SnakeToCamelCaseStringConverter;
 use Anytime\ORM\EntityManager\Connection;
 use Anytime\ORM\EntityManager\FilterCollection;
 use Anytime\ORM\QueryBuilder\MySqlQueryBuilder;
-use Anytime\ORM\QueryBuilder\QueryAbstract;
 use Anytime\ORM\QueryBuilder\QueryBuilderAbstract;
 use Anytime\ORM\Tests\ORMTestCase;
 use Anytime\ORM\Tests\Stub\Generated\Entity\Foo;
@@ -144,17 +143,14 @@ class MySqlQueryBuilderTest extends ORMTestCase
      * @group QueryBuilder
      * @group MySqlQueryBuilder
      */
-    public function testGetInsertSQLWithEmptyArrayKeyValuesThrowsException()
+    public function testGetInsertSQLWithEmptyArray()
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Update and insert methods require an non-empty array containing the list of fields to update as first argument.');
-
         $queryBuilder = $this->getQueryBuilder();
         $queryBuilder
             ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_INSERT)
             ->setEntityClass(Foo::class)
         ;
-        $queryBuilder->getInsertSQL([]);
+        $this->assertSame("INSERT INTO `foo_entity`\nVALUES ();", $queryBuilder->getInsertSQL([]));
     }
 
     /**
