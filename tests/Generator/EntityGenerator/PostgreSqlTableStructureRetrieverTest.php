@@ -136,6 +136,124 @@ class PostgreSqlTableStructureRetrieverTest extends TestCase
 
     /**
      * @group Generator
+     * @group testGetStructureReturnsSeveralFields
+     */
+    public function testGetStructureReturnsSeveralFields()
+    {
+        $returnStructureQuery = [
+            [
+                'column_name' => 'id',
+                'data_type' => 'bigint',
+                'is_nullable' => 'NO',
+                'column_default' => 'nextval(\'random_table_id_seq\'::regclass)'
+            ],
+            [
+                'column_name' => 'name',
+                'data_type' => 'character varying',
+                'is_nullable' => 'YES',
+                'column_default' => null
+            ],
+            [
+                'column_name' => 'price',
+                'data_type' => 'real',
+                'is_nullable' => 'NO',
+                'column_default' => 0.0
+            ]
+        ];
+
+        $pdoMockBuilder = $this->prophesize(\PDO::class);
+        $pdoMockBuilder->prepare(Argument::any())->willReturn(
+            $this->getPDOStatementMock($returnStructureQuery),
+            $this->getPDOStatementMock([], false),
+            $this->getPDOStatementMock([], false),
+            $this->getPDOStatementMock([], false)
+        );
+        $pdo = $pdoMockBuilder->reveal();
+
+        $retriever = new PostgreSqlTableStructureRetriever($pdo);
+
+        $this->assertSame(
+            [
+                'id' => [
+                    'tableName' => 'random_table',
+                    'fieldName' => 'id',
+                    'type' => 'int',
+                    'allowNull' => false,
+                    'keyType' => null,
+                    'defaultValue' => null,
+                    'dateFormat' => ''
+                ],
+                'name' => [
+                    'tableName' => 'random_table',
+                    'fieldName' => 'name',
+                    'type' => 'string',
+                    'allowNull' => true,
+                    'keyType' => null,
+                    'defaultValue' => null,
+                    'dateFormat' => ''
+                ],
+                'price' => [
+                    'tableName' => 'random_table',
+                    'fieldName' => 'price',
+                    'type' => 'float',
+                    'allowNull' => false,
+                    'keyType' => null,
+                    'defaultValue' => null,
+                    'dateFormat' => ''
+                ]
+            ],
+            $retriever->getStructure('random_table')
+        );
+    }
+
+    /**
+     * @group Generator
+     * @dataProvider getGetStructureAllCases
+     * @param $dataType
+     * @param $isNullable
+     * @param $defaultFieldVal
+     * @param $expectType
+     * @param $expectAllowNull
+     * @param $expectDefaultPropertyVal
+     * @param $expectDateFormat
+     * @group testGetStructureAllCases
+     */
+    public function testGetStructureAllCases($dataType, $isNullable, $defaultFieldVal, $expectType, $expectAllowNull, $expectDefaultPropertyVal, $expectDateFormat)
+    {
+        $pdoMockBuilder = $this->prophesize(\PDO::class);
+        $pdoMockBuilder->prepare(Argument::any())->willReturn(
+            $this->getPDOStatementMock([
+                [
+                    'column_name' => 'col_name',
+                    'data_type' => $dataType,
+                    'is_nullable' => $isNullable,
+                    'column_default' => $defaultFieldVal
+                ]
+            ]),
+            $this->getPDOStatementMock([], false)
+        );
+        $pdo = $pdoMockBuilder->reveal();
+
+        $retriever = new PostgreSqlTableStructureRetriever($pdo);
+
+        $this->assertSame(
+            [
+                'col_name' => [
+                    'tableName' => 'random_table',
+                    'fieldName' => 'col_name',
+                    'type' => $expectType,
+                    'allowNull' => $expectAllowNull,
+                    'keyType' => null,
+                    'defaultValue' => $expectDefaultPropertyVal,
+                    'dateFormat' => $expectDateFormat
+                ]
+            ],
+            $retriever->getStructure('random_table')
+        );
+    }
+
+    /**
+     * @group Generator
      * @param int $uni
      * @param int $pri
      * @param string $expectedKeyType
@@ -240,13 +358,92 @@ class PostgreSqlTableStructureRetrieverTest extends TestCase
 
     }
 
-    protected function getPDOStatementMock(array $returnResult = null)
+    /**
+     * @param array|null $returnResult
+     * @param bool $callSetFetchMode
+     * @return object
+     */
+    protected function getPDOStatementMock(array $returnResult = null, $callSetFetchMode = true)
     {
         $pdoStatementMockBuilder = $this->prophesize(\PDOStatement::class);
         $pdoStatementMockBuilder->fetchAll()->willReturn($returnResult);
-        $pdoStatementMockBuilder->setFetchMode(Argument::any())->shouldBeCalled();
+
+        if($callSetFetchMode) {
+            $pdoStatementMockBuilder->setFetchMode(Argument::any())->shouldBeCalled();
+        }
+
         $pdoStatementMockBuilder->execute(Argument::any())->shouldBeCalled();
         $pdoStatement = $pdoStatementMockBuilder->reveal();
         return $pdoStatement;
+    }
+
+    /**
+     * @return array
+     */
+    public function getGetStructureAllCases()
+    {
+        //  $dataType, $isNullable, $defaultSqlFieldValue, $expectType, $expectAllowNull, $defaultPropertyValue, $expectDateFormat
+        return [
+            ['numeric', 'NO', 0.0, 'float', false, null, ''],
+            ['float4', 'NO', 0.0, 'float', false, null, ''],
+            ['float8', 'NO', 0.0, 'float', false,null,  ''],
+            ['double precision', 'NO', 0.0, 'float', false, null, ''],
+            ['real', 'NO', 0.0, 'float', false, null, ''],
+            ['numeric', 'NO', null, 'float', false, 0.0, ''],
+            ['numeric', 'YES', null, 'float', true, null, ''],
+            ['numeric', 'YES', 0.0, 'float', true, null, ''],
+            ['bit', 'NO', "'0'::\"bit\"", 'bool', false, null, ''],
+            ['bit', 'YES', "'0'::\"bit\"", 'bool', true, null, ''],
+            ['bit', 'NO', null, 'bool', false, false, ''],
+            ['bool', 'NO', false, 'bool', false, null, ''],
+            ['bool', 'YES', false, 'bool', true, null, ''],
+            ['bool', 'NO', true, 'bool', false, null, ''],
+            ['bool', 'YES', true, 'bool', true, null, ''],
+            ['bool', 'NO', null, 'bool', false, false, ''],
+            ['bool', 'YES', null, 'bool', true, null, ''],
+            ['boolean', 'NO', false, 'bool', false, null, ''],
+            ['varbit', 'YES', 10, 'int', true, null, ''],
+            ['bit varying', 'YES', 10, 'int', true, null, ''],
+            ['smallint', 'YES', 10, 'int', true, null, ''],
+            ['int2', 'YES', 10, 'int', true, null, ''],
+            ['int', 'YES', 10, 'int', true, null, ''],
+            ['integer', 'YES', 10, 'int', true, null, ''],
+            ['int4', 'YES', 10, 'int', true, null, ''],
+            ['bigint', 'YES', 10, 'int', true, null, ''],
+            ['int8', 'YES', 10, 'int', true, null, ''],
+            ['smallserial', 'YES', 10, 'int', true, null, ''],
+            ['serial2', 'YES', 10, 'int', true, null, ''],
+            ['serial', 'YES', 10, 'int', true, null, ''],
+            ['serial4', 'YES', 10, 'int', true, null, ''],
+            ['bigserial', 'YES', 10, 'int', true, null, ''],
+            ['serial8', 'YES', 10, 'int', true, null, ''],
+            ['varbit', 'NO', 10, 'int', false, null, ''],
+            ['bit varying', 'NO', 10, 'int', false, null, ''],
+            ['smallint', 'NO', 10, 'int', false, null, ''],
+            ['int2', 'NO', 10, 'int', false, null, ''],
+            ['int', 'NO', 10, 'int', false, null, ''],
+            ['integer', 'NO', 10, 'int', false, null, ''],
+            ['int4', 'NO', 10, 'int', false, null, ''],
+            ['bigint', 'NO', 10, 'int', false, null, ''],
+            ['int8', 'NO', 10, 'int', false, null, ''],
+            ['smallserial', 'NO', 10, 'int', false, null, ''],
+            ['serial2', 'NO', 10, 'int', false, null, ''],
+            ['serial', 'NO', 10, 'int', false, null, ''],
+            ['serial4', 'NO', 10, 'int', false, null, ''],
+            ['bigserial', 'NO', 10, 'int', false, null, ''],
+            ['serial8', 'NO', 10, 'int', false, null, ''],
+            ['serial8', 'NO', null, 'int', false, 0, ''],
+            ['date', 'NO', null, 'date', false, '1970-01-01 00:00:00.000000 +00:00', 'Y-m-d'],
+            ['timestamptz', 'NO', null, 'date', false, '1970-01-01 00:00:00.000000 +00:00', 'Y-m-d H:i:s.u P'],
+            ['timetz', 'NO', null, 'date', false, '1970-01-01 00:00:00.000000 +00:00', 'H:i:s.u P'],
+            ['time', 'NO', null, 'date', false, '1970-01-01 00:00:00.000000 +00:00', 'H:i:s.u'],
+            ['timestamp', 'NO', null, 'date', false, '1970-01-01 00:00:00.000000 +00:00', 'Y-m-d H:i:s.u'],
+            ['time with time zone', 'NO', null, 'date', false, '1970-01-01 00:00:00.000000 +00:00', 'H:i:s.u P'],
+            ['time without time zone', 'NO', null, 'date', false, '1970-01-01 00:00:00.000000 +00:00', 'H:i:s.u'],
+            ['timestamp with time zone', 'NO', null, 'date', false, '1970-01-01 00:00:00.000000 +00:00', 'Y-m-d H:i:s.u P'],
+            ['timestamp without time zone', 'NO', null, 'date', false, '1970-01-01 00:00:00.000000 +00:00', 'Y-m-d H:i:s.u'],
+            ['timestamp without time zone', 'YES', null, 'date', true, null, 'Y-m-d H:i:s.u'],
+            ['timestamp without time zone', 'YES', '2020-11-01 14:11:54.000000 +00:01', 'date', true, null, 'Y-m-d H:i:s.u']
+        ];
     }
 }

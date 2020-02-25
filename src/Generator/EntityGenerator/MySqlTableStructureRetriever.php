@@ -2,7 +2,7 @@
 
 namespace Anytime\ORM\Generator\EntityGenerator;
 
-class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
+class MySqlTableStructureRetriever extends TableStructureRetrieverAbstract
 {
     /**
      * @var \PDO
@@ -84,7 +84,7 @@ class MySqlTableStructureRetriever implements TableStructureRetrieverInterface
                 'type'              =>  $phpType,
                 'allowNull'         =>  $field['Null'] === 'YES' ? true : false,
                 'keyType'           =>  $field['Key'],
-                'defaultValue'      =>  $field['Default'],
+                'defaultValue'      =>  $field['Null'] ? null : $this->getDefaultValueByPhpType($phpType),
                 'dateFormat'        =>  $phpType === 'date' && $field['Default'] && $this->isNotTimestampFunction($field['Default'])
                     ? $this->getDateDefaultValue($field['Default'], $field['Type'])
                     : $this->getDateFormatByFieldType($field['Type'])

@@ -2,7 +2,7 @@
 
 namespace Anytime\ORM\Generator\EntityGenerator;
 
-class PostgreSqlTableStructureRetriever implements TableStructureRetrieverInterface
+class PostgreSqlTableStructureRetriever extends TableStructureRetrieverAbstract
 {
     /**
      * @var \PDO
@@ -69,22 +69,19 @@ class PostgreSqlTableStructureRetriever implements TableStructureRetrieverInterf
 
             $phpType = $this->pgsqlToPhpType($field['data_type']);
 
+            // Compute default value
+            $defaultValue = null;
+            if($field['is_nullable'] === 'NO' && is_null($field['column_default'])) {
+                $defaultValue = $this->getDefaultValueByPhpType($phpType);
+            }
+
             $returnStruct[$fieldName] = [
                 'tableName'         =>  $tableName,
                 'fieldName'         =>  $fieldName,
                 'type'              =>  $phpType,
                 'allowNull'         =>  $field['is_nullable'] === 'YES' ? true : false,
                 'keyType'           =>  $this->getKeyType($tableName, $fieldName),
-                'defaultValue'      =>  (
-                substr(explode('::', $field['column_default'])[0], 0, 1) === "'" && substr(explode('::', $field['column_default'])[0], strlen(explode('::', $field['column_default'])[0])-1, 1) === "'"
-                    ? trim(explode('::', $field['column_default'])[0], "'")
-                    : (
-                $field['is_nullable'] === 'YES'
-                    ? null
-                    : $this->getDefaultValueByPhpType($phpType)
-                )
-                ),
-
+                'defaultValue'      => $defaultValue,
                 'dateFormat'        =>  $phpType === 'date' ? $this->getDateFormatByFieldType($field['data_type']) : ''
             ];
         }
@@ -226,21 +223,5 @@ class PostgreSqlTableStructureRetriever implements TableStructureRetrieverInterf
         }
 
         return $format;
-    }
-
-    /**
-     * @param string $phpType
-     * @return bool|float|int|null|string
-     */
-    public function getDefaultValueByPhpType(string $phpType)
-    {
-        switch($phpType) {
-            case 'int': return 0;
-            case 'float': return 0.0;
-            case 'bool': return false;
-            case 'date': return '1970-01-01 00:00:00.000000 +00:00';
-            case 'string': return '';
-            default: return null;
-        }
     }
 }
