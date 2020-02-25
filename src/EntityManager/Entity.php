@@ -41,6 +41,20 @@ abstract class Entity
     }
 
     /**
+     * @param array $properties
+     * @return Entity
+     */
+    public function initProperties(array $properties)
+    {
+        foreach($properties as $property => $newValue) {
+            if(array_key_exists($property, $this->data)) {
+                $this->data[$property] = $newValue;
+            }
+        }
+        return $this;
+    }
+
+    /**
      * @param string $propName
      * @return string
      */
@@ -148,6 +162,15 @@ abstract class Entity
             }
         }
 
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function resetCachedReturnedObject()
+    {
+        $this->cachedReturnedObject = [];
         return $this;
     }
 
