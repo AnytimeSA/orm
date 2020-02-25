@@ -204,6 +204,7 @@ abstract class EntityManager
 
             /** @var QueryBuilderAbstract $queryBuilder */
             $queryBuilder = $this->queryBuilderFactory->create($this->databaseType);
+            $queryBuilder->from($entity::TABLENAME);
             $queryBuilder->setQueryType(QueryBuilderAbstract::QUERY_TYPE_SELECT)->setEntityClass(get_class($entity));
             $queryBuilder->where($queryBuilder->getFindByPrimaryKeySQLWhere($entity::PRIMARY_KEYS));
             $queryBuilder->setParameters(array_values($entity->extractPrimaryKeyValues()));
