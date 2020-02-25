@@ -150,14 +150,10 @@ class EntityGenerator implements EntityGeneratorInterface
             $propertyName = lcfirst($this->snakeToCamelCaseStringConverter->convert($fieldName));
             $quote = ($isString ? "'" : '');
 
-            if(!is_null($default)) {
-                $propertyValueCode = $quote . addslashes($default) . $quote;
+            if(is_null($default) && !$nullable) {
+                $propertyValueCode = $quote . $defaultPropertyValue . $quote;
             } else {
-                if($nullable) {
-                    $propertyValueCode = 'null';
-                } else {
-                    $propertyValueCode = $quote . $defaultPropertyValue.$quote;
-                }
+                $propertyValueCode = 'null';
             }
 
             $propertyDeclarationSourceCode .=
@@ -313,6 +309,7 @@ class EntityGenerator implements EntityGeneratorInterface
             case 'int': return '0';
             case 'float': return '.0';
             case 'bool': return 'false';
+            case 'date': return '1970-01-01T00:00:00.000000+00:00';
             case 'string':
             default:
                 return '';

@@ -69,19 +69,13 @@ class PostgreSqlTableStructureRetriever extends TableStructureRetrieverAbstract
 
             $phpType = $this->pgsqlToPhpType($field['data_type']);
 
-            // Compute default value
-            $defaultValue = null;
-            if($field['is_nullable'] === 'NO' && is_null($field['column_default'])) {
-                $defaultValue = $this->getDefaultValueByPhpType($phpType);
-            }
-
             $returnStruct[$fieldName] = [
                 'tableName'         =>  $tableName,
                 'fieldName'         =>  $fieldName,
                 'type'              =>  $phpType,
                 'allowNull'         =>  $field['is_nullable'] === 'YES' ? true : false,
                 'keyType'           =>  $this->getKeyType($tableName, $fieldName),
-                'defaultValue'      => $defaultValue,
+                'defaultValue'      =>  $field['column_default'],
                 'dateFormat'        =>  $phpType === 'date' ? $this->getDateFormatByFieldType($field['data_type']) : ''
             ];
         }

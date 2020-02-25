@@ -72,19 +72,13 @@ class MySqlTableStructureRetriever extends TableStructureRetrieverAbstract
 
             $phpType = $this->mysqlToPhpType($field['Type']);
 
-            if (preg_match('/^current_timestamp *( *\(.*\) *)?$/i', $field['Default'])) {
-                // the function CURRENT_TIMESTAMP cannot be used as a default value on
-                // PHP side, so we must ignore it completely
-                $field['Default'] = null;
-            }
-
             $returnStruct[$fieldName] = [
                 'tableName'         =>  $tableName,
                 'fieldName'         =>  $fieldName,
                 'type'              =>  $phpType,
                 'allowNull'         =>  $field['Null'] === 'YES' ? true : false,
                 'keyType'           =>  $field['Key'],
-                'defaultValue'      =>  $field['Null'] ? null : $this->getDefaultValueByPhpType($phpType),
+                'defaultValue'      =>  $field['Default'],
                 'dateFormat'        =>  $phpType === 'date' && $field['Default'] && $this->isNotTimestampFunction($field['Default'])
                     ? $this->getDateDefaultValue($field['Default'], $field['Type'])
                     : $this->getDateFormatByFieldType($field['Type'])
