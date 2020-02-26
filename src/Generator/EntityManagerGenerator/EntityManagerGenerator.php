@@ -543,7 +543,12 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
                     $deleteByMethodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
 
                     $paramVarName = lcfirst($columnNameCCase);
-                    $phpParamList .= ($iP > 0 ? ', ' : '') . ($columnType === 'date' ? ($indexPart['allowNull'] ? '' : '\DateTime') : $columnType) . ' $' . $paramVarName . ($indexPart['allowNull'] ? ' = NULL' : '');
+                    $phpParamList .=
+                        ($iP > 0 ? ', ' : '')
+                        . ($columnType === 'date' ? ($indexPart['allowNull'] ? '' : '\DateTime') : $columnType)
+                        . ' $' . $paramVarName
+                        . ($indexPart['allowNull'] ? ' = NULL' : '')
+                    ;
                     $phpParamListNoHintNoDefault .= ($iP > 0 ? ', ' : '') . '$' . $paramVarName;
                     $phpDocParamList .= "     * @param " . ($columnType === 'date' ? '\DateTime' : $columnType) . " \$$paramVarName\n";
                 }
@@ -644,14 +649,13 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
                 $deleteByMethodName = 'deleteBy';
                 $phpParamList = '';
                 $phpDocParamList = '';
-                $where = '';
-                $whereUpdate = '';
-                $qbParameters = '';
                 $qbNamedParameters = '';
+
+                $selectWhereVarSourceCode = $this->buildSelectWhereAndPdoParamsSourceCode($explodedIndexPart, $tableStruct);
+                $updateWhereVarSourceCode = $this->buildUpdateWhereAndPdoParamsSourceCode($explodedIndexPart, $tableStruct);
 
                 foreach ($explodedIndexPart as $iP => $indexPart) {
                     $columnType = $tableStruct['structure'][$indexPart['columnName']]['type'];
-                    $dateFormat = $tableStruct['structure'][$indexPart['columnName']]['dateFormat'];
                     $columnNameCCase = $this->snakeToCamelCaseStringConverter->convert($indexPart['columnName']);
                     $findByMethodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
                     $updateByMethodName .= ($iP > 0 ? 'And' : '') . $columnNameCCase;
@@ -659,10 +663,6 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
                     $paramVarName = lcfirst($columnNameCCase);
                     $phpParamList .= ($iP > 0 ? ', ' : '') . ($columnType === 'date' ? ($indexPart['allowNull'] ? '' : '\DateTime') : $columnType) . ' $' . $paramVarName . ($indexPart['allowNull'] ? ' = NULL' : '');
                     $phpDocParamList .= "     * @param " . ($columnType === 'date' ? '\DateTime' : $columnType) . " \$$paramVarName\n";
-                    $where .= ($iP > 0 ? ' AND ' : '') . $tableShortAlias . '.' . $indexPart['columnName'] . ' = \' . ' . "(\$useNamedParameters ? ':$paramVarName' : '?').'";
-                    $whereUpdate .= ($iP > 0 ? ' AND ' : '') . $indexPart['columnName'] . ' = :' . $paramVarName;
-                    $qbParameters .= ($iP > 0 ? ', ' : '') . "\$$paramVarName" . ($columnType === 'date' && $dateFormat ? '->format("' . $dateFormat . '")' : '');
-                    $qbNamedParameters .= "\n                " . ($iP > 0 ? ', ' : '') . "'" . $paramVarName . "' => \$$paramVarName" . ($columnType === 'date' && $dateFormat ? '->format("' . $dateFormat . '")' : '');
                 }
 
                 $phpParamListUpdate = $phpParamList;
@@ -681,8 +681,9 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
                     $sourceCode .= "     */\n";
                     $sourceCode .= "    public function $findByMethodName($phpParamList): QueryBuilderInterface\n";
                     $sourceCode .= "    {\n";
+                    $sourceCode .=          $selectWhereVarSourceCode . "\n";
                     $sourceCode .= "        \$queryBuilder = \$this->createQueryBuilder('$tableShortAlias');\n";
-                    $sourceCode .= "        \$queryBuilder->where('$where')->setParameters(\$useNamedParameters \n            ? [$qbNamedParameters] \n            : [$qbParameters        ]);\n";
+                    $sourceCode .= "        \$queryBuilder->where(\$where)->setParameters(\$pdoParams);\n";
                     $sourceCode .= "        return \$queryBuilder;\n";
                     $sourceCode .= "    }\n";
                     $sourceCode .= "\n";
@@ -699,15 +700,15 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
                     $sourceCode .= "     */\n";
                     $sourceCode .= "    public function $updateByMethodName($phpParamListUpdate): $parentQueryBuilderProxyClass\n";
                     $sourceCode .= "    {\n";
+                    $sourceCode .=          $updateWhereVarSourceCode . "\n";
                     $sourceCode .= "        \$queryBuilderUpdateProxy = \$this->createQueryBuilderUpdateProxy();\n";
-                    $sourceCode .= "        \$queryBuilderUpdateProxy->getQueryBuilder()->setQueryType(QueryBuilderAbstract::QUERY_TYPE_UPDATE)->where('$whereUpdate')->setParameters([$qbNamedParameters]        );\n";
+                    $sourceCode .= "        \$queryBuilderUpdateProxy->getQueryBuilder()->setQueryType(QueryBuilderAbstract::QUERY_TYPE_UPDATE)->where(\$where)->setParameters(\$pdoParams);\n";
                     $sourceCode .= "        return \$queryBuilderUpdateProxy;\n";
                     $sourceCode .= "    }\n";
                     $sourceCode .= "\n";
                 }
 
                 if (!in_array($deleteByMethodName, $createdMethods)) {
-                    $whereDelete = $whereUpdate;
 
                     $createdMethods[] = $deleteByMethodName;
 
@@ -717,8 +718,9 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
                     $sourceCode .= "     */\n";
                     $sourceCode .= "    public function $deleteByMethodName($phpParamListUpdate): QueryBuilderAbstract\n";
                     $sourceCode .= "    {\n";
+                    $sourceCode .=          $updateWhereVarSourceCode . "\n";
                     $sourceCode .= "        \$queryBuilderDelete = \$this->createDeleteQueryBuilder();\n";
-                    $sourceCode .= "        \$queryBuilderDelete->setQueryType(QueryBuilderAbstract::QUERY_TYPE_DELETE)->where('$whereDelete')->setParameters([$qbNamedParameters]);\n";
+                    $sourceCode .= "        \$queryBuilderDelete->setQueryType(QueryBuilderAbstract::QUERY_TYPE_DELETE)->where(\$where)->setParameters(\$pdoParams);\n";
                     $sourceCode .= "        return \$queryBuilderDelete;\n";
                     $sourceCode .= "    }\n";
                     $sourceCode .= "\n";
@@ -780,4 +782,117 @@ class EntityManagerGenerator implements EntityManagerGeneratorInterface
 
         return $explodedIndexes;
     }
+
+    /**
+     * @param array $explodedIndexPart
+     * @param array $tableStruct
+     * @return string
+     */
+    private function buildSelectWhereAndPdoParamsSourceCode(array $explodedIndexPart, array $tableStruct)
+    {
+        $sourceCodePdoParams = '';
+        $sourceCodeWhere = '';
+        $sourceFormatDate = '';
+
+        $sourceCode =  '        $pdoParams = [];'."\n";
+        $sourceCode .= '        $where = \'\';'."\n";
+        $sourceCode .= "\n";
+
+        foreach($explodedIndexPart as $i => $explodedIndexPart) {
+            $tableName = $explodedIndexPart['tableName'];
+            $tableShortAlias = $this->getTableShortAlias($tableName);
+            $columnName = $explodedIndexPart['columnName'];
+            $fullColumnName = $tableShortAlias.'.'.$explodedIndexPart['columnName'];
+            $varName = lcfirst($this->snakeToCamelCaseStringConverter->convert($columnName));
+            $columnType = $tableStruct['structure'][$columnName]['type'];
+
+            if($columnType === 'date') {
+                $dateFormat = $tableStruct['structure'][$columnName]['dateFormat'];
+
+                $sourceFormatDate .=  '        if(is_object($'.$varName.') && get_class($'.$varName.') === \'DateTime\') {'."\n";
+                $sourceFormatDate .=  '            $'.$varName.' = $'.$varName.'->format(\''.$dateFormat.'\');'."\n";
+                $sourceFormatDate .=  '        }'."\n\n";
+            }
+
+            $sourceCodePdoParams .= '        if(!is_null($' . $varName . ')) {'."\n";
+            $sourceCodePdoParams .= '            if($useNamedParameters) {'."\n";
+            $sourceCodePdoParams .= '                $pdoParams[\''.$varName.'\'] = $'.$varName.';'."\n";
+            $sourceCodePdoParams .= '            } else {'."\n";
+            $sourceCodePdoParams .= '                $pdoParams[] = $'.$varName.';'."\n";
+            $sourceCodePdoParams .= '            }'."\n";
+            $sourceCodePdoParams .= '        }'."\n";
+            $sourceCodePdoParams .= "\n";
+
+            $operatorOrWhereVar = (
+            $i === 0
+                ? '        $where .= '
+                : '. \' AND \' .'
+            );
+
+            $questionMarkOrNamedParamCode = '$useNamedParameters ? \' :' . $varName . '\' : \'?\'';
+            $nonNullCode = $fullColumnName . ' = \'.('. $questionMarkOrNamedParamCode .')';
+            $nullCode = $fullColumnName . ' IS NULL';
+
+            $sourceCodeWhere .=  $operatorOrWhereVar. "\n            " . '(is_null($'.$varName.') ? \'' . $nullCode . '\' : \'' . $nonNullCode . ')';
+        }
+        $sourceCodeWhere .= ';'."\n";
+
+        $sourceCode .= $sourceFormatDate . $sourceCodePdoParams . $sourceCodeWhere;
+
+        return $sourceCode;
+    }
+
+    /**
+     * @param array $explodedIndexPart
+     * @param array $tableStruct
+     * @return string
+     */
+    private function buildUpdateWhereAndPdoParamsSourceCode(array $explodedIndexPart, array $tableStruct)
+    {
+        $sourceCodePdoParams = '';
+        $sourceCodeWhere = '';
+        $sourceFormatDate = '';
+
+        $sourceCode =  '        $pdoParams = [];'."\n";
+        $sourceCode .= '        $where = \'\';'."\n";
+        $sourceCode .= "\n";
+
+        foreach($explodedIndexPart as $i => $explodedIndexPart) {
+            $tableName = $explodedIndexPart['tableName'];
+            $columnName = $explodedIndexPart['columnName'];
+            $fullColumnName = $tableName.'.'.$explodedIndexPart['columnName'];
+            $varName = lcfirst($this->snakeToCamelCaseStringConverter->convert($columnName));
+            $columnType = $tableStruct['structure'][$columnName]['type'];
+
+            if($columnType === 'date') {
+                $dateFormat = $tableStruct['structure'][$columnName]['dateFormat'];
+
+                $sourceFormatDate .= '        if(is_object($' . $varName . ') && get_class($' . $varName . ') === \'DateTime\') {' . "\n";
+                $sourceFormatDate .= '            $' . $varName . ' = $' . $varName . '->format(\'' . $dateFormat . '\');' . "\n";
+                $sourceFormatDate .= '        }' . "\n\n";
+            }
+
+            $sourceCodePdoParams .= '        if(!is_null($' . $varName . ')) {'."\n";
+            $sourceCodePdoParams .= '            $pdoParams[\''.$varName.'\'] = $'.$varName.';'."\n";
+            $sourceCodePdoParams .= '        }'."\n";
+            $sourceCodePdoParams .= "\n";
+
+            $operatorOrWhereVar = (
+            $i === 0
+                ? '        $where .= '
+                : '. \' AND \' .'
+            );
+
+            $nonNullCode = $fullColumnName . ' = :'.$varName;
+            $nullCode = $fullColumnName . ' IS NULL';
+
+            $sourceCodeWhere .=  $operatorOrWhereVar. "\n            " . '(is_null($'.$varName.') ? \'' . $nullCode . '\' : \'' . $nonNullCode . '\')';
+        }
+        $sourceCodeWhere .= ';'."\n";
+
+        $sourceCode .= $sourceFormatDate . $sourceCodePdoParams . $sourceCodeWhere;
+
+        return $sourceCode;
+    }
+
 }

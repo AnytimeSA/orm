@@ -41,6 +41,30 @@ abstract class Entity
     }
 
     /**
+     * @param array $properties
+     * @return Entity
+     */
+    public function initProperties(array $properties)
+    {
+        foreach($properties as $property => $newValue) {
+            if(array_key_exists($property, $this->data)) {
+                $this->data[$property] = $newValue;
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * Force all fields to be updated when update or insert event if the values have not been set with the setters.
+     */
+    public function forceUpdateFields()
+    {
+        foreach($this->dataSetterUsed as $key => $value) {
+            $this->dataSetterUsed[$key] = true;
+        }
+    }
+
+    /**
      * @param string $propName
      * @return string
      */
@@ -148,6 +172,15 @@ abstract class Entity
             }
         }
 
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function resetCachedReturnedObject()
+    {
+        $this->cachedReturnedObject = [];
         return $this;
     }
 

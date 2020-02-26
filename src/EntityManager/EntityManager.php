@@ -72,8 +72,9 @@ abstract class EntityManager
 
     /**
      * @param Entity|Entity[] $entities
+     * @param bool $refreshEntities If true, a SELECT with be made just after the insert to refresh the entities. Usefull if some fields have a function as default value in the table structure.
      */
-    public function insert($entities)
+    public function insert($entities, bool $refreshEntities = false)
     {
         if(!is_array($entities)) {
             $entities = [$entities];
@@ -111,12 +112,17 @@ abstract class EntityManager
                 }
             }
         }
+
+        if($refreshEntities) {
+            $this->refresh($entities);
+        }
     }
 
     /**
      * @param Entity|Entity[] $entities
+     * @param bool $refreshEntities If true, a SELECT with be made just after the insert to refresh the entities. Usefull if some fields have a function as default value in the table structure.
      */
-    public function update($entities)
+    public function update($entities, bool $refreshEntities = false)
     {
         if(!is_array($entities)) {
             $entities = [$entities];
@@ -148,6 +154,10 @@ abstract class EntityManager
             ;
 
             $query->execute();
+        }
+
+        if($refreshEntities) {
+            $this->refresh($entities);
         }
     }
 
@@ -181,6 +191,38 @@ abstract class EntityManager
             ;
 
             $query->execute();
+        }
+    }
+
+    /**
+     * @param Entity[] $entities
+     */
+    public function refresh($entities)
+    {
+        if(!is_array($entities)) {
+            $entities = [$entities];
+        }
+
+        foreach($entities as $entity) {
+            if(!is_object($entity) || !is_subclass_of($entity, Entity::class)) {
+                throw new \InvalidArgumentException('Entities to refresh should be an instance of ' . Entity::class);
+            }
+
+            /** @var QueryBuilderAbstract $queryBuilder */
+            $queryBuilder = $this->queryBuilderFactory->create($this->databaseType);
+            $queryBuilder->from($entity::TABLENAME);
+            $queryBuilder->setQueryType(QueryBuilderAbstract::QUERY_TYPE_SELECT)->setEntityClass(get_class($entity));
+            $queryBuilder->where($queryBuilder->getFindByPrimaryKeySQLWhere($entity::PRIMARY_KEYS));
+            $queryBuilder->setParameters(array_values($entity->extractPrimaryKeyValues()));
+
+            /** @var SelectQuery $query */
+            $query = $queryBuilder->getSelectQuery();
+            $query->setFetchDataFormat(SelectQuery::FETCH_DATA_FORMAT_ARRAY);
+            $entity
+                ->resetDataSetterUsed()
+                ->resetCachedReturnedObject()
+                ->initProperties((array)$query->fetchOne())
+            ;
         }
     }
 

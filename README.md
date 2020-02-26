@@ -36,10 +36,16 @@ This factory should be put in a service container.
 $factory = new Factory();
 ```
 
-Define the database type. Currently only mysql is supported.
+Define the database type. Currently only mysql and postgresql are supported.
 ```
 $factory->setDatabaseType(Factory::DATABASE_TYPE_MYSQL);
 ```
+
+```
+$factory->setDatabaseType(Factory::DATABASE_TYPE_POSTGRESQL);
+```
+
+/!\ Currently, only public schema are supported with postgreSQL.
 
 Define the directory where the auto-generated entities are written.
 ```

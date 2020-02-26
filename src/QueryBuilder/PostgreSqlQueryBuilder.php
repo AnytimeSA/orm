@@ -4,7 +4,7 @@ namespace Anytime\ORM\QueryBuilder;
 
 use Anytime\ORM\QueryBuilder\Expression\Expr;
 
-class MySqlQueryBuilder extends QueryBuilderAbstract
+class PostgreSqlQueryBuilder extends QueryBuilderAbstract
 {
     /**
      * @inheritDoc
@@ -14,9 +14,9 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
     /**
      * @inheritDoc
      */
-    public function from(string $tableName, $alias = null, string $delimiter = '`'): QueryBuilderInterface
+    public function from(string $tableName, $alias = null, string $delimiter = '"'): QueryBuilderInterface
     {
-        $this->from = $delimiter."$tableName".$delimiter.($alias ? " AS `$alias`": '');
+        $this->from = $delimiter."$tableName".$delimiter.($alias ? " AS \"$alias\"": '');
         return $this;
     }
 
@@ -59,7 +59,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         if ($this->limitNumber) {
             $sql .= ' LIMIT ' . $this->limitNumber . ' OFFSET ' . $this->limitOffset;
         } elseif($this->limitOffset > 0) {
-            $sql .= ' LIMIT ' . self::MAX_BIG_INT_VALUE . ' OFFSET ' . $this->limitOffset;
+            $sql .= ' LIMIT ALL OFFSET ' . $this->limitOffset;
         }
 
         return $sql;
@@ -73,7 +73,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
     {
         $tableName = $this->entityClass::TABLENAME;
 
-        $sql = "INSERT INTO `$tableName`\n";
+        $sql = "INSERT INTO \"$tableName\"\n";
         $sqlFields = '';
         $sqlValues = '';
 
@@ -81,14 +81,14 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
 
             $this->checkFieldNameFormat($fieldName);
 
-            $sqlFields .= ($sqlFields ? ",\n" : '') . "`$fieldName`";
+            $sqlFields .= ($sqlFields ? ",\n" : '') . "\"$fieldName\"";
             $sqlValues .= ($sqlValues ? ",\n" : '') . ":$fieldName";
         }
 
         if(count($fields) > 0) {
             $sql .= "($sqlFields) VALUES ($sqlValues);";
         } else {
-            $sql .= "VALUES ();";
+            $sql .= "DEFAULT VALUES;";
         }
 
         return $sql;
@@ -105,18 +105,18 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         $tableName = $this->entityClass::TABLENAME;
         $primaryKeys = $this->entityClass::PRIMARY_KEYS;
 
-        $sql = "UPDATE `$tableName`";
+        $sql = "UPDATE \"$tableName\"";
         $sqlSet = '';
 
         foreach($fields as $fieldName => $value) {
             $this->checkFieldNameFormat($fieldName);
-            $sqlSet .= ($sqlSet ? ",\n" : '') . "`$fieldName` = :UPDATE_VALUE_$fieldName";
+            $sqlSet .= ($sqlSet ? ",\n" : '') . "\"$fieldName\" = :UPDATE_VALUE_$fieldName";
         }
         $sqlSet = " SET \n" . $sqlSet . " ";
 
         $sqlWhere = '';
         foreach($primaryKeys as $pkeyName) {
-            $sqlWhere .= ($sqlWhere ? ' AND ' : 'WHERE ') . "`$pkeyName` = :$pkeyName\n";
+            $sqlWhere .= ($sqlWhere ? ' AND ' : 'WHERE ') . "\"$pkeyName\" = :$pkeyName\n";
         }
 
         return $sql . $sqlSet . $sqlWhere . ';';
@@ -132,7 +132,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
 
         $tableName = $this->entityClass::TABLENAME;
 
-        $sql = "UPDATE `$tableName`";
+        $sql = "UPDATE \"$tableName\"";
         $sqlWhere = '';
         $sqlSet = '';
 
@@ -140,9 +140,9 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
             $this->checkFieldNameFormat($fieldName);
 
             if($value instanceof Expr) {
-                $sqlSet .= ($sqlSet ? ",\n" : '') . "`$fieldName` = " . $value->getExpr($fieldName, '`');
+                $sqlSet .= ($sqlSet ? ",\n" : '') . "\"$fieldName\" = " . $value->getExpr($fieldName, '"');
             } else {
-                $sqlSet .= ($sqlSet ? ",\n" : '') . "`$fieldName` = :UPDATE_VALUE_$fieldName";
+                $sqlSet .= ($sqlSet ? ",\n" : '') . "\"$fieldName\" = :UPDATE_VALUE_$fieldName";
             }
         }
         $sqlSet = " SET \n" . $sqlSet;
@@ -166,11 +166,11 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         $tableName = $this->entityClass::TABLENAME;
         $primaryKeys = $this->entityClass::PRIMARY_KEYS;
 
-        $sql = "DELETE FROM `$tableName`\n";
+        $sql = "DELETE FROM \"$tableName\" \n";
         $sqlWhere = '';
 
         foreach($primaryKeys as $pkeyName) {
-            $sqlWhere .= ($sqlWhere ? ' AND ' : 'WHERE ') . "`$pkeyName` = :$pkeyName\n";
+            $sqlWhere .= ($sqlWhere ? ' AND ' : 'WHERE ') . "\"$pkeyName\" = :$pkeyName\n";
         }
 
         return $sql . $sqlWhere . ';';
@@ -183,7 +183,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
     {
         $tableName = $this->entityClass::TABLENAME;
 
-        $sql = "DELETE FROM `$tableName`\n";
+        $sql = "DELETE FROM \"$tableName\"\n";
 
         // --- WHERE
         if(count($this->where) > 0) {
@@ -205,7 +205,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         $tableName = $this->entityClass::TABLENAME;
 
         foreach($primaryKeys as $primaryKey) {
-            $where .= ($where ? ' AND ' : ''). '`' . $tableName.'`.`'.$primaryKey . '` = ?';
+            $where .= ($where ? ' AND ' : ''). '"' . $tableName.'"."'.$primaryKey . '" = ?';
         }
 
         return $where;

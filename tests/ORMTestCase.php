@@ -10,6 +10,7 @@ use Anytime\ORM\QueryBuilder\DeleteQuery;
 use Anytime\ORM\QueryBuilder\InsertQuery;
 use Anytime\ORM\QueryBuilder\QueryBuilderAbstract;
 use Anytime\ORM\QueryBuilder\QueryBuilderFactory;
+use Anytime\ORM\QueryBuilder\SelectQuery;
 use Anytime\ORM\QueryBuilder\UpdateQuery;
 use Anytime\ORM\Tests\Stub\Generated\EntityManager\DynamicEntityManager;
 use Anytime\ORM\Tests\Stub\Generated\EntityManager\DynamicManagers;
@@ -103,6 +104,24 @@ class ORMTestCase extends TestCase
         $queryBuilderMockBuilder->getUpdateQuery(Argument::any())->willReturn($updateQuery);
         $queryBuilderMockBuilder->getDeleteQuery(Argument::any())->willReturn($deleteQuery);
         $queryBuilderMockBuilder->setEntityClass(Argument::any())->willReturn($queryBuilderMockBuilder->reveal());
+        $queryBuilderMockBuilder->getFindByPrimaryKeySQLWhere(Argument::any())->willReturn('SELECT 1');
+        $queryBuilderMockBuilder->where(Argument::any())->willReturn($this->prophesize(QueryBuilderAbstract::class)->reveal());
+        $queryBuilderMockBuilder->from(Argument::any())->willReturn($this->prophesize(QueryBuilderAbstract::class)->reveal());
+        $queryBuilderMockBuilder->setParameters(Argument::any())->willReturn($this->prophesize(QueryBuilderAbstract::class)->reveal());
+        $queryBuilderMockBuilder->setParameters(Argument::any())->willReturn($this->prophesize(QueryBuilderAbstract::class)->reveal());
+
+        $selectQuery = $this->prophesize(SelectQuery::class);
+        $selectQuery->setFetchDataFormat(Argument::any())->willReturn($this->prophesize(SelectQuery::class)->reveal());
+        $selectQuery->fetchOne()->willReturn([]);
+        $selectQuery = $selectQuery->reveal();
+
+        $selectQuery2 = $this->prophesize(SelectQuery::class);
+        $selectQuery2->setFetchDataFormat(Argument::any())->willReturn($selectQuery);
+        $selectQuery2->fetchOne()->willReturn([]);
+        $selectQuery2 = $selectQuery2->reveal();
+
+
+        $queryBuilderMockBuilder->getSelectQuery()->willReturn($selectQuery2);
 
         // QueryBuilderFactory
         $queryBuilderFactoryMockBuilder = $this->prophesize(QueryBuilderFactory::class);
