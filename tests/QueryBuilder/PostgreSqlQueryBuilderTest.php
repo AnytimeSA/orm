@@ -29,12 +29,12 @@ class PostgreSqlQueryBuilderTest extends ORMTestCase
     public function testGetSelectSQLWithFromClause()
     {
         $this->assertSameSQL(
-            'SELECT * FROM test_table',
+            'SELECT * FROM "test_table"',
             $this->getQueryBuilder()->from('test_table')->getSelectSQL()
         );
 
         $this->assertSameSQL(
-            'SELECT * FROM test_table AS tt',
+            'SELECT * FROM "test_table" AS "tt"',
             $this->getQueryBuilder()->from('test_table', 'tt')->getSelectSQL()
         );
     }
@@ -46,8 +46,8 @@ class PostgreSqlQueryBuilderTest extends ORMTestCase
     public function testGetSelectSQLWithOrderClause()
     {
         $this->assertSameSQL(
-            'SELECT * FROM test_table ORDER BY myfield DESC',
-            $this->getQueryBuilder()->from('test_table')->orderBy('myfield DESC')->getSelectSQL()
+            'SELECT * FROM "test_table" ORDER BY "myfield" DESC',
+            $this->getQueryBuilder()->from('test_table')->orderBy('"myfield" DESC')->getSelectSQL()
         );
     }
 
@@ -58,8 +58,8 @@ class PostgreSqlQueryBuilderTest extends ORMTestCase
     public function testGetSelectSQLWithGroupByClause()
     {
         $this->assertSameSQL(
-            'SELECT * FROM test_table GROUP BY groupfield, groupfield2',
-            $this->getQueryBuilder()->from('test_table')->groupBy('groupfield, groupfield2')->getSelectSQL()
+            'SELECT * FROM "test_table" GROUP BY "groupfield", "groupfield2"',
+            $this->getQueryBuilder()->from('test_table')->groupBy('"groupfield", "groupfield2"')->getSelectSQL()
         );
     }
 
@@ -71,12 +71,12 @@ class PostgreSqlQueryBuilderTest extends ORMTestCase
     public function testGetSelectSQLWithLimitClause()
     {
         $queryBuilder = $this->getQueryBuilder()->from('test_table');
-        $this->assertSameSQL('SELECT * FROM test_table LIMIT 10 OFFSET 0', $queryBuilder->limit(10, 0)->getSelectSQL());
-        $this->assertSameSQL('SELECT * FROM test_table LIMIT 10 OFFSET 50', $queryBuilder->limit(10, 50)->getSelectSQL());
-        $this->assertSameSQL('SELECT * FROM test_table', $queryBuilder->limit(0, 0)->getSelectSQL());
-        $this->assertSameSQL('SELECT * FROM test_table', $queryBuilder->limit(-1, 0)->getSelectSQL());
-        $this->assertSameSQL('SELECT * FROM test_table', $queryBuilder->limit(-1, -1)->getSelectSQL());
-        $this->assertSameSQL('SELECT * FROM test_table LIMIT ALL OFFSET 10', $queryBuilder->limit(0, 10)->getSelectSQL());
+        $this->assertSameSQL('SELECT * FROM "test_table" LIMIT 10 OFFSET 0', $queryBuilder->limit(10, 0)->getSelectSQL());
+        $this->assertSameSQL('SELECT * FROM "test_table" LIMIT 10 OFFSET 50', $queryBuilder->limit(10, 50)->getSelectSQL());
+        $this->assertSameSQL('SELECT * FROM "test_table"', $queryBuilder->limit(0, 0)->getSelectSQL());
+        $this->assertSameSQL('SELECT * FROM "test_table"', $queryBuilder->limit(-1, 0)->getSelectSQL());
+        $this->assertSameSQL('SELECT * FROM "test_table"', $queryBuilder->limit(-1, -1)->getSelectSQL());
+        $this->assertSameSQL('SELECT * FROM "test_table" LIMIT ALL OFFSET 10', $queryBuilder->limit(0, 10)->getSelectSQL());
     }
 
     /**
@@ -87,8 +87,8 @@ class PostgreSqlQueryBuilderTest extends ORMTestCase
     {
         $queryBuilder = $this->getQueryBuilder();
         $this->assertSameSQL(
-            'SELECT * FROM test_table GROUP BY groupfield, groupfield2',
-            $queryBuilder->from('test_table')->groupBy('groupfield, groupfield2')->getSelectSQL()
+            'SELECT * FROM "test_table" GROUP BY "groupfield", "groupfield2"',
+            $queryBuilder->from('test_table')->groupBy('"groupfield", "groupfield2"')->getSelectSQL()
         );
     }
 
@@ -100,16 +100,16 @@ class PostgreSqlQueryBuilderTest extends ORMTestCase
     {
         $queryBuilder = $this->getQueryBuilder();
         $this->assertSameSQL(
-            'SELECT * FROM test_table GROUP BY groupfield, groupfield2 ORDER BY myfield DESC',
+            'SELECT * FROM "test_table" GROUP BY "groupfield", "groupfield2" ORDER BY "myfield" DESC',
             $queryBuilder
                 ->from('test_table')
-                ->orderBy('myfield DESC')
-                ->groupBy('groupfield, groupfield2')
+                ->orderBy('"myfield" DESC')
+                ->groupBy('"groupfield", "groupfield2"')
                 ->getSelectSQL()
         );
 
         $this->assertSameSQL(
-            'SELECT * FROM test_table GROUP BY groupfield, groupfield2 ORDER BY myfield DESC LIMIT 10 OFFSET 0',
+            'SELECT * FROM "test_table" GROUP BY "groupfield", "groupfield2" ORDER BY "myfield" DESC LIMIT 10 OFFSET 0',
             $queryBuilder->limit(10, 0)->getSelectSQL()
         );
     }
@@ -123,19 +123,19 @@ class PostgreSqlQueryBuilderTest extends ORMTestCase
         $queryBuilder = $this->getQueryBuilder();
 
         $this->assertSameSQL(
-            'SELECT * FROM test_table AS tt WHERE (tt.myfield = ?)',
-            $queryBuilder->from('test_table', 'tt')->where('tt.myfield = ?')->getSelectSQL()
+            'SELECT * FROM "test_table" AS "tt" WHERE ("tt"."myfield" = ?)',
+            $queryBuilder->from('test_table', 'tt')->where('"tt"."myfield" = ?')->getSelectSQL()
         );
 
         $this->assertSameSQL(
-            'SELECT * FROM test_table AS tt WHERE (tt.myfield = ?) AND (tt.myotherfield = 2000)',
-            $queryBuilder->andWhere('tt.myotherfield = 2000')->getSelectSQL()
+            'SELECT * FROM "test_table" AS "tt" WHERE ("tt"."myfield" = ?) AND ("tt"."myotherfield" = 2000)',
+            $queryBuilder->andWhere('"tt"."myotherfield" = 2000')->getSelectSQL()
         );
 
         $this->assertSameSQL(
-            'SELECT * FROM test_table AS tt WHERE (tt.myfield = ?) AND (tt.myotherfield = 2000) ' .
-            'AND (tt.againotherfield = ? OR tt.againotherfield = ?)',
-            $queryBuilder->andWhere('tt.againotherfield = ? OR tt.againotherfield = ?')->getSelectSQL()
+            'SELECT * FROM "test_table" AS "tt" WHERE ("tt"."myfield" = ?) AND ("tt"."myotherfield" = 2000) ' .
+            'AND ("tt"."againotherfield" = ? OR "tt"."againotherfield" = ?)',
+            $queryBuilder->andWhere('"tt"."againotherfield" = ? OR "tt"."againotherfield" = ?')->getSelectSQL()
         );
     }
 
@@ -151,7 +151,7 @@ class PostgreSqlQueryBuilderTest extends ORMTestCase
             ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_INSERT)
             ->setEntityClass(Foo::class)
         ;
-        $this->assertSame("INSERT INTO foo_entity\nDEFAULT VALUES;", $queryBuilder->getInsertSQL([]));
+        $this->assertSame("INSERT INTO \"foo_entity\"\nDEFAULT VALUES;", $queryBuilder->getInsertSQL([]));
     }
 
     /**
@@ -182,13 +182,13 @@ class PostgreSqlQueryBuilderTest extends ORMTestCase
     {
         $queryBuilder = $this->getQueryBuilder();
         $this->assertSameSQL(
-            'SELECT * FROM test_table AS tt' .
-            ' LEFT JOIN table2 t2 ON tt.idt2 = t2.id' .
-            ' LEFT JOIN table3 t3 ON tt.idt3 = t3.id',
+            'SELECT * FROM "test_table" AS "tt"' .
+            ' LEFT JOIN "table2" "t2" ON "tt"."idt2" = "t2"."id"' .
+            ' LEFT JOIN "table3" "t3" ON "tt"."idt3" = "t3"."id"',
             $queryBuilder
                 ->from('test_table', 'tt')
-                ->join('LEFT JOIN table2 t2 ON tt.idt2 = t2.id')
-                ->join('LEFT JOIN table3 t3 ON tt.idt3 = t3.id')
+                ->join('LEFT JOIN "table2" "t2" ON "tt"."idt2" = "t2"."id"')
+                ->join('LEFT JOIN "table3" "t3" ON "tt"."idt3" = "t3"."id"')
                 ->getSelectSQL()
         );
     }
@@ -201,7 +201,7 @@ class PostgreSqlQueryBuilderTest extends ORMTestCase
     {
         $queryBuilder = $this->getQueryBuilder();
         $this->assertSameSQL(
-            'SELECT COUNT(id) AS qty FROM test_table AS tt',
+            'SELECT COUNT(id) AS qty FROM "test_table" AS "tt"',
             $queryBuilder
                 ->select('COUNT(id) AS qty')
                 ->from('test_table', 'tt')
@@ -259,14 +259,14 @@ class PostgreSqlQueryBuilderTest extends ORMTestCase
         ;
 
         $this->assertSameSQL(
-            'UPDATE foo_entity SET field1 = :UPDATE_VALUE_field1,field2 = :UPDATE_VALUE_field2;',
+            'UPDATE "foo_entity" SET "field1" = :UPDATE_VALUE_field1,"field2" = :UPDATE_VALUE_field2;',
             $queryBuilder->getUpdateByCriteriaSQL($fields)
         );
 
-        $queryBuilder->where('field3 = :val3')->setParameter('val3', '3')->andWhere('field4 = field5');
+        $queryBuilder->where('"field3" = :val3')->setParameter('val3', '3')->andWhere('"field4" = "field5"');
 
         $this->assertSameSQL(
-            'UPDATE foo_entity SET field1 = :UPDATE_VALUE_field1,field2 = :UPDATE_VALUE_field2 WHERE (field3 = :val3) AND (field4 = field5);',
+            'UPDATE "foo_entity" SET "field1" = :UPDATE_VALUE_field1,"field2" = :UPDATE_VALUE_field2 WHERE ("field3" = :val3) AND ("field4" = "field5");',
             $queryBuilder->getUpdateByCriteriaSQL($fields)
         );
 
@@ -318,7 +318,7 @@ class PostgreSqlQueryBuilderTest extends ORMTestCase
             ->setEntityClass(Foo::class)
         ;
         $this->assertSameSQL(
-            'UPDATE foo_entity SET field1 = :UPDATE_VALUE_field1,field2 = :UPDATE_VALUE_field2 WHERE id = :id;',
+            'UPDATE "foo_entity" SET "field1" = :UPDATE_VALUE_field1,"field2" = :UPDATE_VALUE_field2 WHERE "id" = :id;',
             $queryBuilder->getUpdateByPrimaryKeySQL([
                 'field1' => 'val1',
                 'field2' => 'val2',
@@ -337,7 +337,7 @@ class PostgreSqlQueryBuilderTest extends ORMTestCase
             ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_UPDATE)
             ->setEntityClass(Foo::class)
         ;
-        $this->assertSameSQL('DELETE FROM foo_entity WHERE id = :id;', $queryBuilder->getDeleteByPrimaryKeySQL());
+        $this->assertSameSQL('DELETE FROM "foo_entity" WHERE "id" = :id;', $queryBuilder->getDeleteByPrimaryKeySQL());
     }
 
     /**
@@ -353,17 +353,17 @@ class PostgreSqlQueryBuilderTest extends ORMTestCase
         ;
 
         $this->assertSameSQL(
-            "DELETE FROM foo_entity",
+            "DELETE FROM \"foo_entity\"",
             $queryBuilder->getDeleteByCriteriaSQL()
         );
 
         $queryBuilder
             ->setParameter('baz', 2)
-            ->where('foo.bar = 1 AND foo.baz = :baz')
+            ->where('"foo"."bar" = 1 AND "foo"."baz" = :baz')
         ;
 
         $this->assertSameSQL(
-            "DELETE FROM foo_entity WHERE (foo.bar = 1 AND foo.baz = :baz)",
+            "DELETE FROM \"foo_entity\" WHERE (\"foo\".\"bar\" = 1 AND \"foo\".\"baz\" = :baz)",
             $queryBuilder->getDeleteByCriteriaSQL()
         );
     }
