@@ -55,6 +55,16 @@ abstract class Entity
     }
 
     /**
+     * Force all fields to be updated when update or insert event if the values have not been set with the setters.
+     */
+    public function forceUpdateFields()
+    {
+        foreach($this->dataSetterUsed as $key => $value) {
+            $this->dataSetterUsed[$key] = true;
+        }
+    }
+
+    /**
      * @param string $propName
      * @return string
      */
