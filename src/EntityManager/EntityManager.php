@@ -215,7 +215,7 @@ abstract class EntityManager
             $entity
                 ->resetDataSetterUsed()
                 ->resetCachedReturnedObject()
-                ->initProperties($query->fetchOne())
+                ->initProperties((array)$query->fetchOne())
             ;
         }
     }
