@@ -138,7 +138,7 @@ class PostgreSqlTableStructureRetriever extends TableStructureRetrieverAbstract
             FROM   pg_index i
             JOIN   pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey)
             JOIN   pg_class c ON c.oid = i.indexrelid
-            JOIN   INFORMATION_SCHEMA.COLUMNS isc ON isc.column_name = a.attname
+            JOIN   INFORMATION_SCHEMA.COLUMNS isc ON (isc.column_name = a.attname AND isc.table_name = '$tableName')
             WHERE  i.indrelid = '$tableName'::regclass AND NOT i.indisprimary AND isc.table_schema = 'public';
         ";
 
