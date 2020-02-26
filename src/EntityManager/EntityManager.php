@@ -72,8 +72,9 @@ abstract class EntityManager
 
     /**
      * @param Entity|Entity[] $entities
+     * @param bool $refreshEntities If true, a SELECT with be made just after the insert to refresh the entities. Usefull if some fields have a function as default value in the table structure.
      */
-    public function insert($entities)
+    public function insert($entities, bool $refreshEntities = false)
     {
         if(!is_array($entities)) {
             $entities = [$entities];
@@ -112,13 +113,16 @@ abstract class EntityManager
             }
         }
 
-        $this->refresh($entities);
+        if($refreshEntities) {
+            $this->refresh($entities);
+        }
     }
 
     /**
      * @param Entity|Entity[] $entities
+     * @param bool $refreshEntities If true, a SELECT with be made just after the insert to refresh the entities. Usefull if some fields have a function as default value in the table structure.
      */
-    public function update($entities)
+    public function update($entities, bool $refreshEntities = false)
     {
         if(!is_array($entities)) {
             $entities = [$entities];
@@ -152,7 +156,9 @@ abstract class EntityManager
             $query->execute();
         }
 
-        $this->refresh($entities);
+        if($refreshEntities) {
+            $this->refresh($entities);
+        }
     }
 
     /**
