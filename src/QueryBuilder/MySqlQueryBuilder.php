@@ -79,7 +79,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
 
         foreach($fields as $fieldName => $value) {
 
-            $this->checkUpdateFieldName($fieldName);
+            $this->checkFieldNameFormat($fieldName);
 
             $sqlFields .= ($sqlFields ? ",\n" : '') . "`$fieldName`";
             $sqlValues .= ($sqlValues ? ",\n" : '') . ":$fieldName";
@@ -109,7 +109,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         $sqlSet = '';
 
         foreach($fields as $fieldName => $value) {
-            $this->checkUpdateFieldName($fieldName);
+            $this->checkFieldNameFormat($fieldName);
             $sqlSet .= ($sqlSet ? ",\n" : '') . "`$fieldName` = :UPDATE_VALUE_$fieldName";
         }
         $sqlSet = " SET \n" . $sqlSet . " ";
@@ -137,7 +137,7 @@ class MySqlQueryBuilder extends QueryBuilderAbstract
         $sqlSet = '';
 
         foreach($fields as $fieldName => $value) {
-            $this->checkUpdateFieldName($fieldName);
+            $this->checkFieldNameFormat($fieldName);
 
             if($value instanceof Expr) {
                 $sqlSet .= ($sqlSet ? ",\n" : '') . "`$fieldName` = " . $value->getExpr($fieldName, '`');

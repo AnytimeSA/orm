@@ -376,7 +376,7 @@ abstract class QueryBuilderAbstract implements QueryBuilderInterface
     /**
      * @param string $fieldName
      */
-    protected function checkUpdateFieldName($fieldName)
+    protected function checkFieldNameFormat($fieldName)
     {
         if(is_numeric($fieldName)) {
             throw new \InvalidArgumentException('Invalid field name "'.$fieldName.'".');
