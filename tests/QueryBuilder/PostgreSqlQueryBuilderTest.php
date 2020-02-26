@@ -151,7 +151,7 @@ class PostgreSqlQueryBuilderTest extends ORMTestCase
             ->setQueryType(QueryBuilderAbstract::QUERY_TYPE_INSERT)
             ->setEntityClass(Foo::class)
         ;
-        $this->assertSame("INSERT INTO foo_entity\nVALUES ();", $queryBuilder->getInsertSQL([]));
+        $this->assertSame("INSERT INTO foo_entity\nDEFAULT VALUES;", $queryBuilder->getInsertSQL([]));
     }
 
     /**

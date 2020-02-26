@@ -106,6 +106,7 @@ class ORMTestCase extends TestCase
         $queryBuilderMockBuilder->setEntityClass(Argument::any())->willReturn($queryBuilderMockBuilder->reveal());
         $queryBuilderMockBuilder->getFindByPrimaryKeySQLWhere(Argument::any())->willReturn('SELECT 1');
         $queryBuilderMockBuilder->where(Argument::any())->willReturn($this->prophesize(QueryBuilderAbstract::class)->reveal());
+        $queryBuilderMockBuilder->from(Argument::any())->willReturn($this->prophesize(QueryBuilderAbstract::class)->reveal());
         $queryBuilderMockBuilder->setParameters(Argument::any())->willReturn($this->prophesize(QueryBuilderAbstract::class)->reveal());
         $queryBuilderMockBuilder->setParameters(Argument::any())->willReturn($this->prophesize(QueryBuilderAbstract::class)->reveal());
 
