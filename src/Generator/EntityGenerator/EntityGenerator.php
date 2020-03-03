@@ -138,6 +138,7 @@ class EntityGenerator implements EntityGeneratorInterface
             $nullable = array_key_exists('allowNull', $fieldStruct) ? $fieldStruct['allowNull'] : false;
             $default = array_key_exists('defaultValue', $fieldStruct) ? $fieldStruct['defaultValue'] : null;
             $isPrimary = array_key_exists('keyType', $fieldStruct) && $fieldStruct['keyType'] === 'PRI' ? true : false;
+            $dateForrmat =  array_key_exists('dateFormat', $fieldStruct) ? $fieldStruct['dateFormat'] : 'Y-m-d H:i:s';
 
             if ($isPrimary) {
                 $primaryKeys .= ($primaryKeys ? "','" : '') . $fieldName;
@@ -193,7 +194,7 @@ class EntityGenerator implements EntityGeneratorInterface
                 }
 
                 $gettersSettersSourceCode .= '            $this->dataSetterUsed[\''. $fieldName .'\'] = true;'."\n";
-                $gettersSettersSourceCode .= '            $this->data[\''. $fieldName .'\'] = $' . $propertyName. '->format(\'Y-m-d H:i:s\');'."\n";
+                $gettersSettersSourceCode .= '            $this->data[\''. $fieldName .'\'] = $' . $propertyName. '->format(\''.$dateForrmat.'\');'."\n";
                 $gettersSettersSourceCode .= '            $this->cachedReturnedObject[__METHOD__] = $'.$propertyName.';'."\n";
 
                 if($nullable) {
