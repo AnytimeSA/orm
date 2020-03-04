@@ -34,8 +34,12 @@ class UpdateQuery extends QueryAbstract implements UpdateQueryInterface
      */
     public function execute(): int
     {
-        $this->PDOStatement->execute($this->parameters);
+        $this->bindParams();
+        $this->PDOStatement->execute();
         $this->throwPdoError($this->PDOStatement);
         return $this->PDOStatement->rowCount();
     }
+
+
+
 }

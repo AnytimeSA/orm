@@ -66,6 +66,37 @@ class QueryAbstract
     }
 
     /**
+     * @return void
+     */
+    protected function bindParams()
+    {
+        $pdoParamType = null;
+
+        foreach($this->parameters as $param => $value) {
+            $type = gettype($value);
+
+            if(is_null($value)) {
+                $pdoParamType = \PDO::PARAM_NULL;
+            } else {
+                switch($type) {
+                    case 'integer': $pdoParamType = \PDO::PARAM_INT; break;
+                    case 'boolean':
+                        $pdoParamType = \PDO::PARAM_BOOL;
+                        break;
+                    default: $pdoParamType = \PDO::PARAM_STR;
+                }
+            }
+
+
+            $this->PDOStatement->bindValue(
+                gettype($param) === 'integer' ? ($param+1) : ':'.$param,
+                $value,
+                $pdoParamType
+            );
+        }
+    }
+
+    /**
      * @param \PDOStatement $PDOStatement
      */
     protected function throwPdoError(\PDOStatement $PDOStatement)
