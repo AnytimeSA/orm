@@ -174,8 +174,8 @@ class PostgreSqlTableStructureRetriever extends TableStructureRetrieverAbstract
     {
         $patterns = [
             'float'     =>  '(numeric|float8|double precision|real|float4)',
-            'bool'      =>  '(bit|boolean|bool)',
-            'int'       =>  '(varbit|bit varying|smallint|int2|int|integer|int4|bigint|int8|smallserial|serial2|serial|serial4|bigserial|serial8)',
+            'bool'      =>  '(boolean|bool)',
+            'int'       =>  '(bit|varbit|bit varying|smallint|int2|int|integer|int4|bigint|int8|smallserial|serial2|serial|serial4|bigserial|serial8)',
             'date'      =>  '(date|timestamptz|timetz|time|timestamp|time with time zone|time without time zone|timestamp with time zone|timestamp without time zone)'
         ];
 
